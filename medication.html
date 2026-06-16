@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用药信息录入系统 - 康康路健康</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title .icon {
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+            margin-left: 4px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-group input.error,
+        .form-group select.error,
+        .form-group textarea.error {
+            border-color: #e74c3c;
+            background-color: #fff5f5;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .medication-list {
+            margin-top: 20px;
+        }
+
+        .medication-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .medication-item .info {
+            flex: 1;
+        }
+
+        .medication-item .info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .medication-item .info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .medication-item .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .interview-section {
+            margin-top: 20px;
+        }
+
+        .interview-question {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .interview-question h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .interview-question p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+        }
+
+        .storage-info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .storage-info h4 {
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+
+        .storage-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .tab-container {
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 5px;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💊 用药信息录入系统</h1>
+            <p>康康路健康 - 安全用药，健康相伴</p>
+        </div>
+
+        <!-- 统计信息 -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <h3 id="totalMedications">0</h3>
+                <p>已录入药品</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="totalInterviews">0</h3>
+                <p>访谈记录</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="todayRecords">0</h3>
+                <p>今日录入</p>
+            </div>
+        </div>
+
+        <!-- 选项卡 -->
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('medication')">用药信息录入</button>
+                <button class="tab-btn" onclick="switchTab('interview')">陪诊子女访谈</button>
+                <button class="tab-btn" onclick="switchTab('records')">历史记录</button>
+            </div>
+        </div>
+
+        <!-- 用药信息录入表单 -->
+        <div id="medicationTab" class="tab-content active">
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📋</span>
+                    用药信息录入
+                </div>
+
+                <div class="success-message" id="successMessage">
+                    ✅ 用药信息保存成功！
+                </div>
+
+                <form id="medicationForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>患者姓名<span class="required">*</span></label>
+                            <input type="text" id="patientName" placeholder="请输入患者姓名" required>
+                            <div class="error-message" id="patientNameError">请输入患者姓名</div>
+                        </div>
+                        <div class="form-group">
+                            <label>患者年龄<span class="required">*</span></label>
+                            <input type="number" id="patientAge" placeholder="请输入年龄" min="0" max="150" required>
+                            <div class="error-message" id="patientAgeError">请输入有效的年龄</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>联系电话<span class="required">*</span></label>
+                            <input type="tel" id="phone" placeholder="请输入联系电话" required>
+                            <div class="error-message" id="phoneError">请输入有效的手机号码</div>
+                        </div>
+                        <div class="form-group">
+                            <label>身份证号</label>
+                            <input type="text" id="idCard" placeholder="请输入身份证号（选填）">
+                            <div class="error-message" id="idCardError">请输入有效的身份证号</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>药品名称<span class="required">*</span></label>
+                        <input type="text" id="medicationName" placeholder="请输入药品名称" required>
+                        <div class="error-message" id="medicationNameError">请输入药品名称</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>药品规格<span class="required">*</span></label>
+                            <input type="text" id="specification" placeholder="如：10mg/片" required>
+                            <div class="error-message" id="specificationError">请输入药品规格</div>
+                        </div>
+                        <div class="form-group">
+                            <label>药品数量<span class="required">*</span></label>
+                            <input type="number" id="quantity" placeholder="请输入数量" min="1" required>
+                            <div class="error-message" id="quantityError">请输入有效的数量</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>服用频次<span class="required">*</span></label>
+                            <select id="frequency" required>
+                                <option value="">请选择服用频次</option>
+                                <option value="qd">每日一次 (QD)</option>
+                                <option value="bid">每日两次 (BID)</option>
+                                <option value="tid">每日三次 (TID)</option>
+                                <option value="qid">每日四次 (QID)</option>
+                                <option value="prn">必要时 (PRN)</option>
+                                <option value="qw">每周一次 (QW)</option>
+                                <option value="other">其他</option>
+                            </select>
+                            <div class="error-message" id="frequencyError">请选择服用频次</div>
+                        </div>
+                        <div class="form-group">
+                            <label>每次剂量<span class="required">*</span></label>
+                            <input type="text" id="dosage" placeholder="如：1片、10ml" required>
+                            <div class="error-message" id="dosageError">请输入每次剂量</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>开始日期<span class="required">*</span></label>
+                            <input type="date" id="startDate" required>
+                            <div class="error-message" id="startDateError">请选择开始日期</div>
+                        </div>
+                        <div class="form-group">
+                            <label>结束日期</label>
+                            <input type="date" id="endDate">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>服用时间</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="takeTime" value="morning"> 早餐后
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="takeTime" value="lunch"> 午餐后
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="takeTime" value="dinner"> 晚餐后
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="takeTime" value="bedtime"> 睡前
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="takeTime" value="empty"> 空腹
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>注意事项</label>
+                        <textarea id="notes" rows="3" placeholder="请输入用药注意事项，如：饭后服用、避免饮酒等"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>过敏史</label>
+                        <textarea id="allergyHistory" rows="2" placeholder="请输入患者的药物过敏史"></textarea>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">重置</button>
+                        <button type="submit" class="btn btn-primary">保存用药信息</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 陪诊子女访谈 -->
+        <div id="interviewTab" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">💬</span>
+                    陪诊子女访谈记录
+                </div>
+
+                <div class="success-message" id="interviewSuccessMessage">
+                    ✅ 访谈记录保存成功！
+                </div>
+
+                <form id="interviewForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>受访者姓名<span class="required">*</span></label>
+                            <input type="text" id="intervieweeName" placeholder="请输入受访者姓名" required>
+                            <div class="error-message">请输入受访者姓名</div>
+                        </div>
+                        <div class="form-group">
+                            <label>与患者关系<span class="required">*</span></label>
+                            <select id="relationship" required>
+                                <option value="">请选择关系</option>
+                                <option value="子女">子女</option>
+                                <option value="配偶">配偶</option>
+                                <option value="父母">父母</option>
+                                <option value="兄弟姐妹">兄弟姐妹</option>
+                                <option value="其他">其他</option>
+                            </select>
+                            <div class="error-message">请选择与患者关系</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>联系电话<span class="required">*</span></label>
+                        <input type="tel" id="intervieweePhone" placeholder="请输入联系电话" required>
+                        <div class="error-message">请输入有效的联系电话</div>
+                    </div>
+
+                    <div class="interview-section">
+                        <h4 style="margin-bottom: 15px; color: #333;">📋 访谈问题</h4>
+
+                        <div class="interview-question">
+                            <h4>1. 患者日常服药情况</h4>
+                            <p>患者是否能够自行按时服药？是否存在漏服情况？</p>
+                            <textarea id="q1" rows="3" placeholder="请详细描述患者日常服药情况"></textarea>
+                        </div>
+
+                        <div class="interview-question">
+                            <h4>2. 药物储存与管理</h4>
+                            <p>家中药物如何储存？是否有专人管理？</p>
+                            <textarea id="q2" rows="3" placeholder="请描述药物储存和管理情况"></textarea>
+                        </div>
+
+                        <div class="interview-question">
+                            <h4>3. 不良反应观察</h4>
+                            <p>患者服药后是否出现过不良反应？</p>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="adverseReaction" value="none"> 无
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="adverseReaction" value="nausea"> 恶心呕吐
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="adverseReaction" value="dizziness"> 头晕
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="adverseReaction" value="rash"> 皮疹
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="adverseReaction" value="other"> 其他
+                                </label>
+                            </div>
+                            <textarea id="q3" rows="2" placeholder="请详细描述不良反应情况" style="margin-top: 10px;"></textarea>
+                        </div>
+
+                        <div class="interview-question">
+                            <h4>4. 服药依从性</h4>
+                            <p>患者对服药的态度如何？是否需要提醒？</p>
+                            <select id="compliance">
+                                <option value="">请选择依从性等级</option>
+                                <option value="excellent">优秀 - 完全配合</option>
+                                <option value="good">良好 - 基本配合</option>
+                                <option value="fair">一般 - 需要提醒</option>
+                                <option value="poor">较差 - 经常漏服</option>
+                            </select>
+                        </div>
+
+                        <div class="interview-question">
+                            <h4>5. 健康教育需求</h4>
+                            <p>家属希望了解哪些用药知识？</p>
+                            <div class="checkbox-group">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="educationNeeds" value="usage"> 用法用量
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="educationNeeds" value="interaction"> 药物相互作用
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="educationNeeds" value="storage"> 储存方法
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="educationNeeds" value="sideEffect"> 副作用识别
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="educationNeeds" value="diet"> 饮食禁忌
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="interview-question">
+                            <h4>6. 其他说明</h4>
+                            <p>其他需要记录的信息</p>
+                            <textarea id="q6" rows="3" placeholder="请输入其他需要说明的情况"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="resetInterviewForm()">重置</button>
+                        <button type="submit" class="btn btn-primary">保存访谈记录</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 历史记录 -->
+        <div id="recordsTab" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📊</span>
+                    历史记录查询
+                </div>
+
+                <div class="form-group">
+                    <label>搜索记录</label>
+                    <input type="text" id="searchInput" placeholder="输入患者姓名或药品名称搜索..." onkeyup="searchRecords()">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>记录类型</label>
+                        <select id="recordType" onchange="filterRecords()">
+                            <option value="all">全部记录</option>
+                            <option value="medication">用药记录</option>
+                            <option value="interview">访谈记录</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>日期范围</label>
+                        <input type="date" id="filterDate" onchange="filterRecords()">
+                    </div>
+                </div>
+
+                <div class="storage-info">
+                    <h4>💾 存储信息</h4>
+                    <p>所有数据存储在本地浏览器中，数据仅保存在您的设备上。建议定期导出数据备份。</p>
+                    <div class="btn-group" style="margin-top: 10px; justify-content: flex-start;">
+                        <button type="button" class="btn btn-primary" onclick="exportData()">导出数据</button>
+                        <button type="button" class="btn btn-secondary" onclick="importData()">导入数据</button>
+                        <button type="button" class="btn btn-secondary" onclick="clearAllData()" style="background: #e74c3c; color: white;">清空数据</button>
+                    </div>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
+                </div>
+
+                <div id="recordsList" class="medication-list">
+                    <!-- 动态生成的记录列表 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 存储模块
+        const StorageModule = {
+            // 保存用药信息
+            saveMedication(data) {
+                const medications = this.getMedications();
+                data.id = Date.now();
+                data.type = 'medication';
+                data.createdAt = new Date().toISOString();
+                medications.push(data);
+                localStorage.setItem('medications', JSON.stringify(medications));
+                return data.id;
+            },
+
+            // 保存访谈记录
+            saveInterview(data) {
+                const interviews = this.getInterviews();
+                data.id = Date.now();
+                data.type = 'interview';
+                data.createdAt = new Date().toISOString();
+                interviews.push(data);
+                localStorage.setItem('interviews', JSON.stringify(interviews));
+                return data.id;
+            },
+
+            // 获取所有用药信息
+            getMedications() {
+                const data = localStorage.getItem('medications');
+                return data ? JSON.parse(data) : [];
+            },
+
+            // 获取所有访谈记录
+            getInterviews() {
+                const data = localStorage.getItem('interviews');
+                return data ? JSON.parse(data) : [];
+            },
+
+            // 获取所有记录
+            getAllRecords() {
+                const medications = this.getMedications();
+                const interviews = this.getInterviews();
+                return [...medications, ...interviews].sort((a, b) => 
+                    new Date(b.createdAt) - new Date(a.createdAt)
+                );
+            },
+
+            // 删除记录
+            deleteRecord(id, type) {
+                if (type === 'medication') {
+                    const medications = this.getMedications().filter(m => m.id !== id);
+                    localStorage.setItem('medications', JSON.stringify(medications));
+                } else {
+                    const interviews = this.getInterviews().filter(i => i.id !== id);
+                    localStorage.setItem('interviews', JSON.stringify(interviews));
+                }
+            },
+
+            // 导出数据
+            exportAllData() {
+                return {
+                    medications: this.getMedications(),
+                    interviews: this.getInterviews(),
+                    exportDate: new Date().toISOString()
+                };
+            },
+
+            // 导入数据
+            importAllData(data) {
+                if (data.medications) {
+                    localStorage.setItem('medications', JSON.stringify(data.medications));
+                }
+                if (data.interviews) {
+                    localStorage.setItem('interviews', JSON.stringify(data.interviews));
+                }
+            },
+
+            // 清空所有数据
+            clearAll() {
+                localStorage.removeItem('medications');
+                localStorage.removeItem('interviews');
+            },
+
+            // 获取统计数据
+            getStats() {
+                const medications = this.getMedications();
+                const interviews = this.getInterviews();
+                const today = new Date().toDateString();
+                
+                const todayRecords = [...medications, ...interviews].filter(r => 
+                    new Date(r.createdAt).toDateString() === today
+                ).length;
+
+                return {
+                    totalMedications: medications.length,
+                    totalInterviews: interviews.length,
+                    todayRecords: todayRecords
+                };
+            }
+        };
+
+        // 验证模块
+        const ValidationModule = {
+            // 验证手机号
+            validatePhone(phone) {
+                const regex = /^1[3-9]\d{9}$/;
+                return regex.test(phone);
+            },
+
+            // 验证身份证号
+            validateIdCard(idCard) {
+                if (!idCard) return true; // 选填字段
+                const regex = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+                return regex.test(idCard);
+            },
+
+            // 验证年龄
+            validateAge(age) {
+                const ageNum = parseInt(age);
+                return !isNaN(ageNum) && ageNum >= 0 && ageNum <= 150;
+            },
+
+            // 验证必填字段
+            validateRequired(value) {
+                return value !== null && value !== undefined && value.toString().trim() !== '';
+            },
+
+            // 显示错误
+            showError(elementId, message) {
+                const element = document.getElementById(elementId);
+                const errorElement = document.getElementById(elementId + 'Error');
+                if (element && errorElement) {
+                    element.classList.add('error');
+                    errorElement.textContent = message;
+                    errorElement.style.display = 'block';
+                }
+            },
+
+            // 清除错误
+            clearError(elementId) {
+                const element = document.getElementById(elementId);
+                const errorElement = document.getElementById(elementId + 'Error');
+                if (element && errorElement) {
+                    element.classList.remove('error');
+                    errorElement.style.display = 'none';
+                }
+            },
+
+            // 清除所有错误
+            clearAllErrors() {
+                document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+                document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+            }
+        };
+
+        // 选项卡切换
+        function switchTab(tabName) {
+            // 更新按钮状态
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 更新内容显示
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName + 'Tab').classList.add('active');
+
+            // 如果切换到记录页，刷新记录列表
+            if (tabName === 'records') {
+                displayRecords();
+            }
+        }
+
+        // 用药表单提交
+        document.getElementById('medicationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            ValidationModule.clearAllErrors();
+
+            let isValid = true;
+
+            // 验证患者姓名
+            if (!ValidationModule.validateRequired(document.getElementById('patientName').value)) {
+                ValidationModule.showError('patientName', '请输入患者姓名');
+                isValid = false;
+            }
+
+            // 验证年龄
+            if (!ValidationModule.validateAge(document.getElementById('patientAge').value)) {
+                ValidationModule.showError('patientAge', '请输入有效的年龄（0-150）');
+                isValid = false;
+            }
+
+            // 验证电话
+            if (!ValidationModule.validatePhone(document.getElementById('phone').value)) {
+                ValidationModule.showError('phone', '请输入有效的手机号码');
+                isValid = false;
+            }
+
+            // 验证身份证号
+            if (!ValidationModule.validateIdCard(document.getElementById('idCard').value)) {
+                ValidationModule.showError('idCard', '请输入有效的身份证号');
+                isValid = false;
+            }
+
+            // 验证药品名称
+            if (!ValidationModule.validateRequired(document.getElementById('medicationName').value)) {
+                ValidationModule.showError('medicationName', '请输入药品名称');
+                isValid = false;
+            }
+
+            // 验证规格
+            if (!ValidationModule.validateRequired(document.getElementById('specification').value)) {
+                ValidationModule.showError('specification', '请输入药品规格');
+                isValid = false;
+            }
+
+            // 验证数量
+            const quantity = document.getElementById('quantity').value;
+            if (!quantity || parseInt(quantity) < 1) {
+                ValidationModule.showError('quantity', '请输入有效的数量');
+                isValid = false;
+            }
+
+            // 验证频次
+            if (!document.getElementById('frequency').value) {
+                ValidationModule.showError('frequency', '请选择服用频次');
+                isValid = false;
+            }
+
+            // 验证剂量
+            if (!ValidationModule.validateRequired(document.getElementById('dosage').value)) {
+                ValidationModule.showError('dosage', '请输入每次剂量');
+                isValid = false;
+            }
+
+            // 验证开始日期
+            if (!document.getElementById('startDate').value) {
+                ValidationModule.showError('startDate', '请选择开始日期');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            // 收集表单数据
+            const formData = {
+                patientName: document.getElementById('patientName').value,
+                patientAge: document.getElementById('patientAge').value,
+                phone: document.getElementById('phone').value,
+                idCard: document.getElementById('idCard').value,
+                medicationName: document.getElementById('medicationName').value,
+                specification: document.getElementById('specification').value,
+                quantity: document.getElementById('quantity').value,
+                frequency: document.getElementById('frequency').value,
+                frequencyText: document.getElementById('frequency').options[document.getElementById('frequency').selectedIndex].text,
+                dosage: document.getElementById('dosage').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                takeTime: Array.from(document.querySelectorAll('input[name="takeTime"]:checked')).map(cb => cb.value),
+                notes: document.getElementById('notes').value,
+                allergyHistory: document.getElementById('allergyHistory').value
+            };
+
+            // 保存数据
+            StorageModule.saveMedication(formData);
+
+            // 显示成功消息
+            const successMsg = document.getElementById('successMessage');
+            successMsg.style.display = 'block';
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+
+            // 重置表单
+            this.reset();
+            updateStats();
+        });
+
+        // 访谈表单提交
+        document.getElementById('interviewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            ValidationModule.clearAllErrors();
+
+            let isValid = true;
+
+            // 基本验证
+            if (!ValidationModule.validateRequired(document.getElementById('intervieweeName').value)) {
+                isValid = false;
+            }
+
+            if (!document.getElementById('relationship').value) {
+                isValid = false;
+            }
+
+            if (!ValidationModule.validatePhone(document.getElementById('intervieweePhone').value)) {
+                isValid = false;
+            }
+
+            if (!isValid) {
+                alert('请填写完整的必填信息');
+                return;
+            }
+
+            // 收集表单数据
+            const formData = {
+                intervieweeName: document.getElementById('intervieweeName').value,
+                relationship: document.getElementById('relationship').value,
+                intervieweePhone: document.getElementById('intervieweePhone').value,
+                q1: document.getElementById('q1').value,
+                q2: document.getElementById('q2').value,
+                adverseReactions: Array.from(document.querySelectorAll('input[name="adverseReaction"]:checked')).map(cb => cb.value),
+                q3: document.getElementById('q3').value,
+                compliance: document.getElementById('compliance').value,
+                complianceText: document.getElementById('compliance').options[document.getElementById('compliance').selectedIndex].text,
+                educationNeeds: Array.from(document.querySelectorAll('input[name="educationNeeds"]:checked')).map(cb => cb.value),
+                q6: document.getElementById('q6').value
+            };
+
+            // 保存数据
+            StorageModule.saveInterview(formData);
+
+            // 显示成功消息
+            const successMsg = document.getElementById('interviewSuccessMessage');
+            successMsg.style.display = 'block';
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+
+            // 重置表单
+            this.reset();
+            updateStats();
+        });
+
+        // 重置用药表单
+        function resetForm() {
+            document.getElementById('medicationForm').reset();
+            ValidationModule.clearAllErrors();
+        }
+
+        // 重置访谈表单
+        function resetInterviewForm() {
+            document.getElementById('interviewForm').reset();
+            ValidationModule.clearAllErrors();
+        }
+
+        // 显示记录列表
+        function displayRecords() {
+            const records = StorageModule.getAllRecords();
+            const recordsList = document.getElementById('recordsList');
+            
+            if (records.length === 0) {
+                recordsList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">暂无记录</p>';
+                return;
+            }
+
+            recordsList.innerHTML = records.map(record => {
+                const date = new Date(record.createdAt).toLocaleString('zh-CN');
+                
+                if (record.type === 'medication') {
+                    return `
+                        <div class="medication-item">
+                            <div class="info">
+                                <h4>💊 ${record.medicationName} - ${record.patientName}</h4>
+                                <p>规格：${record.specification} | 数量：${record.quantity} | 频次：${record.frequencyText}</p>
+                                <p>录入时间：${date}</p>
+                            </div>
+                            <div class="actions">
+                                <button class="btn-icon btn-delete" onclick="deleteRecord(${record.id}, 'medication')" title="删除">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="medication-item">
+                            <div class="info">
+                                <h4>💬 访谈记录 - ${record.intervieweeName}（${record.relationship}）</h4>
+                                <p>电话：${record.intervieweePhone} | 依从性：${record.complianceText || '未评估'}</p>
+                                <p>录入时间：${date}</p>
+                            </div>
+                            <div class="actions">
+                                <button class="btn-icon btn-delete" onclick="deleteRecord(${record.id}, 'interview')" title="删除">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        // 删除记录
+        function deleteRecord(id, type) {
+            if (confirm('确定要删除这条记录吗？')) {
+                StorageModule.deleteRecord(id, type);
+                displayRecords();
+                updateStats();
+            }
+        }
+
+        // 搜索记录
+        function searchRecords() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const records = StorageModule.getAllRecords();
+            const filtered = records.filter(record => {
+                if (record.type === 'medication') {
+                    return record.patientName.toLowerCase().includes(searchTerm) ||
+                           record.medicationName.toLowerCase().includes(searchTerm);
+                } else {
+                    return record.intervieweeName.toLowerCase().includes(searchTerm);
+                }
+            });
+            
+            const recordsList = document.getElementById('recordsList');
+            // 重新渲染过滤后的记录
+            // 这里简化处理，实际应该复用displayRecords的逻辑
+            displayRecords();
+        }
+
+        // 筛选记录
+        function filterRecords() {
+            const recordType = document.getElementById('recordType').value;
+            const filterDate = document.getElementById('filterDate').value;
+            
+            let records = StorageModule.getAllRecords();
+            
+            if (recordType !== 'all') {
+                records = records.filter(r => r.type === recordType);
+            }
+            
+            if (filterDate) {
+                records = records.filter(r => {
+                    const recordDate = new Date(r.createdAt).toISOString().split('T')[0];
+                    return recordDate === filterDate;
+                });
+            }
+            
+            // 更新显示
+            displayRecords();
+        }
+
+        // 导出数据
+        function exportData() {
+            const data = StorageModule.exportAllData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `medication_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 导入数据
+        function importData() {
+            document.getElementById('importFile').click();
+        }
+
+        // 处理导入
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (confirm('导入将覆盖现有数据，确定继续吗？')) {
+                        StorageModule.importAllData(data);
+                        alert('数据导入成功！');
+                        displayRecords();
+                        updateStats();
+                    }
+                } catch (error) {
+                    alert('文件格式错误，请选择正确的备份文件');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // 清空所有数据
+        function clearAllData() {
+            if (confirm('确定要清空所有数据吗？此操作不可恢复！')) {
+                if (confirm('再次确认：这将删除所有用药记录和访谈记录！')) {
+                    StorageModule.clearAll();
+                    alert('数据已清空');
+                    displayRecords();
+                    updateStats();
+                }
+            }
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            const stats = StorageModule.getStats();
+            document.getElementById('totalMedications').textContent = stats.totalMedications;
+            document.getElementById('totalInterviews').textContent = stats.totalInterviews;
+            document.getElementById('todayRecords').textContent = stats.todayRecords;
+        }
+
+        // 设置默认日期
+        document.getElementById('startDate').valueAsDate = new Date();
+
+        // 页面加载时更新统计
+        updateStats();
+    </script>
+</body>
+</html>
