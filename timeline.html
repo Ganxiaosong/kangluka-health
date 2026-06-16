@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>康录卡 - 健康档案时间轴</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 筛选按钮 */
+        .filter-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .filter-btn.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+            color: white;
+        }
+
+        /* 时间轴容器 */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e0e0e0;
+        }
+
+        /* 时间轴项 */
+        .timeline-item {
+            position: relative;
+            margin-bottom: 25px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 时间轴节点 */
+        .timeline-dot {
+            position: absolute;
+            left: -25px;
+            top: 25px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+        }
+
+        .timeline-item.medication .timeline-dot {
+            background: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
+        }
+
+        .timeline-item.visit .timeline-dot {
+            background: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+        }
+
+        .timeline-item.checkup .timeline-dot {
+            background: #FF9800;
+            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.3);
+        }
+
+        /* 标签 */
+        .record-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .tag-medication {
+            background: rgba(33, 150, 243, 0.1);
+            color: #2196F3;
+        }
+
+        .tag-visit {
+            background: rgba(76, 175, 80, 0.1);
+            color: #4CAF50;
+        }
+
+        .tag-checkup {
+            background: rgba(255, 152, 0, 0.1);
+            color: #FF9800;
+        }
+
+        /* 内容 */
+        .record-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .record-content {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .record-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #e8f5e9 0%, #f3e5f5 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .empty-desc {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 20px;
+        }
+
+        .empty-btn {
+            padding: 10px 30px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .empty-btn:hover {
+            background: #45a049;
+        }
+
+        /* 访谈记录区域 */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        .interview-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .interview-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .doctor-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .doctor-info {
+            flex: 1;
+        }
+
+        .doctor-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .doctor-title {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .interview-content {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .interview-date {
+            font-size: 12px;
+            color: #999;
+            margin-top: 12px;
+            text-align: right;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: #4CAF50;
+        }
+
+        .nav-icon {
+            font-size: 22px;
+        }
+
+        .nav-text {
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .timeline {
+                padding-left: 25px;
+            }
+            
+            .timeline-dot {
+                left: -20px;
+            }
+            
+            .filter-btn {
+                padding: 8px 15px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>康录卡</h1>
+        <p>健康档案 · 守护您的健康</p>
+    </div>
+
+    <div class="container">
+        <!-- 筛选栏 -->
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">全部记录</button>
+            <button class="filter-btn" data-filter="medication">用药记录</button>
+            <button class="filter-btn" data-filter="visit">就诊记录</button>
+            <button class="filter-btn" data-filter="checkup">检查记录</button>
+        </div>
+
+        <!-- 时间轴区域 -->
+        <div class="timeline" id="timeline">
+            <!-- 记录项会通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 空状态 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-icon">📝</div>
+            <div class="empty-title">暂无健康记录</div>
+            <div class="empty-desc">点击下方按钮开始记录您的健康数据</div>
+            <button class="empty-btn">立即录入</button>
+        </div>
+
+        <!-- 访谈记录区域 -->
+        <div class="section-title">👩⚕️ 社区医生访谈记录</div>
+        
+        <div class="interview-card">
+            <div class="interview-header">
+                <div class="doctor-avatar">张</div>
+                <div class="doctor-info">
+                    <div class="doctor-name">张医生</div>
+                    <div class="doctor-title">社区卫生服务中心 · 主任医师</div>
+                </div>
+            </div>
+            <div class="interview-content">
+                <strong>问：</strong>请问目前社区居民慢病管理的主要痛点是什么？<br><br>
+                <strong>答：</strong>目前居民慢病管理存在几个主要问题。第一，患者依从性差，很多人不能按时服药和复诊。第二，信息碎片化，居民在不同医院就诊的记录无法共享，导致重复检查。第三，缺乏有效的健康干预手段，医生很难持续跟踪患者的健康状况。数字化健康档案系统可以很好地解决这些问题。
+            </div>
+            <div class="interview-date">访谈日期：2024年12月15日</div>
+        </div>
+
+        <div class="interview-card">
+            <div class="interview-header">
+                <div class="doctor-avatar">李</div>
+                <div class="doctor-info">
+                    <div class="doctor-name">李医生</div>
+                    <div class="doctor-title">社区卫生服务中心 · 副主任医师</div>
+                </div>
+            </div>
+            <div class="interview-content">
+                <strong>问：</strong>您认为理想的健康档案系统应该具备哪些功能？<br><br>
+                <strong>答：</strong>首先要有完整的个人健康信息管理，包括基本信息、病史、用药记录等。其次，需要用药提醒和复诊提醒功能，帮助患者按时服药和复诊。再次，数据分析功能很重要，可以帮助医生了解患者的健康趋势。最后，数据安全和隐私保护是重中之重，患者的健康信息必须严格保密。
+            </div>
+            <div class="interview-date">访谈日期：2024年12月18日</div>
+        </div>
+
+        <div class="interview-card">
+            <div class="interview-header">
+                <div class="doctor-avatar">王</div>
+                <div class="doctor-info">
+                    <div class="doctor-name">王医生</div>
+                    <div class="doctor-title">社区卫生服务中心 · 主治医师</div>
+                </div>
+            </div>
+            <div class="interview-content">
+                <strong>问：</strong>对于跨院病史整合，您有什么建议？<br><br>
+                <strong>答：</strong>跨院病史整合是一个非常有价值的方向。建议首先建立统一的数据标准，确保不同医院的数据能够互通。其次，可以采用区块链技术保证数据的安全性和不可篡改。最后，要获得患者的明确授权，确保数据使用的合法性和透明度。
+            </div>
+            <div class="interview-date">访谈日期：2024年12月20日</div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">首页</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">📝</span>
+            <span class="nav-text">录入</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">记录</span>
+        </div>
+    </div>
+
+    <script>
+        // Mock数据
+        const mockRecords = [
+            {
+                id: 1,
+                type: 'medication',
+                typeName: '用药记录',
+                title: '硝苯地平控释片',
+                content: '每日一次，每次1片，早餐后服用',
+                date: '2024-12-20',
+                time: '08:30'
+            },
+            {
+                id: 2,
+                type: 'visit',
+                typeName: '就诊记录',
+                title: '社区卫生服务中心复诊',
+                content: '血压控制良好，继续当前用药方案。建议每周监测血压2-3次。',
+                date: '2024-12-18',
+                time: '14:00'
+            },
+            {
+                id: 3,
+                type: 'checkup',
+                typeName: '检查记录',
+                title: '血常规检查',
+                content: '白细胞计数：6.5×10^9/L，红细胞计数：4.5×10^12/L，血红蛋白：135g/L',
+                date: '2024-12-15',
+                time: '09:00'
+            },
+            {
+                id: 4,
+                type: 'medication',
+                typeName: '用药记录',
+                title: '阿司匹林肠溶片',
+                content: '每日一次，每次100mg，睡前服用',
+                date: '2024-12-15',
+                time: '22:00'
+            },
+            {
+                id: 5,
+                type: 'visit',
+                typeName: '就诊记录',
+                title: '心内科专家门诊',
+                content: '调整用药方案，新增他汀类药物。建议低脂饮食，适量运动。',
+                date: '2024-12-10',
+                time: '10:30'
+            },
+            {
+                id: 6,
+                type: 'checkup',
+                typeName: '检查记录',
+                title: '心电图检查',
+                content: '窦性心律，心率72次/分，ST段正常',
+                date: '2024-12-08',
+                time: '11:00'
+            },
+            {
+                id: 7,
+                type: 'medication',
+                typeName: '用药记录',
+                title: '阿托伐他汀钙片',
+                content: '每日一次，每次20mg，晚餐后服用',
+                date: '2024-12-05',
+                time: '19:30'
+            },
+            {
+                id: 8,
+                type: 'visit',
+                typeName: '就诊记录',
+                title: '初次诊断',
+                content: '诊断为高血压2级，高血脂症。开具硝苯地平和阿司匹林。',
+                date: '2024-11-28',
+                time: '15:00'
+            }
+        ];
+
+        // 获取DOM元素
+        const timeline = document.getElementById('timeline');
+        const emptyState = document.getElementById('emptyState');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+
+        // 渲染记录
+        function renderRecords(filter = 'all') {
+            // 过滤数据
+            const filteredRecords = filter === 'all' 
+                ? mockRecords 
+                : mockRecords.filter(record => record.type === filter);
+
+            // 检查是否为空
+            if (filteredRecords.length === 0) {
+                timeline.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            timeline.style.display = 'block';
+            emptyState.style.display = 'none';
+
+            // 按日期倒序排序（已经是倒序，保持不变）
+            const sortedRecords = [...filteredRecords];
+
+            // 生成HTML
+            timeline.innerHTML = sortedRecords.map(record => {
+                const tagClass = `tag-${record.type}`;
+                return `
+                    <div class="timeline-item ${record.type}">
+                        <div class="timeline-dot"></div>
+                        <div class="record-tag ${tagClass}">${record.typeName}</div>
+                        <div class="record-title">${record.title}</div>
+                        <div class="record-content">${record.content}</div>
+                        <div class="record-meta">
+                            <div class="meta-item">
+                                <span>📅</span>
+                                <span>${record.date}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>🕐</span>
+                                <span>${record.time}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 筛选按钮事件
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 移除所有激活状态
+                filterButtons.forEach(b => b.classList.remove('active'));
+                // 添加当前按钮激活状态
+                btn.classList.add('active');
+                // 获取筛选类型
+                const filter = btn.dataset.filter;
+                // 重新渲染
+                renderRecords(filter);
+            });
+        });
+
+        // 初始化渲染
+        renderRecords('all');
+
+        // 空状态按钮点击
+        document.querySelector('.empty-btn').addEventListener('click', () => {
+            alert('跳转到录入页面');
+        });
+
+        // 底部导航点击
+        document.querySelectorAll('.nav-item').forEach((item, index) => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                
+                const pages = ['首页', '录入', '记录'];
+                alert(`跳转到${pages[index]}页面`);
+            });
+        });
+    </script>
+</body>
+</html>
