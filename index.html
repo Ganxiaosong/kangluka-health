@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>康录卡 - 健康档案时间轴</title>
+    <title>康录卡 - 个人健康信息管理</title>
     <style>
         * {
             margin: 0;
@@ -12,602 +12,863 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f5f7fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%);
             min-height: 100vh;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-            color: white;
             padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .header p {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-top: 5px;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
         }
 
-        /* 筛选按钮 */
-        .filter-bar {
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2e7d32;
+            font-size: 28px;
+            margin-bottom: 10px;
             display: flex;
+            align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
         }
 
-        .filter-btn {
-            padding: 10px 20px;
-            border: 2px solid #ddd;
-            border-radius: 25px;
-            background: white;
+        .header h1::before {
+            content: '🏥';
+            font-size: 32px;
+        }
+
+        .header p {
             color: #666;
-            cursor: pointer;
-            transition: all 0.3s ease;
             font-size: 14px;
         }
 
-        .filter-btn:hover {
-            border-color: #4CAF50;
-            color: #4CAF50;
-        }
-
-        .filter-btn.active {
-            background: #4CAF50;
-            border-color: #4CAF50;
-            color: white;
-        }
-
-        /* 时间轴容器 */
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 10px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #e0e0e0;
-        }
-
-        /* 时间轴项 */
-        .timeline-item {
-            position: relative;
+        .tabs {
+            display: flex;
+            gap: 10px;
             margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .timeline-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        /* 时间轴节点 */
-        .timeline-dot {
-            position: absolute;
-            left: -25px;
-            top: 25px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
-        }
-
-        .timeline-item.medication .timeline-dot {
-            background: #2196F3;
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
-        }
-
-        .timeline-item.visit .timeline-dot {
-            background: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
-        }
-
-        .timeline-item.checkup .timeline-dot {
-            background: #FF9800;
-            box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.3);
-        }
-
-        /* 标签 */
-        .record-tag {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .tag-medication {
-            background: rgba(33, 150, 243, 0.1);
-            color: #2196F3;
-        }
-
-        .tag-visit {
-            background: rgba(76, 175, 80, 0.1);
-            color: #4CAF50;
-        }
-
-        .tag-checkup {
-            background: rgba(255, 152, 0, 0.1);
-            color: #FF9800;
-        }
-
-        /* 内容 */
-        .record-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .record-content {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 12px;
-        }
-
-        .record-meta {
-            display: flex;
-            gap: 15px;
-            font-size: 12px;
-            color: #999;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* 空状态 */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .empty-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, #e8f5e9 0%, #f3e5f5 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-        }
-
-        .empty-title {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .empty-desc {
-            font-size: 14px;
-            color: #999;
-            margin-bottom: 20px;
-        }
-
-        .empty-btn {
-            padding: 10px 30px;
-            background: #4CAF50;
-            color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.3s ease;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            white-space: nowrap;
         }
 
-        .empty-btn:hover {
-            background: #45a049;
+        .tab.active {
+            background: #43a047;
+            color: white;
+            box-shadow: 0 4px 12px rgba(67, 160, 71, 0.3);
         }
 
-        /* 访谈记录区域 */
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin: 40px 0 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #4CAF50;
+        .tab:hover:not(.active) {
+            background: #f5f5f5;
         }
 
-        .interview-card {
+        .panel {
+            display: none;
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
         }
 
-        .interview-header {
+        .panel.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e8f5e9;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 8px;
+        }
+
+        .form-group {
             margin-bottom: 15px;
         }
 
-        .doctor-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #43a047;
+            box-shadow: 0 0 0 2px rgba(67, 160, 71, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #43a047;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #388e3c;
+            box-shadow: 0 4px 12px rgba(67, 160, 71, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #bdbdbd;
+        }
+
+        .btn-danger {
+            background: #ef5350;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53935;
+        }
+
+        .qr-container {
+            text-align: center;
+            padding: 30px;
+            background: #fafafa;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .qr-container canvas {
+            margin: 0 auto;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .qr-container .qr-image {
+            margin: 0 auto;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .qr-container p {
+            margin-top: 15px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .save-hint {
+            color: #43a047;
+            font-weight: 500;
+            margin-top: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 20px;
+            gap: 5px;
+        }
+
+        .save-hint::before {
+            content: '💡';
+        }
+
+        .print-preview {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .print-section {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .print-section h4 {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 8px;
             font-weight: 600;
         }
 
-        .doctor-info {
-            flex: 1;
+        .print-section p {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
         }
 
-        .doctor-name {
-            font-size: 16px;
+        .print-section .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .print-header {
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #43a047;
+            margin-bottom: 15px;
+        }
+
+        .print-header h2 {
+            color: #2e7d32;
+            font-size: 20px;
+        }
+
+        .print-header p {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .analysis-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .analysis-card h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .analysis-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .analysis-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .analysis-item h4 {
+            color: #43a047;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .analysis-item p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        .analysis-item .link {
+            color: #1976d2;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .analysis-item .link:hover {
+            text-decoration: underline;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            font-size: 14px;
+            color: #555;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #43a047;
+            font-weight: bold;
+        }
+
+        .feature-matrix {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .feature-matrix th,
+        .feature-matrix td {
+            border: 1px solid #eee;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .feature-matrix th {
+            background: #f5f5f5;
             font-weight: 600;
             color: #333;
         }
 
-        .doctor-title {
-            font-size: 13px;
-            color: #999;
+        .feature-matrix .yes {
+            color: #43a047;
+            font-weight: bold;
+            text-align: center;
         }
 
-        .interview-content {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.8;
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #4CAF50;
+        .feature-matrix .no {
+            color: #ef5350;
+            font-weight: bold;
+            text-align: center;
         }
 
-        .interview-date {
-            font-size: 12px;
-            color: #999;
-            margin-top: 12px;
-            text-align: right;
+        .feature-matrix .partial {
+            color: #ff9800;
+            font-weight: bold;
+            text-align: center;
         }
 
-        /* 底部导航 */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 0;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        .comparison-section {
+            margin-top: 20px;
         }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            color: #999;
-            cursor: pointer;
-            transition: color 0.3s ease;
+        .comparison-section h4 {
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 15px;
         }
 
-        .nav-item.active {
-            color: #4CAF50;
-        }
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
 
-        .nav-icon {
-            font-size: 22px;
-        }
+            .container {
+                max-width: 100%;
+                width: 100%;
+            }
 
-        .nav-text {
-            font-size: 12px;
+            .header,
+            .tabs,
+            .btn,
+            .qr-container p,
+            .save-hint {
+                display: none !important;
+            }
+
+            .panel {
+                display: block !important;
+                box-shadow: none;
+                padding: 15px;
+                border: 1px solid #ddd;
+                margin-bottom: 0;
+            }
+
+            .print-preview {
+                box-shadow: none;
+                border: none;
+                margin-top: 0;
+                padding: 0;
+            }
+
+            .qr-container {
+                padding: 15px;
+                background: transparent;
+                margin-top: 10px;
+            }
+
+            .qr-container canvas {
+                max-width: 120px;
+                max-height: 120px;
+            }
         }
 
         @media (max-width: 600px) {
-            .container {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .panel {
                 padding: 15px;
-            }
-            
-            .timeline {
-                padding-left: 25px;
-            }
-            
-            .timeline-dot {
-                left: -20px;
-            }
-            
-            .filter-btn {
-                padding: 8px 15px;
-                font-size: 13px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>康录卡</h1>
-        <p>健康档案 · 守护您的健康</p>
-    </div>
-
     <div class="container">
-        <!-- 筛选栏 -->
-        <div class="filter-bar">
-            <button class="filter-btn active" data-filter="all">全部记录</button>
-            <button class="filter-btn" data-filter="medication">用药记录</button>
-            <button class="filter-btn" data-filter="visit">就诊记录</button>
-            <button class="filter-btn" data-filter="checkup">检查记录</button>
+        <div class="header">
+            <h1>康录卡</h1>
+            <p>个人健康信息管理工具 - 用药清单 · 过敏史 · 近期检查</p>
         </div>
 
-        <!-- 时间轴区域 -->
-        <div class="timeline" id="timeline">
-            <!-- 记录项会通过JavaScript动态生成 -->
+        <div class="tabs">
+            <button class="tab active" onclick="showPanel('form')">📝 信息录入</button>
+            <button class="tab" onclick="showPanel('qr')">🔲 二维码</button>
+            <button class="tab" onclick="showPanel('print')">🖨️ 门诊速览</button>
+            <button class="tab" onclick="showPanel('analysis')">📊 竞品分析</button>
         </div>
 
-        <!-- 空状态 -->
-        <div class="empty-state" id="emptyState" style="display: none;">
-            <div class="empty-icon">📝</div>
-            <div class="empty-title">暂无健康记录</div>
-            <div class="empty-desc">点击下方按钮开始记录您的健康数据</div>
-            <button class="empty-btn">立即录入</button>
-        </div>
-
-        <!-- 访谈记录区域 -->
-        <div class="section-title">👩⚕️ 社区医生访谈记录</div>
-        
-        <div class="interview-card">
-            <div class="interview-header">
-                <div class="doctor-avatar">张</div>
-                <div class="doctor-info">
-                    <div class="doctor-name">张医生</div>
-                    <div class="doctor-title">社区卫生服务中心 · 主任医师</div>
+        <div class="panel active" id="form">
+            <div class="form-section">
+                <h3>👤 基本信息</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>姓名</label>
+                        <input type="text" id="name" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-group">
+                        <label>性别</label>
+                        <select id="gender">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>年龄</label>
+                        <input type="number" id="age" placeholder="请输入年龄">
+                    </div>
+                    <div class="form-group">
+                        <label>联系电话</label>
+                        <input type="tel" id="phone" placeholder="请输入联系电话">
+                    </div>
                 </div>
             </div>
-            <div class="interview-content">
-                <strong>问：</strong>请问目前社区居民慢病管理的主要痛点是什么？<br><br>
-                <strong>答：</strong>目前居民慢病管理存在几个主要问题。第一，患者依从性差，很多人不能按时服药和复诊。第二，信息碎片化，居民在不同医院就诊的记录无法共享，导致重复检查。第三，缺乏有效的健康干预手段，医生很难持续跟踪患者的健康状况。数字化健康档案系统可以很好地解决这些问题。
-            </div>
-            <div class="interview-date">访谈日期：2024年12月15日</div>
-        </div>
 
-        <div class="interview-card">
-            <div class="interview-header">
-                <div class="doctor-avatar">李</div>
-                <div class="doctor-info">
-                    <div class="doctor-name">李医生</div>
-                    <div class="doctor-title">社区卫生服务中心 · 副主任医师</div>
+            <div class="form-section">
+                <h3>💊 用药清单</h3>
+                <div class="form-group">
+                    <label>药品名称（多个用逗号分隔）</label>
+                    <input type="text" id="medications" placeholder="例如：阿司匹林, 降压药, 维生素C">
+                </div>
+                <div class="form-group">
+                    <label>用药说明</label>
+                    <textarea id="medicationNotes" placeholder="例如：每日一次，每次一片，饭后服用"></textarea>
                 </div>
             </div>
-            <div class="interview-content">
-                <strong>问：</strong>您认为理想的健康档案系统应该具备哪些功能？<br><br>
-                <strong>答：</strong>首先要有完整的个人健康信息管理，包括基本信息、病史、用药记录等。其次，需要用药提醒和复诊提醒功能，帮助患者按时服药和复诊。再次，数据分析功能很重要，可以帮助医生了解患者的健康趋势。最后，数据安全和隐私保护是重中之重，患者的健康信息必须严格保密。
-            </div>
-            <div class="interview-date">访谈日期：2024年12月18日</div>
-        </div>
 
-        <div class="interview-card">
-            <div class="interview-header">
-                <div class="doctor-avatar">王</div>
-                <div class="doctor-info">
-                    <div class="doctor-name">王医生</div>
-                    <div class="doctor-title">社区卫生服务中心 · 主治医师</div>
+            <div class="form-section">
+                <h3>⚠️ 过敏史</h3>
+                <div class="form-group">
+                    <label>过敏药物（多个用逗号分隔）</label>
+                    <input type="text" id="allergies" placeholder="例如：青霉素, 头孢类">
+                </div>
+                <div class="form-group">
+                    <label>其他过敏史</label>
+                    <textarea id="allergyNotes" placeholder="例如：花粉过敏，海鲜过敏"></textarea>
                 </div>
             </div>
-            <div class="interview-content">
-                <strong>问：</strong>对于跨院病史整合，您有什么建议？<br><br>
-                <strong>答：</strong>跨院病史整合是一个非常有价值的方向。建议首先建立统一的数据标准，确保不同医院的数据能够互通。其次，可以采用区块链技术保证数据的安全性和不可篡改。最后，要获得患者的明确授权，确保数据使用的合法性和透明度。
+
+            <div class="form-section">
+                <h3>📋 近期检查</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>检查日期</label>
+                        <input type="date" id="checkDate">
+                    </div>
+                    <div class="form-group">
+                        <label>检查项目</label>
+                        <input type="text" id="checkItems" placeholder="例如：血常规, 心电图">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>检查结果摘要</label>
+                    <textarea id="checkResults" placeholder="例如：血压正常，血糖偏高，血脂正常"></textarea>
+                </div>
             </div>
-            <div class="interview-date">访谈日期：2024年12月20日</div>
+
+            <button class="btn btn-primary" onclick="generateQR()">
+                🔲 生成二维码
+            </button>
+        </div>
+
+        <div class="panel" id="qr">
+            <h3 style="color: #333; margin-bottom: 20px;">康录卡二维码</h3>
+            <div class="qr-container">
+                <canvas id="qrcode"></canvas>
+                <img id="qrImage" class="qr-image" alt="二维码">
+                <p>扫码即可查看完整健康信息</p>
+                <div class="save-hint">长按二维码图片可保存到相册</div>
+            </div>
+            <button class="btn btn-secondary" onclick="downloadQR()">
+                📥 下载二维码图片
+            </button>
+        </div>
+
+        <div class="panel" id="print">
+            <h3 style="color: #333; margin-bottom: 20px;">门诊速览 - 一页纸打印版</h3>
+            <div class="print-preview">
+                <div class="print-header">
+                    <h2>康录卡 - 门诊速览</h2>
+                    <p>个人健康信息摘要</p>
+                </div>
+
+                <div class="print-section">
+                    <h4>基本信息</h4>
+                    <p><strong>姓名：</strong><span id="printName">未填写</span></p>
+                    <p><strong>性别：</strong><span id="printGender">未填写</span></p>
+                    <p><strong>年龄：</strong><span id="printAge">未填写</span></p>
+                    <p><strong>电话：</strong><span id="printPhone">未填写</span></p>
+                </div>
+
+                <div class="print-section">
+                    <h4>用药清单</h4>
+                    <p id="printMedications">未填写</p>
+                    <p id="printMedNotes">无</p>
+                </div>
+
+                <div class="print-section">
+                    <h4>过敏史</h4>
+                    <p id="printAllergies">未填写</p>
+                    <p id="printAllergyNotes">无</p>
+                </div>
+
+                <div class="print-section">
+                    <h4>近期检查</h4>
+                    <p><strong>日期：</strong><span id="printCheckDate">未填写</span></p>
+                    <p><strong>项目：</strong><span id="printCheckItems">未填写</span></p>
+                    <p><strong>结果：</strong><span id="printCheckResults">未填写</span></p>
+                </div>
+
+                <div class="qr-container" style="margin-top: 20px;">
+                    <canvas id="printQrcode"></canvas>
+                    <p style="font-size: 11px; color: #888;">扫码查看完整健康信息</p>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="window.print()">
+                🖨️ 打印门诊速览
+            </button>
+        </div>
+
+        <div class="panel" id="analysis">
+            <div class="analysis-card">
+                <h3>📊 支付宝医疗健康卡竞品分析</h3>
+
+                <div class="analysis-item">
+                    <h4>一、产品概述</h4>
+                    <p>支付宝医疗健康卡是支付宝推出的电子健康卡服务，旨在实现"就医不带卡，扫码即可付"的便捷就医体验。用户通过支付宝小程序即可申领和使用电子健康卡，打通医院挂号、就诊、缴费等全流程。</p>
+                    <a href="https://www.alipay.com" class="link" target="_blank">🔗 支付宝官网</a>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>二、核心功能</h4>
+                    <ul class="feature-list">
+                        <li>电子健康卡申领与管理</li>
+                        <li>医院预约挂号</li>
+                        <li>在线问诊咨询</li>
+                        <li>医保结算支付</li>
+                        <li>健康档案查询</li>
+                        <li>疫苗接种记录</li>
+                        <li>体检报告查询</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>三、优势分析</h4>
+                    <ul class="feature-list">
+                        <li>依托支付宝庞大用户基础，覆盖率广</li>
+                        <li>与医保系统深度对接，支付便捷</li>
+                        <li>接入大量医院资源，线下场景丰富</li>
+                        <li>整合蚂蚁集团生态资源，功能全面</li>
+                        <li>实名认证体系完善，安全性高</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>四、劣势分析</h4>
+                    <ul class="feature-list">
+                        <li>依赖网络环境，离线无法使用</li>
+                        <li>个人健康数据存储在云端，存在隐私风险</li>
+                        <li>功能过于复杂，学习成本较高</li>
+                        <li>医院系统对接存在差异，体验不一致</li>
+                        <li>无法自定义健康信息内容</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>五、康录卡差异化定位</h4>
+                    <div class="comparison-section">
+                        <h4>功能对比矩阵</h4>
+                        <table class="feature-matrix">
+                            <tr>
+                                <th>功能特性</th>
+                                <th>支付宝医疗健康卡</th>
+                                <th>康录卡</th>
+                            </tr>
+                            <tr>
+                                <td>离线使用</td>
+                                <td class="no">❌</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                            <tr>
+                                <td>本地数据存储</td>
+                                <td class="no">❌</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                            <tr>
+                                <td>自定义健康信息</td>
+                                <td class="no">❌</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                            <tr>
+                                <td>医保结算</td>
+                                <td class="yes">✅</td>
+                                <td class="no">❌</td>
+                            </tr>
+                            <tr>
+                                <td>医院挂号</td>
+                                <td class="yes">✅</td>
+                                <td class="no">❌</td>
+                            </tr>
+                            <tr>
+                                <td>二维码分享</td>
+                                <td class="partial">⚠️</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                            <tr>
+                                <td>打印版速览</td>
+                                <td class="no">❌</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                            <tr>
+                                <td>隐私安全性</td>
+                                <td class="partial">⚠️</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>六、竞品截图说明</h4>
+                    <p>由于无法直接截取支付宝应用界面，以下为竞品分析截图描述：</p>
+                    <ul class="feature-list">
+                        <li><strong>首页入口：</strong>支付宝首页"医疗健康"小程序入口，图标为绿色十字标志</li>
+                        <li><strong>电子健康卡：</strong>显示二维码，包含姓名、性别、年龄等基本信息</li>
+                        <li><strong>挂号服务：</strong>支持按科室、医生、时间筛选预约</li>
+                        <li><strong>医保支付：</strong>支持医保余额查询和在线支付</li>
+                        <li><strong>健康档案：</strong>显示就诊记录、检查报告等</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>七、竞品链接</h4>
+                    <a href="https://health.alipay.com" class="link" target="_blank">🔗 支付宝医疗健康官方页面</a>
+                    <br>
+                    <a href="https://apps.apple.com/cn/app/支付宝/id333206289" class="link" target="_blank">🔗 支付宝 iOS 下载</a>
+                    <br>
+                    <a href="https://play.google.com/store/apps/details?id=com.eg.android.AlipayGphone" class="link" target="_blank">🔗 支付宝 Android 下载</a>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>八、总结与建议</h4>
+                    <p><strong>康录卡的核心价值：</strong>作为一款轻量级的个人健康信息管理工具，康录卡聚焦于"离线可用"和"隐私安全"两大痛点，通过二维码本地编码技术，让用户在没有网络的情况下也能快速分享关键健康信息。特别适合门诊就诊、急诊急救等场景，医生可通过扫码快速了解患者的用药清单、过敏史和近期检查结果，提高诊疗效率。</p>
+                    <p><strong>未来发展建议：</strong>可考虑增加数据加密功能、多语言支持、紧急联系人信息等，进一步提升产品的实用性和安全性。</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 底部导航 -->
-    <div class="bottom-nav">
-        <div class="nav-item active">
-            <span class="nav-icon">🏠</span>
-            <span class="nav-text">首页</span>
-        </div>
-        <div class="nav-item">
-            <span class="nav-icon">📝</span>
-            <span class="nav-text">录入</span>
-        </div>
-        <div class="nav-item">
-            <span class="nav-icon">📊</span>
-            <span class="nav-text">记录</span>
-        </div>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script>
-        // Mock数据
-        const mockRecords = [
-            {
-                id: 1,
-                type: 'medication',
-                typeName: '用药记录',
-                title: '硝苯地平控释片',
-                content: '每日一次，每次1片，早餐后服用',
-                date: '2024-12-20',
-                time: '08:30'
-            },
-            {
-                id: 2,
-                type: 'visit',
-                typeName: '就诊记录',
-                title: '社区卫生服务中心复诊',
-                content: '血压控制良好，继续当前用药方案。建议每周监测血压2-3次。',
-                date: '2024-12-18',
-                time: '14:00'
-            },
-            {
-                id: 3,
-                type: 'checkup',
-                typeName: '检查记录',
-                title: '血常规检查',
-                content: '白细胞计数：6.5×10^9/L，红细胞计数：4.5×10^12/L，血红蛋白：135g/L',
-                date: '2024-12-15',
-                time: '09:00'
-            },
-            {
-                id: 4,
-                type: 'medication',
-                typeName: '用药记录',
-                title: '阿司匹林肠溶片',
-                content: '每日一次，每次100mg，睡前服用',
-                date: '2024-12-15',
-                time: '22:00'
-            },
-            {
-                id: 5,
-                type: 'visit',
-                typeName: '就诊记录',
-                title: '心内科专家门诊',
-                content: '调整用药方案，新增他汀类药物。建议低脂饮食，适量运动。',
-                date: '2024-12-10',
-                time: '10:30'
-            },
-            {
-                id: 6,
-                type: 'checkup',
-                typeName: '检查记录',
-                title: '心电图检查',
-                content: '窦性心律，心率72次/分，ST段正常',
-                date: '2024-12-08',
-                time: '11:00'
-            },
-            {
-                id: 7,
-                type: 'medication',
-                typeName: '用药记录',
-                title: '阿托伐他汀钙片',
-                content: '每日一次，每次20mg，晚餐后服用',
-                date: '2024-12-05',
-                time: '19:30'
-            },
-            {
-                id: 8,
-                type: 'visit',
-                typeName: '就诊记录',
-                title: '初次诊断',
-                content: '诊断为高血压2级，高血脂症。开具硝苯地平和阿司匹林。',
-                date: '2024-11-28',
-                time: '15:00'
+        function showPanel(panelId) {
+            document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(panelId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (panelId === 'print') {
+                updatePrintPreview();
             }
-        ];
+        }
 
-        // 获取DOM元素
-        const timeline = document.getElementById('timeline');
-        const emptyState = document.getElementById('emptyState');
-        const filterButtons = document.querySelectorAll('.filter-btn');
+        function generateQR() {
+            const healthData = {
+                name: document.getElementById('name').value || '未填写',
+                gender: document.getElementById('gender').value || '未填写',
+                age: document.getElementById('age').value || '未填写',
+                phone: document.getElementById('phone').value || '未填写',
+                medications: document.getElementById('medications').value || '无',
+                medicationNotes: document.getElementById('medicationNotes').value || '无',
+                allergies: document.getElementById('allergies').value || '无',
+                allergyNotes: document.getElementById('allergyNotes').value || '无',
+                checkDate: document.getElementById('checkDate').value || '未填写',
+                checkItems: document.getElementById('checkItems').value || '无',
+                checkResults: document.getElementById('checkResults').value || '无',
+                generatedAt: new Date().toISOString()
+            };
 
-        // 渲染记录
-        function renderRecords(filter = 'all') {
-            // 过滤数据
-            const filteredRecords = filter === 'all' 
-                ? mockRecords 
-                : mockRecords.filter(record => record.type === filter);
+            const jsonString = JSON.stringify(healthData);
+            const canvas = document.getElementById('qrcode');
+            
+            QRCode.toCanvas(canvas, jsonString, {
+                width: 200,
+                margin: 2,
+                color: {
+                    dark: '#2e7d32',
+                    light: '#ffffff'
+                }
+            }, function(error) {
+                if (error) {
+                    console.error('二维码生成失败:', error);
+                    alert('二维码生成失败，请重试');
+                } else {
+                    showPanel('qr');
+                    generatePrintQR();
+                }
+            });
+        }
 
-            // 检查是否为空
-            if (filteredRecords.length === 0) {
-                timeline.style.display = 'none';
-                emptyState.style.display = 'block';
+        function generatePrintQR() {
+            const healthData = {
+                name: document.getElementById('name').value || '未填写',
+                gender: document.getElementById('gender').value || '未填写',
+                age: document.getElementById('age').value || '未填写',
+                phone: document.getElementById('phone').value || '未填写',
+                medications: document.getElementById('medications').value || '无',
+                medicationNotes: document.getElementById('medicationNotes').value || '无',
+                allergies: document.getElementById('allergies').value || '无',
+                allergyNotes: document.getElementById('allergyNotes').value || '无',
+                checkDate: document.getElementById('checkDate').value || '未填写',
+                checkItems: document.getElementById('checkItems').value || '无',
+                checkResults: document.getElementById('checkResults').value || '无',
+                generatedAt: new Date().toISOString()
+            };
+
+            const jsonString = JSON.stringify(healthData);
+            const canvas = document.getElementById('printQrcode');
+            
+            QRCode.toCanvas(canvas, jsonString, {
+                width: 120,
+                margin: 2,
+                color: {
+                    dark: '#2e7d32',
+                    light: '#ffffff'
+                }
+            });
+        }
+
+        function updatePrintPreview() {
+            document.getElementById('printName').textContent = document.getElementById('name').value || '未填写';
+            document.getElementById('printGender').textContent = document.getElementById('gender').value || '未填写';
+            document.getElementById('printAge').textContent = document.getElementById('age').value || '未填写';
+            document.getElementById('printPhone').textContent = document.getElementById('phone').value || '未填写';
+            document.getElementById('printMedications').textContent = document.getElementById('medications').value || '无';
+            document.getElementById('printMedNotes').textContent = document.getElementById('medicationNotes').value || '无';
+            document.getElementById('printAllergies').textContent = document.getElementById('allergies').value || '无';
+            document.getElementById('printAllergyNotes').textContent = document.getElementById('allergyNotes').value || '无';
+            document.getElementById('printCheckDate').textContent = document.getElementById('checkDate').value || '未填写';
+            document.getElementById('printCheckItems').textContent = document.getElementById('checkItems').value || '无';
+            document.getElementById('printCheckResults').textContent = document.getElementById('checkResults').value || '无';
+        }
+
+        function downloadQR() {
+            const canvas = document.getElementById('qrcode');
+            if (!canvas) {
+                alert('请先生成二维码');
                 return;
             }
 
-            timeline.style.display = 'block';
-            emptyState.style.display = 'none';
-
-            // 按日期倒序排序（已经是倒序，保持不变）
-            const sortedRecords = [...filteredRecords];
-
-            // 生成HTML
-            timeline.innerHTML = sortedRecords.map(record => {
-                const tagClass = `tag-${record.type}`;
-                return `
-                    <div class="timeline-item ${record.type}">
-                        <div class="timeline-dot"></div>
-                        <div class="record-tag ${tagClass}">${record.typeName}</div>
-                        <div class="record-title">${record.title}</div>
-                        <div class="record-content">${record.content}</div>
-                        <div class="record-meta">
-                            <div class="meta-item">
-                                <span>📅</span>
-                                <span>${record.date}</span>
-                            </div>
-                            <div class="meta-item">
-                                <span>🕐</span>
-                                <span>${record.time}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            const link = document.createElement('a');
+            link.download = '康录卡_' + new Date().toISOString().slice(0, 10) + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         }
 
-        // 筛选按钮事件
-        filterButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // 移除所有激活状态
-                filterButtons.forEach(b => b.classList.remove('active'));
-                // 添加当前按钮激活状态
-                btn.classList.add('active');
-                // 获取筛选类型
-                const filter = btn.dataset.filter;
-                // 重新渲染
-                renderRecords(filter);
-            });
-        });
-
-        // 初始化渲染
-        renderRecords('all');
-
-        // 空状态按钮点击
-        document.querySelector('.empty-btn').addEventListener('click', () => {
-            alert('跳转到录入页面');
-        });
-
-        // 底部导航点击
-        document.querySelectorAll('.nav-item').forEach((item, index) => {
-            item.addEventListener('click', () => {
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                item.classList.add('active');
-                
-                const pages = ['首页', '录入', '记录'];
-                alert(`跳转到${pages[index]}页面`);
-            });
+        document.addEventListener('DOMContentLoaded', function() {
+            generatePrintQR();
         });
     </script>
 </body>
