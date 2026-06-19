@@ -402,12 +402,27 @@
       if (!currentUser) return;
       const qrContainer = document.getElementById('qrcode');
       qrContainer.innerHTML = '';
-      const url = 'https://kangluka-d0gjhx9wya86f10f9.service.tcloudbase.com/health-summary?uid=' + currentUser.uid;
+      
+      // 把用户数据编码进 URL
+      const userData = {
+        name: currentUser.name,
+        gender: currentUser.gender,
+        age: currentUser.age,
+        blood: currentUser.blood,
+        phone: currentUser.phone,
+        diseases: currentUser.diseases,
+        records: currentUser.records
+      };
+      const encoded = btoa(encodeURIComponent(JSON.stringify(userData)));
+      
+      // 链接带上 uid 和编码数据
+      const cloudUrl = 'https://kangluka-d0gjhx9wya86f10f9.service.tcloudbase.com/health-summary?uid=' + currentUser.uid + '&data=' + encoded;
+      
       document.getElementById('qrUid').textContent = 'UID: ' + currentUser.uid;
       
       if (typeof QRCode !== 'undefined') {
         new QRCode(qrContainer, {
-          text: url, width: 180, height: 180,
+          text: cloudUrl, width: 180, height: 180,
           colorDark: '#667eea', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M
         });
       } else {
