@@ -168,9 +168,19 @@
       padding: 15px 30px; border-radius: 10px;
       font-size: 16px; z-index: 9999; display: none;
     }
+    .sync-status {
+      position: fixed; top: 10px; right: 10px;
+      padding: 8px 16px; border-radius: 20px;
+      font-size: 12px; z-index: 9998; display: none;
+    }
+    .sync-status.success { background: #e8f5e9; color: #2c9f7a; }
+    .sync-status.error { background: #ffebee; color: #ff4d4f; }
   </style>
 </head>
 <body>
+
+  <!-- 同步状态提示 -->
+  <div class="sync-status" id="syncStatus"></div>
 
   <!-- 登录页 -->
   <div class="login-page" id="loginPage">
@@ -303,7 +313,11 @@
 
   <!-- Toast 提示 -->
   <div class="toast" id="toast"></div>
-    <script>
+
+  <script>
+    // 云函数基础地址
+    const CLOUD_BASE = 'https://kangluka-d0gjhx9wya86f10f9.service.tcloudbase.com';
+    
     // 本地存储工具
     const DB = {
       get: (k) => JSON.parse(localStorage.getItem(k) || 'null'),
@@ -323,6 +337,62 @@
       setTimeout(() => t.style.display = 'none', 2000);
     }
 
+    function showSyncStatus(msg, isSuccess) {
+      const s = document.getElementById('syncStatus');
+      s.textContent = msg;
+      s.className = 'sync-status ' + (isSuccess ? 'success' : 'error');
+      s.style.display = 'block';
+      setTimeout(() => s.style.display = 'none', 3000);
+    }
+
+    async function syncToCloud(user) {
+      try {
+        // 保存用户信息
+        const userRes = await fetch(CLOUD_BASE + '/saveUser', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            uid: user.uid,
+            name: user.name,
+            phone: user.phone,
+            gender: user.gender,
+            age: user.age,
+            blood: user.blood,
+            diseases: user.diseases
+          })
+        });
+        const userData = await userRes.json();
+        
+        if (!userData.success) {
+          console.log('保存用户信息失败:', userData.message);
+          showSyncStatus('同步失败: ' + userData.message, false);
+          return;
+        }
+
+        // 保存就诊记录
+        for (const record of user.records) {
+          await fetch(CLOUD_BASE + '/saveRecord', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              uid: user.uid,
+              title: record.title,
+              date: record.date,
+              type: record.type,
+              hospital: record.hospital,
+              value: record.value || ''
+            })
+          });
+        }
+
+        console.log('数据同步成功');
+        showSyncStatus('✓ 数据已同步到云端', true);
+      } catch (err) {
+        console.log('数据同步失败:', err);
+        showSyncStatus('✗ 同步失败，请检查网络', false);
+      }
+    }
+
     function handleLogin() {
       const phone = document.getElementById('phoneInput').value.trim();
       const code = document.getElementById('codeInput').value.trim();
@@ -340,6 +410,10 @@
         diseases: ['高血压', '2型糖尿病']
       };
       DB.set('kangluka_user', currentUser);
+      
+      // 同步到云端
+      syncToCloud(currentUser);
+      
       showToast('登录成功'); showHome();
     }
 
@@ -351,6 +425,10 @@
         diseases: ['暂无']
       };
       DB.set('kangluka_user', currentUser);
+      
+      // 同步到云端
+      syncToCloud(currentUser);
+      
       showToast('游客模式已开启'); showHome();
     }
 
@@ -416,7 +494,7 @@
       const encoded = encodeURIComponent(JSON.stringify(userData));
       
       // 链接带上 uid 和编码数据
-      const cloudUrl = 'https://kangluka-d0gjhx9wya86f10f9.service.tcloudbase.com/health-summary?uid=' + currentUser.uid + '&data=' + encoded;
+      const cloudUrl = CLOUD_BASE + '/health-summary?uid=' + currentUser.uid + '&data=' + encoded;
       
       document.getElementById('qrUid').textContent = 'UID: ' + currentUser.uid;
       
