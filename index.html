@@ -403,7 +403,7 @@
       const qrContainer = document.getElementById('qrcode');
       qrContainer.innerHTML = '';
       
-      // 把用户数据编码进 URL
+      // 把用户数据用 URL 编码（不用 Base64，避免中文乱码）
       const userData = {
         name: currentUser.name,
         gender: currentUser.gender,
@@ -413,7 +413,7 @@
         diseases: currentUser.diseases,
         records: currentUser.records
       };
-      const encoded = btoa(encodeURIComponent(JSON.stringify(userData)));
+      const encoded = encodeURIComponent(JSON.stringify(userData));
       
       // 链接带上 uid 和编码数据
       const cloudUrl = 'https://kangluka-d0gjhx9wya86f10f9.service.tcloudbase.com/health-summary?uid=' + currentUser.uid + '&data=' + encoded;
