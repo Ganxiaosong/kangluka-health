@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>康录卡 - 个人健康信息管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #e3f2fd 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2e7d32;
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header h1::before {
+            content: '🏥';
+            font-size: 32px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: #43a047;
+            color: white;
+            box-shadow: 0 4px 12px rgba(67, 160, 71, 0.3);
+        }
+
+        .tab:hover:not(.active) {
+            background: #f5f5f5;
+        }
+
+        .panel {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e8f5e9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #43a047;
+            box-shadow: 0 0 0 2px rgba(67, 160, 71, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #43a047;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #388e3c;
+            box-shadow: 0 4px 12px rgba(67, 160, 71, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #bdbdbd;
+        }
+
+        .btn-danger {
+            background: #ef5350;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53935;
+        }
+
+        .qr-container {
+            text-align: center;
+            padding: 30px;
+            background: #fafafa;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .qr-container canvas {
+            margin: 0 auto;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .qr-container .qr-image {
+            margin: 0 auto;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .qr-container p {
+            margin-top: 15px;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .save-hint {
+            color: #43a047;
+            font-weight: 500;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .save-hint::before {
+            content: '💡';
+        }
+
+        .print-preview {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .print-section {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .print-section h4 {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .print-section p {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .print-section .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .print-header {
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #43a047;
+            margin-bottom: 15px;
+        }
+
+        .print-header h2 {
+            color: #2e7d32;
+            font-size: 20px;
+        }
+
+        .print-header p {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .analysis-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .analysis-card h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .analysis-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .analysis-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .analysis-item h4 {
+            color: #43a047;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .analysis-item p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        .analysis-item .link {
+            color: #1976d2;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .analysis-item .link:hover {
+            text-decoration: underline;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            font-size: 14px;
+            color: #555;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #43a047;
+            font-weight: bold;
+        }
+
+        .feature-matrix {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .feature-matrix th,
+        .feature-matrix td {
+            border: 1px solid #eee;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .feature-matrix th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .feature-matrix .yes {
+            color: #43a047;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .feature-matrix .no {
+            color: #ef5350;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .feature-matrix .partial {
+            color: #ff9800;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .comparison-section {
+            margin-top: 20px;
+        }
+
+        .comparison-section h4 {
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+
+            .container {
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .header,
+            .tabs,
+            .btn,
+            .qr-container p,
+            .save-hint {
+                display: none !important;
+            }
+
+            .panel {
+                display: block !important;
+                box-shadow: none;
+                padding: 15px;
+                border: 1px solid #ddd;
+                margin-bottom: 0;
+            }
+
+            .print-preview {
+                box-shadow: none;
+                border: none;
+                margin-top: 0;
+                padding: 0;
+            }
+
+            .qr-container {
+                padding: 15px;
+                background: transparent;
+                margin-top: 10px;
+            }
+
+            .qr-container canvas {
+                max-width: 120px;
+                max-height: 120px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+                margin-right: 0;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .panel {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>康录卡</h1>
+            <p>个人健康信息管理工具 - 用药清单 · 过敏史 · 近期检查</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showPanel('form')">📝 信息录入</button>
+            <button class="tab" onclick="showPanel('qr')">🔲 二维码</button>
+            <button class="tab" onclick="showPanel('print')">🖨️ 门诊速览</button>
+            <button class="tab" onclick="showPanel('analysis')">📊 竞品分析</button>
+        </div>
+
+        <div class="panel active" id="form">
+            <div class="form-section">
+                <h3>👤 基本信息</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>姓名</label>
+                        <input type="text" id="name" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-group">
+                        <label>性别</label>
+                        <select id="gender">
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>年龄</label>
+                        <input type="number" id="age" placeholder="请输入年龄">
+                    </div>
+                    <div class="form-group">
+                        <label>联系电话</label>
+                        <input type="tel" id="phone" placeholder="请输入联系电话">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>💊 用药清单</h3>
+                <div class="form-group">
+                    <label>药品名称（多个用逗号分隔）</label>
+                    <input type="text" id="medications" placeholder="例如：阿司匹林, 降压药, 维生素C">
+                </div>
+                <div class="form-group">
+                    <label>用药说明</label>
+                    <textarea id="medicationNotes" placeholder="例如：每日一次，每次一片，饭后服用"></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>⚠️ 过敏史</h3>
+                <div class="form-group">
+                    <label>过敏药物（多个用逗号分隔）</label>
+                    <input type="text" id="allergies" placeholder="例如：青霉素, 头孢类">
+                </div>
+                <div class="form-group">
+                    <label>其他过敏史</label>
+                    <textarea id="allergyNotes" placeholder="例如：花粉过敏，海鲜过敏"></textarea>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>📋 近期检查</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>检查日期</label>
+                        <input type="date" id="checkDate">
+                    </div>
+                    <div class="form-group">
+                        <label>检查项目</label>
+                        <input type="text" id="checkItems" placeholder="例如：血常规, 心电图">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>检查结果摘要</label>
+                    <textarea id="checkResults" placeholder="例如：血压正常，血糖偏高，血脂正常"></textarea>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="generateQR()">
+                🔲 生成二维码
+            </button>
+        </div>
+
+        <div class="panel" id="qr">
+            <h3 style="color: #333; margin-bottom: 20px;">康录卡二维码</h3>
+            <div class="qr-container">
+                <canvas id="qrcode"></canvas>
+                <img id="qrImage" class="qr-image" alt="二维码">
+                <p>扫码即可查看完整健康信息</p>
+                <div class="save-hint">长按二维码图片可保存到相册</div>
+            </div>
+            <button class="btn btn-secondary" onclick="downloadQR()">
+                📥 下载二维码图片
+            </button>
+        </div>
+
+        <div class="panel" id="print">
+            <h3 style="color: #333; margin-bottom: 20px;">门诊速览 - 一页纸打印版</h3>
+            <div class="print-preview">
+                <div class="print-header">
+                    <h2>康录卡 - 门诊速览</h2>
+                    <p>个人健康信息摘要</p>
+                </div>
+
+                <div class="print-section">
+                    <h4>基本信息</h4>
+                    <p><strong>姓名：</strong><span id="printName">未填写</span></p>
+                    <p><strong>性别：</strong><span id="printGender">未填写</span></p>
+                    <p><strong>年龄：</strong><span id="printAge">未填写</span></p>
+                    <p><strong>电话：</strong><span id="printPhone">未填写</span></p>
+                </div>
+
+                <div class="print-section">
+                    <h4>用药清单</h4>
+                    <p id="printMedications">未填写</p>
+                    <p id="printMedNotes">无</p>
+                </div>
+
+                <div class="print-section">
+                    <h4>过敏史</h4>
+                    <p id="printAllergies">未填写</p>
+                    <p id="printAllergyNotes">无</p>
+                </div>
+
+                <div class="print-section">
+                    <h4>近期检查</h4>
+                    <p><strong>日期：</strong><span id="printCheckDate">未填写</span></p>
+                    <p><strong>项目：</strong><span id="printCheckItems">未填写</span></p>
+                    <p><strong>结果：</strong><span id="printCheckResults">未填写</span></p>
+                </div>
+
+                <div class="qr-container" style="margin-top: 20px;">
+                    <canvas id="printQrcode"></canvas>
+                    <p style="font-size: 11px; color: #888;">扫码查看完整健康信息</p>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="window.print()">
+                🖨️ 打印门诊速览
+            </button>
+        </div>
+
+        <div class="panel" id="analysis">
+            <div class="analysis-card">
+                <h3>📊 支付宝医疗健康卡竞品分析</h3>
+
+                <div class="analysis-item">
+                    <h4>一、产品概述</h4>
+                    <p>支付宝医疗健康卡是支付宝推出的电子健康卡服务，旨在实现"就医不带卡，扫码即可付"的便捷就医体验。用户通过支付宝小程序即可申领和使用电子健康卡，打通医院挂号、就诊、缴费等全流程。</p>
+                    <a href="https://www.alipay.com" class="link" target="_blank">🔗 支付宝官网</a>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>二、核心功能</h4>
+                    <ul class="feature-list">
+                        <li>电子健康卡申领与管理</li>
+                        <li>医院预约挂号</li>
+                        <li>在线问诊咨询</li>
+                        <li>医保结算支付</li>
+                        <li>健康档案查询</li>
+                        <li>疫苗接种记录</li>
+                        <li>体检报告查询</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>三、优势分析</h4>
+                    <ul class="feature-list">
+                        <li>依托支付宝庞大用户基础，覆盖率广</li>
+                        <li>与医保系统深度对接，支付便捷</li>
+                        <li>接入大量医院资源，线下场景丰富</li>
+                        <li>整合蚂蚁集团生态资源，功能全面</li>
+                        <li>实名认证体系完善，安全性高</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>四、劣势分析</h4>
+                    <ul class="feature-list">
+                        <li>依赖网络环境，离线无法使用</li>
+                        <li>个人健康数据存储在云端，存在隐私风险</li>
+                        <li>功能过于复杂，学习成本较高</li>
+                        <li>医院系统对接存在差异，体验不一致</li>
+                        <li>无法自定义健康信息内容</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>五、康录卡差异化定位</h4>
+                    <div class="comparison-section">
+                        <h4>功能对比矩阵</h4>
+                        <table class="feature-matrix">
+                            <tr>
+                                <th>功能特性</th>
+                                <th>支付宝医疗健康卡</th>
+                                <th>康录卡</th>
+                            </tr>
+                            <tr>
+                                <td>离线使用</td>
+                                <td class="no">❌</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                            <tr>
+                                <td>本地数据存储</td>
+                                <td class="no">❌</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                            <tr>
+                                <td>自定义健康信息</td>
+                                <td class="no">❌</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                            <tr>
+                                <td>医保结算</td>
+                                <td class="yes">✅</td>
+                                <td class="no">❌</td>
+                            </tr>
+                            <tr>
+                                <td>医院挂号</td>
+                                <td class="yes">✅</td>
+                                <td class="no">❌</td>
+                            </tr>
+                            <tr>
+                                <td>二维码分享</td>
+                                <td class="partial">⚠️</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                            <tr>
+                                <td>打印版速览</td>
+                                <td class="no">❌</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                            <tr>
+                                <td>隐私安全性</td>
+                                <td class="partial">⚠️</td>
+                                <td class="yes">✅</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>六、竞品截图说明</h4>
+                    <p>由于无法直接截取支付宝应用界面，以下为竞品分析截图描述：</p>
+                    <ul class="feature-list">
+                        <li><strong>首页入口：</strong>支付宝首页"医疗健康"小程序入口，图标为绿色十字标志</li>
+                        <li><strong>电子健康卡：</strong>显示二维码，包含姓名、性别、年龄等基本信息</li>
+                        <li><strong>挂号服务：</strong>支持按科室、医生、时间筛选预约</li>
+                        <li><strong>医保支付：</strong>支持医保余额查询和在线支付</li>
+                        <li><strong>健康档案：</strong>显示就诊记录、检查报告等</li>
+                    </ul>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>七、竞品链接</h4>
+                    <a href="https://health.alipay.com" class="link" target="_blank">🔗 支付宝医疗健康官方页面</a>
+                    <br>
+                    <a href="https://apps.apple.com/cn/app/支付宝/id333206289" class="link" target="_blank">🔗 支付宝 iOS 下载</a>
+                    <br>
+                    <a href="https://play.google.com/store/apps/details?id=com.eg.android.AlipayGphone" class="link" target="_blank">🔗 支付宝 Android 下载</a>
+                </div>
+
+                <div class="analysis-item">
+                    <h4>八、总结与建议</h4>
+                    <p><strong>康录卡的核心价值：</strong>作为一款轻量级的个人健康信息管理工具，康录卡聚焦于"离线可用"和"隐私安全"两大痛点，通过二维码本地编码技术，让用户在没有网络的情况下也能快速分享关键健康信息。特别适合门诊就诊、急诊急救等场景，医生可通过扫码快速了解患者的用药清单、过敏史和近期检查结果，提高诊疗效率。</p>
+                    <p><strong>未来发展建议：</strong>可考虑增加数据加密功能、多语言支持、紧急联系人信息等，进一步提升产品的实用性和安全性。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script>
+        function showPanel(panelId) {
+            document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(panelId).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (panelId === 'print') {
+                updatePrintPreview();
+            }
+        }
+
+        function generateQR() {
+            const healthData = {
+                name: document.getElementById('name').value || '未填写',
+                gender: document.getElementById('gender').value || '未填写',
+                age: document.getElementById('age').value || '未填写',
+                phone: document.getElementById('phone').value || '未填写',
+                medications: document.getElementById('medications').value || '无',
+                medicationNotes: document.getElementById('medicationNotes').value || '无',
+                allergies: document.getElementById('allergies').value || '无',
+                allergyNotes: document.getElementById('allergyNotes').value || '无',
+                checkDate: document.getElementById('checkDate').value || '未填写',
+                checkItems: document.getElementById('checkItems').value || '无',
+                checkResults: document.getElementById('checkResults').value || '无',
+                generatedAt: new Date().toISOString()
+            };
+
+            const jsonString = JSON.stringify(healthData);
+            const canvas = document.getElementById('qrcode');
+            
+            QRCode.toCanvas(canvas, jsonString, {
+                width: 200,
+                margin: 2,
+                color: {
+                    dark: '#2e7d32',
+                    light: '#ffffff'
+                }
+            }, function(error) {
+                if (error) {
+                    console.error('二维码生成失败:', error);
+                    alert('二维码生成失败，请重试');
+                } else {
+                    showPanel('qr');
+                    generatePrintQR();
+                }
+            });
+        }
+
+        function generatePrintQR() {
+            const healthData = {
+                name: document.getElementById('name').value || '未填写',
+                gender: document.getElementById('gender').value || '未填写',
+                age: document.getElementById('age').value || '未填写',
+                phone: document.getElementById('phone').value || '未填写',
+                medications: document.getElementById('medications').value || '无',
+                medicationNotes: document.getElementById('medicationNotes').value || '无',
+                allergies: document.getElementById('allergies').value || '无',
+                allergyNotes: document.getElementById('allergyNotes').value || '无',
+                checkDate: document.getElementById('checkDate').value || '未填写',
+                checkItems: document.getElementById('checkItems').value || '无',
+                checkResults: document.getElementById('checkResults').value || '无',
+                generatedAt: new Date().toISOString()
+            };
+
+            const jsonString = JSON.stringify(healthData);
+            const canvas = document.getElementById('printQrcode');
+            
+            QRCode.toCanvas(canvas, jsonString, {
+                width: 120,
+                margin: 2,
+                color: {
+                    dark: '#2e7d32',
+                    light: '#ffffff'
+                }
+            });
+        }
+
+        function updatePrintPreview() {
+            document.getElementById('printName').textContent = document.getElementById('name').value || '未填写';
+            document.getElementById('printGender').textContent = document.getElementById('gender').value || '未填写';
+            document.getElementById('printAge').textContent = document.getElementById('age').value || '未填写';
+            document.getElementById('printPhone').textContent = document.getElementById('phone').value || '未填写';
+            document.getElementById('printMedications').textContent = document.getElementById('medications').value || '无';
+            document.getElementById('printMedNotes').textContent = document.getElementById('medicationNotes').value || '无';
+            document.getElementById('printAllergies').textContent = document.getElementById('allergies').value || '无';
+            document.getElementById('printAllergyNotes').textContent = document.getElementById('allergyNotes').value || '无';
+            document.getElementById('printCheckDate').textContent = document.getElementById('checkDate').value || '未填写';
+            document.getElementById('printCheckItems').textContent = document.getElementById('checkItems').value || '无';
+            document.getElementById('printCheckResults').textContent = document.getElementById('checkResults').value || '无';
+        }
+
+        function downloadQR() {
+            const canvas = document.getElementById('qrcode');
+            if (!canvas) {
+                alert('请先生成二维码');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.download = '康录卡_' + new Date().toISOString().slice(0, 10) + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            generatePrintQR();
+        });
+    </script>
+</body>
+</html>
