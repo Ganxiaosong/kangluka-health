@@ -1,54 +1,746 @@
-const CLOUD_BASE = 'https://kangluka-d0gjhx9wya86f10f9.service.tcloudbase.com';
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>康录卡 - 健康档案管理系统</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .logo { text-align: center; margin-bottom: 30px; }
+    .logo-icon {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%; display: inline-flex;
+      align-items: center; justify-content: center;
+      font-size: 40px; color: white; margin-bottom: 15px;
+    }
+    h1 { font-size: 28px; color: #333; margin-bottom: 5px; }
+    .subtitle { color: #666; font-size: 14px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; color: #333; font-weight: 500; }
+    input, select, textarea {
+      width: 100%; padding: 14px 16px;
+      border: 2px solid #e8e8e8; border-radius: 10px;
+      font-size: 16px; transition: border-color 0.3s;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; }
+    textarea { min-height: 80px; resize: vertical; }
+    .btn {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white; border: none; border-radius: 10px;
+      font-size: 18px; font-weight: 600; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4); }
+    .btn-secondary { background: #f5f5f5; color: #333; margin-top: 10px; }
+    .btn-secondary:hover { background: #e8e8e8; }
+    .divider { text-align: center; margin: 25px 0; color: #999; position: relative; }
+    .divider::before, .divider::after {
+      content: ''; position: absolute; top: 50%; width: 45%; height: 1px; background: #e8e8e8;
+    }
+    .divider::before { left: 0; }
+    .divider::after { right: 0; }
+    .home-page { display: none; }
+    .home-page.active { display: block; }
+    .login-page { display: block; }
+    .header {
+      background: white; padding: 15px 20px; display: flex;
+      justify-content: space-between; align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; border-radius: 15px;
+    }
+    .user-info { display: flex; align-items: center; gap: 12px; }
+    .avatar {
+      width: 45px; height: 45px; background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 20px; font-weight: bold;
+    }
+    .user-name { font-size: 18px; font-weight: 600; color: #333; }
+    .logout-btn {
+      padding: 8px 16px; background: #f5f5f5; border: none;
+      border-radius: 8px; color: #666; cursor: pointer; font-size: 14px;
+    }
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+    .stat-card {
+      background: white; padding: 20px; border-radius: 15px;
+      text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .stat-number {
+      font-size: 32px; font-weight: bold;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .stat-label { color: #666; font-size: 14px; margin-top: 5px; }
+    .nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: white; display: flex; justify-content: space-around;
+      padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+    .nav-item { text-align: center; color: #999; font-size: 12px; cursor: pointer; }
+    .nav-item.active { color: #667eea; }
+    .nav-item svg { width: 24px; height: 24px; margin-bottom: 5px; }
+    .page { display: none; padding: 20px; padding-bottom: 100px; }
+    .page.active { display: block; }
+    .card {
+      background: white; border-radius: 15px; padding: 20px;
+      margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .card-title { font-size: 18px; font-weight: 600; color: #333; margin-bottom: 15px; }
+    .info-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+    .info-item:last-child { border-bottom: none; }
+    .info-label { color: #666; }
+    .info-value { color: #333; font-weight: 500; }
+    .record-item {
+      padding: 15px; border-left: 4px solid #667eea;
+      background: #f9f9f9; margin-bottom: 10px;
+      border-radius: 0 10px 10px 0;
+    }
+    .record-title { font-weight: 600; color: #333; margin-bottom: 5px; }
+    .record-date { color: #999; font-size: 12px; }
+    .record-type {
+      display: inline-block; padding: 4px 10px;
+      background: #667eea; color: white;
+      border-radius: 20px; font-size: 12px; margin-top: 8px;
+    }
+    .qr-section { text-align: center; padding: 20px; }
+    #qrcode {
+      margin: 20px auto; padding: 20px; background: white;
+      border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      display: inline-block;
+    }
+    .qr-tip { color: #666; font-size: 14px; margin-top: 10px; }
+    .toast {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.8); color: white;
+      padding: 15px 30px; border-radius: 10px;
+      font-size: 16px; z-index: 9999; display: none;
+    }
+    .modal {
+      display: none; position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5); z-index: 9998;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white; border-radius: 20px; padding: 30px;
+      width: 100%; max-width: 420px; max-height: 90vh; overflow-y: auto;
+    }
+    .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; text-align: center; }
+    .edit-btn {
+      padding: 6px 12px; background: #f0f7ff; color: #667eea;
+      border: none; border-radius: 8px; font-size: 13px; cursor: pointer;
+    }
+    .edit-btn:hover { background: #e0e7ff; }
+    .add-btn {
+      width: 100%; padding: 12px; background: #f0f7ff;
+      color: #667eea; border: 2px dashed #667eea;
+      border-radius: 10px; font-size: 16px; cursor: pointer; margin-top: 10px;
+    }
+    .add-btn:hover { background: #e0e7ff; }
+    .delete-btn { color: #ff4d4f; font-size: 12px; cursor: pointer; margin-left: 10px; }
+  </style>
+</head>
+<body>
+        <div class="nav-item" onclick="switchTab('qr')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="8" y1="12" x2="16" y2="12"></line><line x1="12" y1="8" x2="12" y2="16"></line></svg>
+        <div>二维码</div>
+      </div>
+      <div class="nav-item" onclick="switchTab('profile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <div>我的</div>
+      </div>
+    </div>
+  </div>
 
-async function handleLogin() {
-  const email = document.getElementById('emailInput').value.trim();
-  const password = document.getElementById('passwordInput').value;
-  
-  if (!email || !password) {
-    showToast('请输入邮箱和密码');
-    return;
-  }
-  
-  try {
-    const res = await fetch(CLOUD_BASE + '/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+  <!-- 编辑资料弹窗 -->
+  <div class="modal" id="editProfileModal">
+    <div class="modal-content">
+      <div class="modal-title">编辑个人资料</div>
+      <div class="form-group">
+        <label>姓名</label>
+        <input type="text" id="editName" placeholder="请输入姓名">
+      </div>
+      <div class="form-group">
+        <label>性别</label>
+        <select id="editGender">
+          <option value="">请选择</option>
+          <option value="男">男</option>
+          <option value="女">女</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>年龄</label>
+        <input type="number" id="editAge" placeholder="请输入年龄">
+      </div>
+      <div class="form-group">
+        <label>血型</label>
+        <select id="editBlood">
+          <option value="">请选择</option>
+          <option value="A型">A型</option>
+          <option value="B型">B型</option>
+          <option value="AB型">AB型</option>
+          <option value="O型">O型</option>
+          <option value="Rh阴性">Rh阴性</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>慢病标签（用逗号分隔）</label>
+        <input type="text" id="editDiseases" placeholder="如：高血压, 糖尿病">
+      </div>
+      <button class="btn" onclick="saveProfile()">保存</button>
+      <button class="btn btn-secondary" onclick="closeEditProfile()" style="margin-top:10px;">取消</button>
+    </div>
+  </div>
+
+  <!-- 添加记录弹窗 -->
+  <div class="modal" id="addRecordModal">
+    <div class="modal-content">
+      <div class="modal-title">添加就诊记录</div>
+      <div class="form-group">
+        <label>就诊日期</label>
+        <input type="date" id="recordDate">
+      </div>
+      <div class="form-group">
+        <label>医院名称</label>
+        <input type="text" id="recordHospital" placeholder="如：北京大学第一医院">
+      </div>
+      <div class="form-group">
+        <label>科室</label>
+        <input type="text" id="recordDepartment" placeholder="如：心内科">
+      </div>
+      <div class="form-group">
+        <label>诊断结果</label>
+        <input type="text" id="recordDiagnosis" placeholder="如：高血压II期">
+      </div>
+      <div class="form-group">
+        <label>医嘱/用药</label>
+        <textarea id="recordMedication" placeholder="请输入医嘱或用药信息"></textarea>
+      </div>
+      <div class="form-group">
+        <label>记录类型</label>
+        <select id="recordType">
+          <option value="门诊">门诊</option>
+          <option value="住院">住院</option>
+          <option value="体检">体检</option>
+          <option value="急诊">急诊</option>
+          <option value="复查">复查</option>
+        </select>
+      </div>
+      <button class="btn" onclick="saveRecord()">保存记录</button>
+      <button class="btn btn-secondary" onclick="closeAddRecord()" style="margin-top:10px;">取消</button>
+    </div>
+  </div>
+
+  <!-- Toast 提示 -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ==================== 配置 ====================
+    const CLOUD_BASE = 'https://kangluka-d0gjhx9wya86f10f9.service.tcloudbase.com';
+    
+    // ==================== 状态 ====================
+    let currentUser = null;
+    let currentRecords = [];
+    let isGuest = false;
+
+    // ==================== 初始化 ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('kangluka_user');
+      if (saved) {
+        try {
+          currentUser = JSON.parse(saved);
+          showHome();
+          loadUserData();
+        } catch (e) {
+          localStorage.removeItem('kangluka_user');
+        }
+      }
+      
+      // 设置日期默认值为今天
+      const dateInput = document.getElementById('recordDate');
+      if (dateInput) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+      }
     });
-    const result = await res.json();
-    
-    if (!result.success) {
-      showToast(result.message);
-      return;
-    }
-    
-    currentUser = result.data;
-    DB.set('kangluka_user', currentUser);
-    showToast(result.message);
-    showHome();
-    
-    // 如果是新用户，提示完善资料
-    if (!currentUser.name) {
-      openEditProfile();
-    }
-  } catch (err) {
-    showToast('登录失败，请检查网络');
-    console.log(err);
-  }
-}
 
-async function loadUserData() {
-  if (!currentUser) return;
-  
-  try {
-    const res = await fetch(CLOUD_BASE + '/getRecords?uid=' + currentUser.uid);
-    const result = await res.json();
-    
-    if (result.success) {
-      currentUser = { ...currentUser, ...result.data.user, records: result.data.records };
-      renderData();
+    // ==================== 登录/注册 ====================
+    async function handleLogin() {
+      const email = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+      
+      if (!email || !password) {
+        showToast('请输入邮箱和密码');
+        return;
+      }
+      if (password.length < 6) {
+        showToast('密码至少6位');
+        return;
+      }
+      
+      showToast('登录中...');
+      
+      try {
+        const res = await fetch(CLOUD_BASE + '/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const result = await res.json();
+        
+        if (!result.success) {
+          showToast(result.message || '登录失败');
+          return;
+        }
+        
+        currentUser = result.data;
+        isGuest = false;
+        localStorage.setItem('kangluka_user', JSON.stringify(currentUser));
+        showToast(result.message || '登录成功');
+        showHome();
+        loadUserData();
+        
+        // 如果没有完善资料，自动弹出编辑
+        if (!currentUser.name) {
+          setTimeout(openEditProfile, 600);
+        }
+      } catch (err) {
+        console.error('登录错误:', err);
+        showToast('网络错误，请检查网络连接');
+      }
     }
-  } catch (err) {
-    console.log('加载数据失败:', err);
-  }
-}
+
+    // ==================== 游客体验 ====================
+    function guestLogin() {
+      const guestId = 'guest_' + Date.now();
+      currentUser = {
+        uid: guestId,
+        email: 'guest@kangluka.com',
+        name: '游客',
+        gender: '',
+        age: '',
+        blood: '',
+        diseases: [],
+        createdAt: new Date().toISOString()
+      };
+      isGuest = true;
+      localStorage.setItem('kangluka_user', JSON.stringify(currentUser));
+      showToast('游客模式：数据仅保存在本地');
+      showHome();
+      loadUserData();
+      setTimeout(openEditProfile, 600);
+    }
+
+    // ==================== 退出 ====================
+    function handleLogout() {
+      currentUser = null;
+      isGuest = false;
+      currentRecords = [];
+      localStorage.removeItem('kangluka_user');
+      document.getElementById('emailInput').value = '';
+      document.getElementById('passwordInput').value = '';
+      showLogin();
+      showToast('已退出登录');
+    }
+
+    // ==================== 页面切换 ====================
+    function showHome() {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('homePage').style.display = 'block';
+      document.getElementById('homePage').classList.add('active');
+      switchTab('home');
+    }
+
+    function showLogin() {
+      document.getElementById('homePage').style.display = 'none';
+      document.getElementById('homePage').classList.remove('active');
+      document.getElementById('loginPage').style.display = 'block';
+    }
+
+    function switchTab(tab) {
+      // 隐藏所有页面
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      
+      // 显示目标页面
+      const pageMap = {
+        'home': 'pageHome',
+        'records': 'pageRecords',
+        'qr': 'pageQR',
+        'profile': 'pageProfile'
+      };
+      
+      const pageId = pageMap[tab];
+      if (pageId) {
+        document.getElementById(pageId).classList.add('active');
+      }
+      
+      // 激活导航
+      const navItems = document.querySelectorAll('.nav-item');
+      const navIndex = ['home', 'records', 'qr', 'profile'].indexOf(tab);
+      if (navItems[navIndex]) {
+        navItems[navIndex].classList.add('active');
+      }
+      
+      // 如果切换到二维码页，生成二维码
+      if (tab === 'qr' && currentUser) {
+        generateQRCode();
+      }
+    }
+
+    // ==================== 加载用户数据 ====================
+    async function loadUserData() {
+      if (!currentUser) return;
+      
+      // 更新头部信息
+      document.getElementById('userName').textContent = currentUser.name || currentUser.email.split('@')[0] || '用户';
+      document.getElementById('userAvatar').textContent = (currentUser.name || '用').charAt(0);
+      
+      // 更新基本信息
+      document.getElementById('infoName').textContent = currentUser.name || '--';
+      document.getElementById('infoGender').textContent = currentUser.gender || '--';
+      document.getElementById('infoAge').textContent = currentUser.age || '--';
+      document.getElementById('infoBlood').textContent = currentUser.blood || '--';
+      
+      // 更新个人资料页
+      document.getElementById('profileUid').textContent = currentUser.uid || '--';
+      document.getElementById('profileEmail').textContent = currentUser.email || '--';
+      
+      // 渲染慢病标签
+      const tagsContainer = document.getElementById('diseaseTags');
+      tagsContainer.innerHTML = '';
+      if (currentUser.diseases && currentUser.diseases.length > 0) {
+        currentUser.diseases.forEach(d => {
+          const tag = document.createElement('span');
+          tag.style.cssText = 'padding:6px 14px;background:#f0f7ff;color:#667eea;border-radius:20px;font-size:13px;';
+          tag.textContent = d;
+          tagsContainer.appendChild(tag);
+        });
+      } else {
+        tagsContainer.innerHTML = '<span style="color:#999;font-size:14px;">暂无标签</span>';
+      }
+      
+      // 加载就诊记录
+      if (isGuest) {
+        // 游客模式：从本地加载
+        const localRecords = localStorage.getItem('kangluka_records_' + currentUser.uid);
+        currentRecords = localRecords ? JSON.parse(localRecords) : [];
+        renderRecords();
+      } else {
+        // 正式用户：从云端加载
+        try {
+          const res = await fetch(CLOUD_BASE + '/getRecords?uid=' + encodeURIComponent(currentUser.uid));
+          const result = await res.json();
+          
+          if (result.success && result.data) {
+            currentRecords = result.data.records || [];
+            // 合并用户资料（云端可能更新了）
+            if (result.data.user) {
+              currentUser = { ...currentUser, ...result.data.user };
+              localStorage.setItem('kangluka_user', JSON.stringify(currentUser));
+              // 重新刷新显示
+              document.getElementById('infoName').textContent = currentUser.name || '--';
+              document.getElementById('infoGender').textContent = currentUser.gender || '--';
+              document.getElementById('infoAge').textContent = currentUser.age || '--';
+              document.getElementById('infoBlood').textContent = currentUser.blood || '--';
+              document.getElementById('userName').textContent = currentUser.name || currentUser.email.split('@')[0] || '用户';
+            }
+            renderRecords();
+          }
+        } catch (err) {
+          console.error('加载数据失败:', err);
+          // 失败时使用本地缓存
+          const localRecords = localStorage.getItem('kangluka_records_' + currentUser.uid);
+          currentRecords = localRecords ? JSON.parse(localRecords) : [];
+          renderRecords();
+        }
+      }
+    }
+
+    // ==================== 渲染记录 ====================
+    function renderRecords() {
+      const recentContainer = document.getElementById('recentRecords');
+      const allContainer = document.getElementById('allRecords');
+      
+      // 更新统计
+      document.getElementById('recordCount').textContent = currentRecords.length;
+      const hospitals = new Set(currentRecords.map(r => r.hospital).filter(Boolean));
+      document.getElementById('hospitalCount').textContent = hospitals.size;
+      
+      // 按日期倒序
+      const sorted = [...currentRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      // 最近就诊（首页显示前3条）
+      recentContainer.innerHTML = '';
+      if (sorted.length === 0) {
+        recentContainer.innerHTML = '<div style="color:#999;text-align:center;padding:20px;">暂无就诊记录</div>';
+      } else {
+        sorted.slice(0, 3).forEach(r => {
+          recentContainer.appendChild(createRecordElement(r));
+        });
+      }
+      
+      // 全部记录
+      allContainer.innerHTML = '';
+      if (sorted.length === 0) {
+        allContainer.innerHTML = '<div style="color:#999;text-align:center;padding:20px;">点击右上角添加您的第一条记录</div>';
+      } else {
+        sorted.forEach(r => {
+          allContainer.appendChild(createRecordElement(r, true));
+        });
+      }
+    }
+
+    function createRecordElement(r, showDelete = false) {
+      const div = document.createElement('div');
+      div.className = 'record-item';
+      div.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="record-title">${r.hospital || '未知医院'} · ${r.department || '未知科室'}</span>
+          ${showDelete ? `<span class="delete-btn" onclick="deleteRecord('${r.id}')">删除</span>` : ''}
+        </div>
+        <div class="record-date">${r.date || '未知日期'}</div>
+        <div style="margin-top:8px;color:#333;font-size:14px;">诊断：${r.diagnosis || '无'}</div>
+        ${r.medication ? `<div style="margin-top:5px;color:#666;font-size:13px;">医嘱：${r.medication}</div>` : ''}
+        <span class="record-type">${r.type || '门诊'}</span>
+      `;
+      return div;
+    }
+
+    // ==================== 编辑资料 ====================
+    function openEditProfile() {
+      if (!currentUser) return;
+      document.getElementById('editName').value = currentUser.name || '';
+      document.getElementById('editGender').value = currentUser.gender || '';
+      document.getElementById('editAge').value = currentUser.age || '';
+      document.getElementById('editBlood').value = currentUser.blood || '';
+      document.getElementById('editDiseases').value = (currentUser.diseases || []).join(', ');
+      document.getElementById('editProfileModal').classList.add('active');
+    }
+
+    function closeEditProfile() {
+      document.getElementById('editProfileModal').classList.remove('active');
+    }
+
+    async function saveProfile() {
+      if (!currentUser) return;
+      
+      const name = document.getElementById('editName').value.trim();
+      const gender = document.getElementById('editGender').value;
+      const age = document.getElementById('editAge').value;
+      const blood = document.getElementById('editBlood').value;
+      const diseasesStr = document.getElementById('editDiseases').value;
+      const diseases = diseasesStr.split(/[,，]/).map(s => s.trim()).filter(Boolean);
+      
+      const updateData = {
+        uid: currentUser.uid,
+        name,
+        gender,
+        age,
+        blood,
+        diseases
+      };
+      
+      // 更新本地状态
+      currentUser = { ...currentUser, ...updateData };
+      localStorage.setItem('kangluka_user', JSON.stringify(currentUser));
+      
+      // 游客模式直接保存本地
+      if (isGuest) {
+        showToast('资料已保存（本地模式）');
+        closeEditProfile();
+        loadUserData();
+        return;
+      }
+      
+      // 正式用户同步到云端
+      try {
+        const res = await fetch(CLOUD_BASE + '/saveUser', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData)
+        });
+        
+        const result = await res.json();
+        if (result.success) {
+          showToast('资料已保存到云端');
+        } else {
+          showToast('云端保存失败，已缓存本地');
+        }
+      } catch (err) {
+        console.error('保存资料失败:', err);
+        showToast('网络错误，已缓存本地');
+      }
+      
+      closeEditProfile();
+      loadUserData();
+    }
+
+    // ==================== 添加记录 ====================
+    function openAddRecord() {
+      document.getElementById('recordDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('recordHospital').value = '';
+      document.getElementById('recordDepartment').value = '';
+      document.getElementById('recordDiagnosis').value = '';
+      document.getElementById('recordMedication').value = '';
+      document.getElementById('recordType').value = '门诊';
+      document.getElementById('addRecordModal').classList.add('active');
+    }
+
+    function closeAddRecord() {
+      document.getElementById('addRecordModal').classList.remove('active');
+    }
+
+    async function saveRecord() {
+      if (!currentUser) return;
+      
+      const record = {
+        id: Date.now().toString(),
+        date: document.getElementById('recordDate').value,
+        hospital: document.getElementById('recordHospital').value.trim(),
+        department: document.getElementById('recordDepartment').value.trim(),
+        diagnosis: document.getElementById('recordDiagnosis').value.trim(),
+        medication: document.getElementById('recordMedication').value.trim(),
+        type: document.getElementById('recordType').value,
+        createdAt: new Date().toISOString()
+      };
+      
+      if (!record.hospital || !record.date) {
+        showToast('请填写医院和日期');
+        return;
+      }
+      
+      // 添加到本地数组
+      currentRecords.unshift(record);
+      localStorage.setItem('kangluka_records_' + currentUser.uid, JSON.stringify(currentRecords));
+      
+      // 游客模式
+      if (isGuest) {
+        showToast('记录已添加（本地模式）');
+        closeAddRecord();
+        renderRecords();
+        return;
+      }
+      
+      // 同步到云端
+      try {
+        const res = await fetch(CLOUD_BASE + '/addRecord', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            uid: currentUser.uid,
+            record: record
+          })
+        });
+        
+        const result = await res.json();
+        if (result.success) {
+          showToast('记录已保存到云端');
+        } else {
+          showToast('云端同步失败，已缓存本地');
+        }
+      } catch (err) {
+        console.error('保存记录失败:', err);
+        showToast('网络错误，已缓存本地');
+      }
+      
+      closeAddRecord();
+      renderRecords();
+    }
+
+    // ==================== 删除记录 ====================
+    async function deleteRecord(id) {
+      if (!confirm('确定删除这条记录吗？')) return;
+      
+      currentRecords = currentRecords.filter(r => r.id !== id);
+      localStorage.setItem('kangluka_records_' + currentUser.uid, JSON.stringify(currentRecords));
+      
+      if (!isGuest) {
+        try {
+          await fetch(CLOUD_BASE + '/deleteRecord', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: currentUser.uid, recordId: id })
+          });
+        } catch (err) {
+          console.error('删除云端记录失败:', err);
+        }
+      }
+      
+      renderRecords();
+      showToast('已删除');
+    }
+
+    // ==================== 二维码 ====================
+    function generateQRCode() {
+      const container = document.getElementById('qrcode');
+      container.innerHTML = '';
+      
+      if (!currentUser) return;
+      
+      // 生成二维码链接（指向健康档案摘要页）
+      const qrUrl = CLOUD_BASE + '/health-summary?uid=' + encodeURIComponent(currentUser.uid);
+      document.getElementById('qrUid').textContent = 'UID: ' + currentUser.uid;
+      
+      try {
+        new QRCode(container, {
+          text: qrUrl,
+          width: 200,
+          height: 200,
+          colorDark: '#667eea',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch (e) {
+        console.error('二维码生成失败:', e);
+        container.innerHTML = '<div style="color:#999;">二维码生成失败，请刷新重试</div>';
+      }
+    }
+
+    // ==================== 工具函数 ====================
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 2500);
+    }
+
+    // 点击弹窗外部关闭
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    });
+
+    // 回车键登录
+    document.getElementById('passwordInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+  </script>
+</body>
+</html>
