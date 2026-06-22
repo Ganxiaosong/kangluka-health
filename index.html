@@ -11,10 +11,6 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
     }
     .container {
       background: white;
@@ -59,13 +55,19 @@
     }
     .divider::before { left: 0; }
     .divider::after { right: 0; }
+    
+    .login-page {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 20px;
+    }
     .home-page { display: none; }
     .home-page.active { display: block; }
-    .login-page { display: block; }
+    
     .header {
       background: white; padding: 15px 20px; display: flex;
       justify-content: space-between; align-items: center;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; border-radius: 15px;
+      margin: 15px;
     }
     .user-info { display: flex; align-items: center; gap: 12px; }
     .avatar {
@@ -78,7 +80,7 @@
       padding: 8px 16px; background: #f5f5f5; border: none;
       border-radius: 8px; color: #666; cursor: pointer; font-size: 14px;
     }
-    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; padding: 0 15px; }
     .stat-card {
       background: white; padding: 20px; border-radius: 15px;
       text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -92,12 +94,12 @@
     .nav {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: white; display: flex; justify-content: space-around;
-      padding: 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     }
-    .nav-item { text-align: center; color: #999; font-size: 12px; cursor: pointer; }
+    .nav-item { text-align: center; color: #999; font-size: 12px; cursor: pointer; flex: 1; }
     .nav-item.active { color: #667eea; }
-    .nav-item svg { width: 24px; height: 24px; margin-bottom: 5px; }
-    .page { display: none; padding: 20px; padding-bottom: 100px; }
+    .nav-item svg { width: 24px; height: 24px; margin: 0 auto 4px; display: block; }
+    .page { display: none; padding: 15px; padding-bottom: 100px; }
     .page.active { display: block; }
     .card {
       background: white; border-radius: 15px; padding: 20px;
@@ -151,17 +153,141 @@
       border: none; border-radius: 8px; font-size: 13px; cursor: pointer;
     }
     .edit-btn:hover { background: #e0e7ff; }
-    .add-btn {
-      width: 100%; padding: 12px; background: #f0f7ff;
-      color: #667eea; border: 2px dashed #667eea;
-      border-radius: 10px; font-size: 16px; cursor: pointer; margin-top: 10px;
-    }
-    .add-btn:hover { background: #e0e7ff; }
     .delete-btn { color: #ff4d4f; font-size: 12px; cursor: pointer; margin-left: 10px; }
+    .empty-tip { color: #999; text-align: center; padding: 30px; font-size: 14px; }
   </style>
 </head>
 <body>
-        <div class="nav-item" onclick="switchTab('qr')">
+
+  <!-- 登录页 -->
+  <div class="login-page" id="loginPage">
+    <div class="container">
+      <div class="logo">
+        <div class="logo-icon">康</div>
+        <h1>康录卡</h1>
+        <p class="subtitle">跨院慢病病史整合的轻量健康档案</p>
+      </div>
+      <div class="form-group">
+        <label>邮箱</label>
+        <input type="email" id="emailInput" placeholder="请输入邮箱">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="passwordInput" placeholder="请输入密码">
+      </div>
+      <button class="btn" onclick="handleLogin()">登录 / 注册</button>
+      <div class="divider">或</div>
+      <button class="btn btn-secondary" onclick="guestLogin()">游客体验</button>
+    </div>
+  </div>
+
+  <!-- 主页面 -->
+  <div class="home-page" id="homePage">
+    <div class="header">
+      <div class="user-info">
+        <div class="avatar" id="userAvatar">用</div>
+        <div class="user-name" id="userName">用户</div>
+      </div>
+      <button class="logout-btn" onclick="handleLogout()">退出</button>
+    </div>
+
+    <!-- 首页 -->
+    <div class="page active" id="pageHome">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="recordCount">0</div>
+          <div class="stat-label">档案记录</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="hospitalCount">0</div>
+          <div class="stat-label">就诊医院</div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>基本信息</span>
+          <button class="edit-btn" onclick="openEditProfile()">编辑</button>
+        </div>
+        <div class="info-item">
+          <span class="info-label">姓名</span>
+          <span class="info-value" id="infoName">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">性别</span>
+          <span class="info-value" id="infoGender">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">年龄</span>
+          <span class="info-value" id="infoAge">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">血型</span>
+          <span class="info-value" id="infoBlood">--</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">最近就诊</div>
+        <div id="recentRecords">
+          <div class="empty-tip">暂无就诊记录</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 档案页 -->
+    <div class="page" id="pageRecords">
+      <div class="card">
+        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>全部健康档案</span>
+          <button class="edit-btn" onclick="openAddRecord()">+ 添加</button>
+        </div>
+        <div id="allRecords">
+          <div class="empty-tip">点击右上角添加您的第一条记录</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 二维码页 -->
+    <div class="page" id="pageQR">
+      <div class="qr-section">
+        <h3>我的健康二维码</h3>
+        <p class="qr-tip">医生扫码即可查看您的健康档案</p>
+        <div id="qrcode"></div>
+        <p class="qr-tip" id="qrUid" style="margin-top:10px;font-size:12px;color:#999;"></p>
+      </div>
+    </div>
+
+    <!-- 我的页 -->
+    <div class="page" id="pageProfile">
+      <div class="card">
+        <div class="card-title">个人资料</div>
+        <div class="info-item">
+          <span class="info-label">用户ID</span>
+          <span class="info-value" id="profileUid">--</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">邮箱</span>
+          <span class="info-value" id="profileEmail">--</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">慢病标签</div>
+        <div id="diseaseTags" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="nav">
+      <div class="nav-item active" onclick="switchTab('home')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <div>首页</div>
+      </div>
+      <div class="nav-item" onclick="switchTab('records')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        <div>档案</div>
+      </div>
+      <div class="nav-item" onclick="switchTab('qr')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="8" y1="12" x2="16" y2="12"></line><line x1="12" y1="8" x2="12" y2="16"></line></svg>
         <div>二维码</div>
       </div>
@@ -277,7 +403,6 @@
         }
       }
       
-      // 设置日期默认值为今天
       const dateInput = document.getElementById('recordDate');
       if (dateInput) {
         dateInput.value = new Date().toISOString().split('T')[0];
@@ -321,7 +446,6 @@
         showHome();
         loadUserData();
         
-        // 如果没有完善资料，自动弹出编辑
         if (!currentUser.name) {
           setTimeout(openEditProfile, 600);
         }
@@ -375,15 +499,13 @@
     function showLogin() {
       document.getElementById('homePage').style.display = 'none';
       document.getElementById('homePage').classList.remove('active');
-      document.getElementById('loginPage').style.display = 'block';
+      document.getElementById('loginPage').style.display = 'flex';
     }
 
     function switchTab(tab) {
-      // 隐藏所有页面
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       
-      // 显示目标页面
       const pageMap = {
         'home': 'pageHome',
         'records': 'pageRecords',
@@ -396,14 +518,12 @@
         document.getElementById(pageId).classList.add('active');
       }
       
-      // 激活导航
       const navItems = document.querySelectorAll('.nav-item');
       const navIndex = ['home', 'records', 'qr', 'profile'].indexOf(tab);
       if (navItems[navIndex]) {
         navItems[navIndex].classList.add('active');
       }
       
-      // 如果切换到二维码页，生成二维码
       if (tab === 'qr' && currentUser) {
         generateQRCode();
       }
@@ -413,21 +533,17 @@
     async function loadUserData() {
       if (!currentUser) return;
       
-      // 更新头部信息
       document.getElementById('userName').textContent = currentUser.name || currentUser.email.split('@')[0] || '用户';
       document.getElementById('userAvatar').textContent = (currentUser.name || '用').charAt(0);
       
-      // 更新基本信息
       document.getElementById('infoName').textContent = currentUser.name || '--';
       document.getElementById('infoGender').textContent = currentUser.gender || '--';
       document.getElementById('infoAge').textContent = currentUser.age || '--';
       document.getElementById('infoBlood').textContent = currentUser.blood || '--';
       
-      // 更新个人资料页
       document.getElementById('profileUid').textContent = currentUser.uid || '--';
       document.getElementById('profileEmail').textContent = currentUser.email || '--';
       
-      // 渲染慢病标签
       const tagsContainer = document.getElementById('diseaseTags');
       tagsContainer.innerHTML = '';
       if (currentUser.diseases && currentUser.diseases.length > 0) {
@@ -441,25 +557,20 @@
         tagsContainer.innerHTML = '<span style="color:#999;font-size:14px;">暂无标签</span>';
       }
       
-      // 加载就诊记录
       if (isGuest) {
-        // 游客模式：从本地加载
         const localRecords = localStorage.getItem('kangluka_records_' + currentUser.uid);
         currentRecords = localRecords ? JSON.parse(localRecords) : [];
         renderRecords();
       } else {
-        // 正式用户：从云端加载
         try {
           const res = await fetch(CLOUD_BASE + '/getRecords?uid=' + encodeURIComponent(currentUser.uid));
           const result = await res.json();
           
           if (result.success && result.data) {
             currentRecords = result.data.records || [];
-            // 合并用户资料（云端可能更新了）
             if (result.data.user) {
               currentUser = { ...currentUser, ...result.data.user };
               localStorage.setItem('kangluka_user', JSON.stringify(currentUser));
-              // 重新刷新显示
               document.getElementById('infoName').textContent = currentUser.name || '--';
               document.getElementById('infoGender').textContent = currentUser.gender || '--';
               document.getElementById('infoAge').textContent = currentUser.age || '--';
@@ -470,7 +581,6 @@
           }
         } catch (err) {
           console.error('加载数据失败:', err);
-          // 失败时使用本地缓存
           const localRecords = localStorage.getItem('kangluka_records_' + currentUser.uid);
           currentRecords = localRecords ? JSON.parse(localRecords) : [];
           renderRecords();
@@ -483,28 +593,24 @@
       const recentContainer = document.getElementById('recentRecords');
       const allContainer = document.getElementById('allRecords');
       
-      // 更新统计
       document.getElementById('recordCount').textContent = currentRecords.length;
       const hospitals = new Set(currentRecords.map(r => r.hospital).filter(Boolean));
       document.getElementById('hospitalCount').textContent = hospitals.size;
       
-      // 按日期倒序
       const sorted = [...currentRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
       
-      // 最近就诊（首页显示前3条）
       recentContainer.innerHTML = '';
       if (sorted.length === 0) {
-        recentContainer.innerHTML = '<div style="color:#999;text-align:center;padding:20px;">暂无就诊记录</div>';
+        recentContainer.innerHTML = '<div class="empty-tip">暂无就诊记录</div>';
       } else {
         sorted.slice(0, 3).forEach(r => {
           recentContainer.appendChild(createRecordElement(r));
         });
       }
       
-      // 全部记录
       allContainer.innerHTML = '';
       if (sorted.length === 0) {
-        allContainer.innerHTML = '<div style="color:#999;text-align:center;padding:20px;">点击右上角添加您的第一条记录</div>';
+        allContainer.innerHTML = '<div class="empty-tip">点击右上角添加您的第一条记录</div>';
       } else {
         sorted.forEach(r => {
           allContainer.appendChild(createRecordElement(r, true));
@@ -562,11 +668,9 @@
         diseases
       };
       
-      // 更新本地状态
       currentUser = { ...currentUser, ...updateData };
       localStorage.setItem('kangluka_user', JSON.stringify(currentUser));
       
-      // 游客模式直接保存本地
       if (isGuest) {
         showToast('资料已保存（本地模式）');
         closeEditProfile();
@@ -574,7 +678,6 @@
         return;
       }
       
-      // 正式用户同步到云端
       try {
         const res = await fetch(CLOUD_BASE + '/saveUser', {
           method: 'POST',
@@ -631,11 +734,9 @@
         return;
       }
       
-      // 添加到本地数组
       currentRecords.unshift(record);
       localStorage.setItem('kangluka_records_' + currentUser.uid, JSON.stringify(currentRecords));
       
-      // 游客模式
       if (isGuest) {
         showToast('记录已添加（本地模式）');
         closeAddRecord();
@@ -643,7 +744,6 @@
         return;
       }
       
-      // 同步到云端
       try {
         const res = await fetch(CLOUD_BASE + '/addRecord', {
           method: 'POST',
@@ -699,7 +799,6 @@
       
       if (!currentUser) return;
       
-      // 生成二维码链接（指向健康档案摘要页）
       const qrUrl = CLOUD_BASE + '/health-summary?uid=' + encodeURIComponent(currentUser.uid);
       document.getElementById('qrUid').textContent = 'UID: ' + currentUser.uid;
       
