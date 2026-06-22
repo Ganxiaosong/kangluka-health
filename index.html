@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>康录卡 - 健康档案管理系统</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://static.cloudbase.net/cloudbase-js-sdk/2.8.1/cloudbase.full.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
@@ -168,18 +167,7 @@
   </div>
   <div class="toast" id="toast"></div>
   <script>
-    const app = cloudbase.init({ env: 'kangluka-d0gjhx9wya86f10f9' });
-    
-    async function callCloudFunction(name, data) {
-      try {
-        await app.auth().anonymousAuthProvider().signIn();
-      } catch (e) {
-        console.log('匿名登录失败或已登录', e);
-      }
-      const res = await app.callFunction({ name, data });
-      return res.result;
-    }
-    
+    const CLOUD_BASE = 'https://kangluka-d0gjhx9wya86f10f9.service.tcloudbase.com';
     let currentUser = null, currentRecords = [], isGuest = false;
     
     document.addEventListener('DOMContentLoaded', () => {
@@ -211,7 +199,12 @@
       }
       showToast('登录中...');
       try {
-        const result = await callCloudFunction('login', { email, password });
+        const res = await fetch(CLOUD_BASE + '/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const result = await res.json();
         if (!result.success) {
           showToast(result.message || '登录失败');
           return;
@@ -225,7 +218,7 @@
         if (!currentUser.name) setTimeout(openEditProfile, 600);
       } catch (err) {
         console.error('登录错误:', err);
-        showToast('登录失败：' + (err.message || '网络错误'));
+        showToast('登录失败：网络错误');
       }
     }
     
@@ -239,7 +232,12 @@
       btn.disabled = true;
       btn.textContent = '发送中...';
       try {
-        const result = await callCloudFunction('sendCode', { email });
+        const res = await fetch(CLOUD_BASE + '/sendCode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const result = await res.json();
         if (result.success) {
           showToast('验证码：' + result.demoCode);
           let c = 60;
@@ -261,7 +259,7 @@
         }
       } catch (err) {
         console.error('发送验证码错误:', err);
-        showToast('发送失败：' + (err.message || '网络错误'));
+        showToast('发送失败：网络错误');
         btn.disabled = false;
         btn.textContent = '发送验证码';
       }
@@ -286,7 +284,12 @@
       }
       showToast('注册中...');
       try {
-        const result = await callCloudFunction('register', { email, password, code });
+        const res = await fetch(CLOUD_BASE + '/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, code })
+        });
+        const result = await res.json();
         if (!result.success) {
           showToast(result.message || '注册失败');
           return;
@@ -300,7 +303,7 @@
         setTimeout(openEditProfile, 600);
       } catch (err) {
         console.error('注册错误:', err);
-        showToast('注册失败：' + (err.message || '网络错误'));
+        showToast('注册失败：网络错误');
       }
     }
     
@@ -392,7 +395,8 @@
         renderRecords();
       } else {
         try {
-          const result = await callCloudFunction('getRecords', { uid: currentUser.uid });
+          const res = await fetch(CLOUD_BASE + '/getRecords?uid=' + encodeURIComponent(currentUser.uid));
+          const result = await res.json();
           if (result.success && result.data) {
             currentRecords = result.data.records || [];
             if (result.data.user) {
@@ -468,11 +472,16 @@
         return;
       }
       try {
-        const result = await callCloudFunction('saveUser', updateData);
+        const res = await fetch(CLOUD_BASE + '/saveUser', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData)
+        });
+        const result = await res.json();
         showToast(result.success ? '资料已保存' : '云端失败');
       } catch (err) {
         console.error('保存资料失败:', err);
-        showToast('保存失败：' + (err.message || '网络错误'));
+        showToast('保存失败：网络错误');
       }
       closeEditProfile();
       loadUserData();
@@ -517,11 +526,16 @@
         return;
       }
       try {
-        const result = await callCloudFunction('addRecord', { uid: currentUser.uid, record });
+        const res = await fetch(CLOUD_BASE + '/addRecord', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ uid: currentUser.uid, record })
+        });
+        const result = await res.json();
         showToast(result.success ? '记录已保存' : '云端失败');
       } catch (err) {
         console.error('保存记录失败:', err);
-        showToast('保存失败：' + (err.message || '网络错误'));
+        showToast('保存失败：网络错误');
       }
       closeAddRecord();
       renderRecords();
@@ -533,7 +547,11 @@
       localStorage.setItem('kangluka_records_' + currentUser.uid, JSON.stringify(currentRecords));
       if (!isGuest) {
         try {
-          await callCloudFunction('deleteRecord', { uid: currentUser.uid, recordId: id });
+          await fetch(CLOUD_BASE + '/deleteRecord', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: currentUser.uid, recordId: id })
+          });
         } catch (err) {
           console.error('删除云端记录失败:', err);
         }
@@ -546,7 +564,7 @@
       const c = document.getElementById('qrcode');
       c.innerHTML = '';
       if (!currentUser) return;
-      const qrUrl = 'https://kangluka-d0gjhx9wya86f10f9.service.tcloudbase.com/health-summary?uid=' + encodeURIComponent(currentUser.uid);
+      const qrUrl = CLOUD_BASE + '/health-summary?uid=' + encodeURIComponent(currentUser.uid);
       document.getElementById('qrUid').textContent = 'UID: ' + currentUser.uid;
       try {
         new QRCode(c, { text: qrUrl, width: 200, height: 200, colorDark: '#667eea', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
