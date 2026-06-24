@@ -342,16 +342,6 @@
       color: #555;
       font-weight: 500;
     }
-    .code-row { display: flex; gap: 10px; }
-    .code-row input { flex: 1; }
-    .code-row .btn {
-      width: auto;
-      padding: 14px 16px;
-      font-size: 14px;
-      white-space: nowrap;
-      margin-top: 0;
-      margin-bottom: 0;
-    }
     .toast {
       position: fixed;
       top: 50%;
@@ -411,13 +401,6 @@
         <div class="form-group">
           <label>确认密码</label>
           <input type="password" id="regConfirmPassword" placeholder="再次输入密码">
-        </div>
-        <div class="form-group">
-          <label>验证码</label>
-          <div class="code-row">
-            <input type="text" id="regCode" placeholder="请输入验证码">
-            <button class="btn" id="sendCodeBtn" onclick="sendVerificationCode()">发送验证码</button>
-          </div>
         </div>
         <button class="btn" onclick="handleRegister()">注 册</button>
         <div class="auth-switch">
@@ -662,34 +645,35 @@
     let currentProfile = null;
     let currentRecords = [];
     let isGuest = false;
-    let pendingCode = null;
 
     // ==================== 初始化 ====================
     document.addEventListener('DOMContentLoaded', async () => {
       const dateInput = document.getElementById('recordDate');
       if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
 
-      // 检查是否已登录
+      // 检查是否已登录（包括从邮箱确认链接跳转回来）
       const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
         currentUser = session.user;
         isGuest = false;
         showHome();
         await loadUserData();
-      } else {
-        const saved = localStorage.getItem('kangluka_guest');
-        if (saved) {
-          try {
-            const data = JSON.parse(saved);
-            currentUser = data.user;
-            isGuest = true;
-            currentProfile = data.profile || {};
-            currentRecords = data.records || [];
-            showHome();
-            renderUI();
-          } catch (e) {
-            localStorage.removeItem('kangluka_guest');
-          }
+        return;
+      }
+
+      // 检查本地游客数据
+      const saved = localStorage.getItem('kangluka_guest');
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          currentUser = data.user;
+          isGuest = true;
+          currentProfile = data.profile || {};
+          currentRecords = data.records || [];
+          showHome();
+          renderUI();
+        } catch (e) {
+          localStorage.removeItem('kangluka_guest');
         }
       }
     });
@@ -716,7 +700,12 @@
       showToast('登录中...');
       const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) {
-        showToast('登录失败：' + error.message);
+        if (error.message.includes('Email not confirmed') || error.message.includes('not confirmed')) {
+          showToast('邮箱未确认，请去邮箱点击确认链接');
+          alert('您的邮箱还未确认。\n\n请去邮箱找到 Supabase 发来的邮件，点击里面的确认链接。');
+        } else {
+          showToast('登录失败：' + error.message);
+        }
         return;
       }
       currentUser = data.user;
@@ -726,46 +715,14 @@
       await loadUserData();
     }
 
-    // ==================== 发送验证码（演示模式） ====================
-    function sendVerificationCode() {
-      const email = document.getElementById('regEmail').value.trim();
-      if (!email) {
-        showToast('请先输入邮箱');
-        return;
-      }
-      const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailReg.test(email)) {
-        showToast('邮箱格式不正确');
-        return;
-      }
-      pendingCode = Math.floor(100000 + Math.random() * 900000).toString();
-      showToast('验证码：' + pendingCode);
-      const btn = document.getElementById('sendCodeBtn');
-      btn.disabled = true;
-      let count = 60;
-      btn.textContent = count + '秒后重试';
-      const timer = setInterval(() => {
-        count--;
-        if (count <= 0) {
-          clearInterval(timer);
-          btn.disabled = false;
-          btn.textContent = '发送验证码';
-          pendingCode = null;
-        } else {
-          btn.textContent = count + '秒后重试';
-        }
-      }, 1000);
-    }
-
-    // ==================== 注册 ====================
+    // ==================== 注册（Supabase 自动发确认邮件） ====================
     async function handleRegister() {
       const email = document.getElementById('regEmail').value.trim();
       const password = document.getElementById('regPassword').value;
       const confirmPassword = document.getElementById('regConfirmPassword').value;
-      const code = document.getElementById('regCode').value.trim();
 
-      if (!email || !password || !code) {
-        showToast('请填写完整信息');
+      if (!email || !password) {
+        showToast('请填写邮箱和密码');
         return;
       }
       if (password.length < 6) {
@@ -776,43 +733,26 @@
         showToast('两次密码不一致');
         return;
       }
-      if (code !== pendingCode) {
-        showToast('验证码错误');
-        return;
-      }
 
       showToast('注册中...');
-      const { data, error } = await supabaseClient.auth.signUp({ email, password });
+      
+      // Supabase 自动发送确认邮件到用户邮箱
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: 'https://ganxiaosong.github.io/kangluka-health/'
+        }
+      });
+
       if (error) {
         showToast('注册失败：' + error.message);
         return;
       }
-      if (!data.user) {
-        showToast('注册失败，请重试');
-        return;
-      }
 
-      // 在 users 表中创建资料记录
-      const { error: insertError } = await supabaseClient.from('users').insert([{
-        id: data.user.id,
-        email: email,
-        name: '',
-        gender: '',
-        age: null,
-        blood: '',
-        diseases: []
-      }]);
-
-      if (insertError) {
-        console.error('创建用户资料失败:', insertError);
-      }
-
-      currentUser = data.user;
-      isGuest = false;
-      showToast('注册成功');
-      showHome();
-      await loadUserData();
-      setTimeout(openEditProfile, 600);
+      // 提示用户去邮箱查看确认邮件
+      alert('✅ 注册成功！\n\n已发送确认邮件到 ' + email + '\n\n请去邮箱（可能在垃圾箱）点击确认链接，即可自动登录。');
+      showToast('请去邮箱查看确认邮件');
     }
 
     // ==================== 游客体验 ====================
@@ -852,8 +792,6 @@
       document.getElementById('regEmail').value = '';
       document.getElementById('regPassword').value = '';
       document.getElementById('regConfirmPassword').value = '';
-      document.getElementById('regCode').value = '';
-      pendingCode = null;
       switchAuthMode('login');
       showLogin();
       showToast('已退出登录');
