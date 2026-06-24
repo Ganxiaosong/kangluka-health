@@ -246,7 +246,6 @@
     }
     .record-title { font-weight: 600; color: #333; font-size: 15px; }
     .record-date { font-size: 12px; color: #999; }
-    .record-hospital { font-size: 13px; color: #667eea; margin-bottom: 4px; }
     .record-desc { font-size: 13px; color: #666; line-height: 1.5; }
     .record-tag {
       display: inline-block;
@@ -257,11 +256,7 @@
       font-size: 11px;
       margin-top: 6px;
     }
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: #999;
-    }
+    .empty-tip { color: #999; text-align: center; padding: 20px; font-size: 14px; }
     .qr-section { text-align: center; padding: 30px 20px; }
     .qr-section h3 { font-size: 20px; margin-bottom: 8px; color: #333; }
     .qr-tip { color: #888; font-size: 14px; margin-bottom: 20px; }
@@ -372,7 +367,6 @@
     }
     .toast.show { display: block; animation: fadeIn 0.3s ease; }
     .delete-btn { color: #ff4d4f; font-size: 12px; cursor: pointer; margin-left: 10px; }
-    .empty-tip { color: #999; text-align: center; padding: 20px; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -661,7 +655,7 @@
     // ==================== Supabase 配置 ====================
     const SUPABASE_URL = 'https://yewemusfpujkmbznkwah.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_G041re9hwsH9hzvhlhbRyw_ihsZ2qN4';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // ==================== 状态 ====================
     let currentUser = null;
@@ -676,7 +670,7 @@
       if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
 
       // 检查是否已登录
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
         currentUser = session.user;
         isGuest = false;
@@ -686,11 +680,11 @@
         const saved = localStorage.getItem('kangluka_guest');
         if (saved) {
           try {
-            const guest = JSON.parse(saved);
-            currentUser = guest;
+            const data = JSON.parse(saved);
+            currentUser = data.user;
             isGuest = true;
-            currentProfile = guest.profile || {};
-            currentRecords = guest.records || [];
+            currentProfile = data.profile || {};
+            currentRecords = data.records || [];
             showHome();
             renderUI();
           } catch (e) {
@@ -720,7 +714,7 @@
         return;
       }
       showToast('登录中...');
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) {
         showToast('登录失败：' + error.message);
         return;
@@ -788,7 +782,7 @@
       }
 
       showToast('注册中...');
-      const { data, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabaseClient.auth.signUp({ email, password });
       if (error) {
         showToast('注册失败：' + error.message);
         return;
@@ -799,7 +793,7 @@
       }
 
       // 在 users 表中创建资料记录
-      const { error: insertError } = await supabase.from('users').insert([{
+      const { error: insertError } = await supabaseClient.from('users').insert([{
         id: data.user.id,
         email: email,
         name: '',
@@ -811,7 +805,6 @@
 
       if (insertError) {
         console.error('创建用户资料失败:', insertError);
-        // 即使资料创建失败，也继续登录
       }
 
       currentUser = data.user;
@@ -847,7 +840,7 @@
     // ==================== 退出 ====================
     async function handleLogout() {
       if (!isGuest) {
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
       }
       currentUser = null;
       currentProfile = null;
@@ -905,7 +898,7 @@
       }
 
       // 从 Supabase 读取资料
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await supabaseClient
         .from('users')
         .select('*')
         .eq('id', currentUser.id)
@@ -919,7 +912,7 @@
       }
 
       // 从 Supabase 读取记录
-      const { data: recordsData, error: recordsError } = await supabase
+      const { data: recordsData, error: recordsError } = await supabaseClient
         .from('records')
         .select('*')
         .eq('user_id', currentUser.id)
@@ -1053,7 +1046,7 @@
         return;
       }
 
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('users')
         .update(updateData)
         .eq('id', currentUser.id);
@@ -1110,7 +1103,7 @@
         return;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('records')
         .insert([{ ...record, user_id: currentUser.id }])
         .select();
@@ -1144,7 +1137,7 @@
         return;
       }
 
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('records')
         .delete()
         .eq('id', id)
