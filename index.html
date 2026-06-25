@@ -366,6 +366,7 @@
       font-size: 12px;
     }
   </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -727,7 +728,13 @@
       if (loginError) {
         if (loginError.message.includes('Email not confirmed') || loginError.message.includes('not confirmed')) {
           showToast('需邮件确认，请去Supabase控制台关闭确认');
-          alert('注册成功！但Supabase要求邮件确认。\n\n解决方法：\n1. 打开Supabase控制台\n2. 进入 Authentication → Providers → Email\n3. 关闭 "Confirm email" 开关\n4. 保存后重新注册即可');
+          alert('注册成功！但Supabase要求邮件确认。
+
+解决方法：
+1. 打开Supabase控制台
+2. 进入 Authentication → Providers → Email
+3. 关闭 "Confirm email" 开关
+4. 保存后重新注册即可');
         } else {
           showToast('注册成功，但登录失败：' + loginError.message);
         }
@@ -1006,28 +1013,38 @@
       return div.innerHTML;
     }
 
-    // 生成二维码
+    // 生成二维码（修复版：缩短内容防止溢出）
     function generateQR() {
       const container = document.getElementById('qrcode');
       container.innerHTML = '';
-      if (!currentUser) return;
+      if (!currentUser) {
+        container.innerHTML = '<p style="color:#999;">请先登录</p>';
+        return;
+      }
 
-      const qrData = JSON.stringify({
-        type: 'kangluka',
-        uid: currentUser.id,
-        name: userProfile.name || ''
-      });
+      try {
+        // 缩短二维码内容，只放必要信息，防止 code length overflow
+        const shortUid = currentUser.id.slice(0, 16);
+        const qrData = JSON.stringify({
+          t: 'k',
+          u: shortUid,
+          n: (userProfile.name || '').slice(0, 10)
+        });
 
-      new QRCode(container, {
-        text: qrData,
-        width: 180,
-        height: 180,
-        colorDark: '#333',
-        colorLight: '#fff',
-        correctLevel: QRCode.CorrectLevel.M
-      });
+        new QRCode(container, {
+          text: qrData,
+          width: 180,
+          height: 180,
+          colorDark: '#333',
+          colorLight: '#fff',
+          correctLevel: QRCode.CorrectLevel.L
+        });
 
-      document.getElementById('qrUid').textContent = 'ID: ' + currentUser.id.slice(0, 16) + '...';
+        document.getElementById('qrUid').textContent = 'ID: ' + shortUid + '...';
+      } catch (err) {
+        console.error('二维码生成失败:', err);
+        container.innerHTML = '<p style="color:#999;">二维码生成失败，请刷新重试</p>';
+      }
     }
 
     // Toast
