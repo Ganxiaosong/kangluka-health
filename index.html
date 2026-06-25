@@ -615,9 +615,10 @@
       }
       try {
         const shortUid = currentUser.id.slice(0, 16);
-        const qrData = JSON.stringify({ t: 'k', u: shortUid, n: (userProfile.name || '').slice(0, 10) });
+        // 生成网址，微信扫码可以直接打开
+        const qrUrl = 'https://ganxiaosong.github.io/kangluka-health/?uid=' + shortUid;
         new QRCode(container, {
-          text: qrData,
+          text: qrUrl,
           width: 180,
           height: 180,
           colorDark: '#333',
