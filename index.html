@@ -357,6 +357,14 @@
     }
     .toast.show { display: block; animation: fadeIn 0.3s ease; }
     .delete-btn { color: #ff4d4f; font-size: 12px; cursor: pointer; margin-left: 10px; }
+    .tag-item {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #667eea;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
@@ -582,12 +590,12 @@
           <input type="text" id="editDiseases" placeholder="如：高血压, 糖尿病">
         </div>
         <button class="btn" onclick="saveProfile()">保存</button>
-        <button class="btn btn-secondary" onclick="closeEditProfile()" style="margin-top:10px;">取消</button>
+        <button class="btn btn-secondary" onclick="closeEditProfile()" style="margin-top:10px">取消</button>
       </div>
     </div>
   </div>
 
-  <!-- 添加记录弹窗 -->
+  <!-- 添加档案弹窗 -->
   <div class="modal" id="addRecordModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -601,121 +609,85 @@
         </div>
         <div class="form-row">
           <label>医院名称</label>
-          <input type="text" id="recordHospital" placeholder="如：北京大学第一医院">
+          <input type="text" id="recordHospital" placeholder="如：北京协和医院">
         </div>
         <div class="form-row">
           <label>科室</label>
-          <input type="text" id="recordDepartment" placeholder="如：心内科">
+          <input type="text" id="recordDept" placeholder="如：心内科">
         </div>
         <div class="form-row">
           <label>诊断结果</label>
-          <input type="text" id="recordDiagnosis" placeholder="如：高血压II期">
+          <input type="text" id="recordTitle" placeholder="如：高血压复诊">
         </div>
         <div class="form-row">
-          <label>医嘱/用药</label>
-          <textarea id="recordMedication" placeholder="请输入医嘱或用药信息"></textarea>
+          <label>病情描述</label>
+          <textarea id="recordDesc" placeholder="请简要描述病情、用药情况等"></textarea>
         </div>
-        <div class="form-row">
-          <label>记录类型</label>
-          <select id="recordType">
-            <option value="门诊">门诊</option>
-            <option value="住院">住院</option>
-            <option value="体检">体检</option>
-            <option value="急诊">急诊</option>
-            <option value="复查">复查</option>
-          </select>
-        </div>
-        <button class="btn" onclick="saveRecord()">保存记录</button>
-        <button class="btn btn-secondary" onclick="closeAddRecord()" style="margin-top:10px;">取消</button>
+        <button class="btn" onclick="saveRecord()">保存</button>
+        <button class="btn btn-secondary" onclick="closeAddRecord()" style="margin-top:10px">取消</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast 提示 -->
   <div class="toast" id="toast"></div>
 
   <script>
-    // ==================== Supabase 配置 ====================
-    const SUPABASE_URL = 'https://yewemusfpujkmbznkwah.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_G041re9hwsH9hzvhlhbRyw_ihsZ2qN4';
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    // ==================== 配置区 ====================
+    // 请修改为你的 Supabase 项目信息：
+    const SUPABASE_URL = 'https://your-project-url.supabase.co';
+    const SUPABASE_ANON_KEY = 'your-anon-key';
+    // ================================================
 
-    // ==================== 状态 ====================
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
     let currentUser = null;
-    let currentProfile = null;
-    let currentRecords = [];
     let isGuest = false;
+    let userProfile = {};
+    let userRecords = [];
 
-    // ==================== 初始化 ====================
+    // 初始化
     document.addEventListener('DOMContentLoaded', async () => {
-      const dateInput = document.getElementById('recordDate');
-      if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
-
-      // 检查是否已登录（包括从邮箱确认链接跳转回来）
       const { data: { session } } = await supabaseClient.auth.getSession();
-      if (session) {
+      if (session?.user) {
         currentUser = session.user;
         isGuest = false;
         showHome();
         await loadUserData();
-        return;
-      }
-
-      // 检查本地游客数据
-      const saved = localStorage.getItem('kangluka_guest');
-      if (saved) {
-        try {
-          const data = JSON.parse(saved);
-          currentUser = data.user;
-          isGuest = true;
-          currentProfile = data.profile || {};
-          currentRecords = data.records || [];
-          showHome();
-          renderUI();
-        } catch (e) {
-          localStorage.removeItem('kangluka_guest');
-        }
       }
     });
 
-    // ==================== 登录/注册切换 ====================
+    // 切换登录/注册
     function switchAuthMode(mode) {
-      if (mode === 'login') {
-        document.getElementById('loginForm').style.display = 'block';
-        document.getElementById('registerForm').style.display = 'none';
-      } else {
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('registerForm').style.display = 'block';
-      }
+      document.getElementById('loginForm').style.display = mode === 'login' ? 'block' : 'none';
+      document.getElementById('registerForm').style.display = mode === 'register' ? 'block' : 'none';
     }
 
-    // ==================== 登录 ====================
+    // 登录
     async function handleLogin() {
       const email = document.getElementById('loginEmail').value.trim();
       const password = document.getElementById('loginPassword').value;
+
       if (!email || !password) {
-        showToast('请输入邮箱和密码');
+        showToast('请填写邮箱和密码');
         return;
       }
+
       showToast('登录中...');
       const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
       if (error) {
-        if (error.message.includes('Email not confirmed') || error.message.includes('not confirmed')) {
-          showToast('邮箱未确认，请去邮箱点击确认链接');
-          alert('您的邮箱还未确认。\n\n请去邮箱找到 Supabase 发来的邮件，点击里面的确认链接。');
-        } else {
-          showToast('登录失败：' + error.message);
-        }
+        showToast('登录失败：' + error.message);
         return;
       }
+
       currentUser = data.user;
       isGuest = false;
-      showToast('登录成功');
+      showToast('登录成功！');
       showHome();
       await loadUserData();
     }
 
-    // ==================== 注册（Supabase 自动发确认邮件） ====================
+    // 注册（修改后：自动登录，无需邮件确认）
     async function handleRegister() {
       const email = document.getElementById('regEmail').value.trim();
       const password = document.getElementById('regPassword').value;
@@ -735,401 +707,337 @@
       }
 
       showToast('注册中...');
-      
-      // Supabase 自动发送确认邮件到用户邮箱
-      const { data, error } = await supabaseClient.auth.signUp({
+
+      // 1. 注册（不发送确认邮件）
+      const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
         email,
-        password,
-        options: {
-          emailRedirectTo: 'https://ganxiaosong.github.io/kangluka-health/'
-        }
+        password
       });
 
-      if (error) {
-        showToast('注册失败：' + error.message);
+      if (signUpError) {
+        showToast('注册失败：' + signUpError.message);
         return;
       }
 
-      // 提示用户去邮箱查看确认邮件
-      alert('✅ 注册成功！\n\n已发送确认邮件到 ' + email + '\n\n请去邮箱（可能在垃圾箱）点击确认链接，即可自动登录。');
-      showToast('请去邮箱查看确认邮件');
-    }
+      // 2. 自动登录
+      const { data: loginData, error: loginError } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
 
-    // ==================== 游客体验 ====================
-    function guestLogin() {
-      const guestId = 'guest_' + Date.now();
-      currentUser = {
-        id: guestId,
-        email: 'guest@kangluka.com',
-        name: '游客'
-      };
-      isGuest = true;
-      currentProfile = { name: '游客', gender: '', age: '', blood: '', diseases: [] };
-      currentRecords = [];
-      localStorage.setItem('kangluka_guest', JSON.stringify({
-        user: currentUser,
-        profile: currentProfile,
-        records: currentRecords
-      }));
-      showToast('游客模式：数据仅保存在本地');
+      if (loginError) {
+        if (loginError.message.includes('Email not confirmed') || loginError.message.includes('not confirmed')) {
+          showToast('需邮件确认，请去Supabase控制台关闭确认');
+          alert('注册成功！但Supabase要求邮件确认。\n\n解决方法：\n1. 打开Supabase控制台\n2. 进入 Authentication → Providers → Email\n3. 关闭 "Confirm email" 开关\n4. 保存后重新注册即可');
+        } else {
+          showToast('注册成功，但登录失败：' + loginError.message);
+        }
+        return;
+      }
+
+      currentUser = loginData.user;
+      isGuest = false;
+      showToast('注册成功！');
       showHome();
-      renderUI();
+      await loadUserData();
       setTimeout(openEditProfile, 600);
     }
 
-    // ==================== 退出 ====================
+    // 游客登录
+    function guestLogin() {
+      isGuest = true;
+      currentUser = { id: 'guest_' + Date.now(), email: '游客' };
+      showToast('游客模式已开启');
+      showHome();
+      loadUserData();
+    }
+
+    // 退出
     async function handleLogout() {
       if (!isGuest) {
         await supabaseClient.auth.signOut();
       }
       currentUser = null;
-      currentProfile = null;
-      currentRecords = [];
       isGuest = false;
-      localStorage.removeItem('kangluka_guest');
-      document.getElementById('loginEmail').value = '';
-      document.getElementById('loginPassword').value = '';
-      document.getElementById('regEmail').value = '';
-      document.getElementById('regPassword').value = '';
-      document.getElementById('regConfirmPassword').value = '';
-      switchAuthMode('login');
+      userProfile = {};
+      userRecords = [];
       showLogin();
-      showToast('已退出登录');
+      showToast('已退出');
     }
 
-    // ==================== 页面切换 ====================
+    // 显示首页
     function showHome() {
       document.getElementById('loginPage').style.display = 'none';
       document.getElementById('homePage').style.display = 'block';
-      document.getElementById('homePage').classList.add('active');
       switchTab('home');
     }
+
+    // 显示登录页
     function showLogin() {
-      document.getElementById('homePage').style.display = 'none';
-      document.getElementById('homePage').classList.remove('active');
       document.getElementById('loginPage').style.display = 'flex';
+      document.getElementById('homePage').style.display = 'none';
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPassword').value = '';
+      switchAuthMode('login');
     }
+
+    // 切换底部导航
     function switchTab(tab) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      const pageMap = { 'home': 'pageHome', 'records': 'pageRecords', 'qr': 'pageQR', 'profile': 'pageProfile' };
-      if (pageMap[tab]) document.getElementById(pageMap[tab]).classList.add('active');
-      const navIndex = ['home', 'records', 'qr', 'profile'].indexOf(tab);
+
+      const pageMap = { home: 'pageHome', records: 'pageRecords', qr: 'pageQR', profile: 'pageProfile' };
+      if (pageMap[tab]) {
+        document.getElementById(pageMap[tab]).classList.add('active');
+      }
+
+      const navIndex = { home: 0, records: 1, qr: 2, profile: 3 };
       const navItems = document.querySelectorAll('.nav-item');
-      if (navItems[navIndex]) navItems[navIndex].classList.add('active');
-      if (tab === 'qr' && currentUser) generateQRCode();
+      if (navItems[navIndex[tab]]) {
+        navItems[navIndex[tab]].classList.add('active');
+      }
+
+      if (tab === 'qr') generateQR();
     }
 
-    // ==================== 加载用户数据 ====================
+    // 加载用户数据
     async function loadUserData() {
       if (!currentUser) return;
 
-      if (isGuest) {
-        const saved = localStorage.getItem('kangluka_guest');
-        if (saved) {
-          const data = JSON.parse(saved);
-          currentProfile = data.profile || {};
-          currentRecords = data.records || [];
-        }
-        renderUI();
-        return;
+      // 加载资料
+      if (!isGuest) {
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('*')
+          .eq('id', currentUser.id)
+          .single();
+        if (profile) userProfile = profile;
       }
 
-      // 从 Supabase 读取资料
-      const { data: profileData, error: profileError } = await supabaseClient
-        .from('users')
-        .select('*')
-        .eq('id', currentUser.id)
-        .single();
-
-      if (profileError) {
-        console.error('读取资料失败:', profileError);
-        currentProfile = { name: '', gender: '', age: '', blood: '', diseases: [] };
+      // 加载记录
+      if (!isGuest) {
+        const { data: records } = await supabaseClient
+          .from('records')
+          .select('*')
+          .eq('user_id', currentUser.id)
+          .order('record_date', { ascending: false });
+        userRecords = records || [];
       } else {
-        currentProfile = profileData || {};
+        userRecords = JSON.parse(localStorage.getItem('guest_records') || '[]');
       }
 
-      // 从 Supabase 读取记录
-      const { data: recordsData, error: recordsError } = await supabaseClient
-        .from('records')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('date', { ascending: false });
+      renderProfile();
+      renderRecords(userRecords, 'allRecords');
+      renderRecords(userRecords.slice(0, 3), 'recentRecords');
 
-      if (recordsError) {
-        console.error('读取记录失败:', recordsError);
-        currentRecords = [];
-      } else {
-        currentRecords = recordsData || [];
-      }
+      // 统计
+      document.getElementById('recordCount').textContent = userRecords.length;
+      const hospitals = new Set(userRecords.map(r => r.hospital).filter(Boolean));
+      document.getElementById('hospitalCount').textContent = hospitals.size;
 
-      renderUI();
+      // 更新头部
+      const name = userProfile.name || (isGuest ? '游客' : currentUser.email?.split('@')[0] || '用户');
+      document.getElementById('userName').textContent = name;
+      document.getElementById('userAvatar').textContent = getAvatarText(name);
     }
 
-    function renderUI() {
-      const profile = currentProfile || {};
-      const userName = profile.name || currentUser.email?.split('@')[0] || '用户';
-      document.getElementById('userName').textContent = userName;
-      document.getElementById('userAvatar').textContent = (profile.name || '用').charAt(0);
-      document.getElementById('infoName').textContent = profile.name || '--';
-      document.getElementById('infoGender').textContent = profile.gender || '--';
-      document.getElementById('infoAge').textContent = profile.age || '--';
-      document.getElementById('infoBlood').textContent = profile.blood || '--';
-      document.getElementById('profileUid').textContent = currentUser.id || '--';
-      document.getElementById('profileEmail').textContent = currentUser.email || '--';
+    function renderProfile() {
+      document.getElementById('infoName').textContent = userProfile.name || '--';
+      document.getElementById('infoGender').textContent = userProfile.gender || '--';
+      document.getElementById('infoAge').textContent = userProfile.age || '--';
+      document.getElementById('infoBlood').textContent = userProfile.blood_type || '--';
+      document.getElementById('profileUid').textContent = currentUser?.id?.slice(0, 8) + '...' || '--';
+      document.getElementById('profileEmail').textContent = currentUser?.email || '--';
 
       const tagsContainer = document.getElementById('diseaseTags');
       tagsContainer.innerHTML = '';
-      const diseases = profile.diseases || [];
-      if (diseases.length > 0) {
-        diseases.forEach(d => {
+      if (userProfile.diseases) {
+        userProfile.diseases.split(',').forEach(d => {
           const tag = document.createElement('span');
-          tag.style.cssText = 'padding:6px 14px;background:#f0f7ff;color:#667eea;border-radius:20px;font-size:13px;';
-          tag.textContent = d;
+          tag.className = 'tag-item';
+          tag.textContent = d.trim();
           tagsContainer.appendChild(tag);
         });
-      } else {
-        tagsContainer.innerHTML = '<span style="color:#999;font-size:14px;">暂无标签</span>';
       }
-
-      renderRecords();
-    }
-
-    function renderRecords() {
-      const recentContainer = document.getElementById('recentRecords');
-      const allContainer = document.getElementById('allRecords');
-      document.getElementById('recordCount').textContent = currentRecords.length;
-      const hospitals = new Set(currentRecords.map(r => r.hospital).filter(Boolean));
-      document.getElementById('hospitalCount').textContent = hospitals.size;
-
-      const sorted = [...currentRecords].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      recentContainer.innerHTML = '';
-      if (sorted.length === 0) {
-        recentContainer.innerHTML = '<div class="empty-tip">暂无就诊记录</div>';
-      } else {
-        sorted.slice(0, 3).forEach(r => {
-          recentContainer.appendChild(createRecordElement(r));
-        });
-      }
-
-      allContainer.innerHTML = '';
-      if (sorted.length === 0) {
-        allContainer.innerHTML = '<div class="empty-tip">点击右上角添加您的第一条记录</div>';
-      } else {
-        sorted.forEach(r => {
-          allContainer.appendChild(createRecordElement(r, true));
-        });
+      if (tagsContainer.children.length === 0) {
+        tagsContainer.innerHTML = '<span style="color:#999;font-size:13px;">暂无标签</span>';
       }
     }
 
-    function createRecordElement(r, showDelete = false) {
-      const div = document.createElement('div');
-      div.className = 'record-item';
-      div.innerHTML = `
-        <div class="record-header">
-          <span class="record-title">${r.hospital || '未知医院'} · ${r.department || '未知科室'}</span>
-          ${showDelete ? `<span class="delete-btn" onclick="deleteRecord('${r.id}')">删除</span>` : ''}
-        </div>
-        <div class="record-date">${r.date || '未知日期'}</div>
-        <div class="record-desc">诊断：${r.diagnosis || '无'}</div>
-        ${r.medication ? `<div class="record-desc">医嘱：${r.medication}</div>` : ''}
-        <span class="record-tag">${r.type || '门诊'}</span>
-      `;
-      return div;
+    function getAvatarText(name) {
+      if (!name) return '用';
+      return name.charAt(0);
     }
 
-    // ==================== 编辑资料 ====================
+    // 编辑资料
     function openEditProfile() {
-      if (!currentUser) return;
-      const profile = currentProfile || {};
-      document.getElementById('editName').value = profile.name || '';
-      document.getElementById('editGender').value = profile.gender || '';
-      document.getElementById('editAge').value = profile.age || '';
-      document.getElementById('editBlood').value = profile.blood || '';
-      document.getElementById('editDiseases').value = (profile.diseases || []).join(', ');
+      document.getElementById('editName').value = userProfile.name || '';
+      document.getElementById('editGender').value = userProfile.gender || '';
+      document.getElementById('editAge').value = userProfile.age || '';
+      document.getElementById('editBlood').value = userProfile.blood_type || '';
+      document.getElementById('editDiseases').value = userProfile.diseases || '';
       document.getElementById('editProfileModal').classList.add('active');
     }
+
     function closeEditProfile() {
       document.getElementById('editProfileModal').classList.remove('active');
     }
-    async function saveProfile() {
-      if (!currentUser) return;
-      const name = document.getElementById('editName').value.trim();
-      const gender = document.getElementById('editGender').value;
-      const age = document.getElementById('editAge').value;
-      const blood = document.getElementById('editBlood').value;
-      const diseasesStr = document.getElementById('editDiseases').value;
-      const diseases = diseasesStr.split(/[,，]/).map(s => s.trim()).filter(Boolean);
 
-      const updateData = {
-        name,
-        gender,
-        age: age ? parseInt(age) : null,
-        blood,
-        diseases
+    async function saveProfile() {
+      const profile = {
+        name: document.getElementById('editName').value.trim(),
+        gender: document.getElementById('editGender').value,
+        age: document.getElementById('editAge').value,
+        blood_type: document.getElementById('editBlood').value,
+        diseases: document.getElementById('editDiseases').value
       };
 
-      currentProfile = { ...currentProfile, ...updateData };
-
       if (isGuest) {
-        localStorage.setItem('kangluka_guest', JSON.stringify({
-          user: currentUser,
-          profile: currentProfile,
-          records: currentRecords
-        }));
-        showToast('资料已保存（本地模式）');
-        closeEditProfile();
-        renderUI();
-        return;
-      }
-
-      const { error } = await supabaseClient
-        .from('users')
-        .update(updateData)
-        .eq('id', currentUser.id);
-
-      if (error) {
-        console.error('保存资料失败:', error);
-        showToast('保存失败：' + error.message);
+        userProfile = profile;
+        localStorage.setItem('guest_profile', JSON.stringify(profile));
       } else {
-        showToast('资料已保存');
+        const { error } = await supabaseClient
+          .from('profiles')
+          .upsert({ id: currentUser.id, ...profile, updated_at: new Date() });
+        if (error) {
+          showToast('保存失败：' + error.message);
+          return;
+        }
       }
+
+      userProfile = profile;
+      renderProfile();
       closeEditProfile();
-      renderUI();
+      showToast('保存成功！');
     }
 
-    // ==================== 添加记录 ====================
+    // 添加记录
     function openAddRecord() {
       document.getElementById('recordDate').value = new Date().toISOString().split('T')[0];
       document.getElementById('recordHospital').value = '';
-      document.getElementById('recordDepartment').value = '';
-      document.getElementById('recordDiagnosis').value = '';
-      document.getElementById('recordMedication').value = '';
-      document.getElementById('recordType').value = '门诊';
+      document.getElementById('recordDept').value = '';
+      document.getElementById('recordTitle').value = '';
+      document.getElementById('recordDesc').value = '';
       document.getElementById('addRecordModal').classList.add('active');
     }
+
     function closeAddRecord() {
       document.getElementById('addRecordModal').classList.remove('active');
     }
+
     async function saveRecord() {
-      if (!currentUser) return;
       const record = {
-        date: document.getElementById('recordDate').value,
+        record_date: document.getElementById('recordDate').value,
         hospital: document.getElementById('recordHospital').value.trim(),
-        department: document.getElementById('recordDepartment').value.trim(),
-        diagnosis: document.getElementById('recordDiagnosis').value.trim(),
-        medication: document.getElementById('recordMedication').value.trim(),
-        type: document.getElementById('recordType').value
+        department: document.getElementById('recordDept').value.trim(),
+        title: document.getElementById('recordTitle').value.trim(),
+        description: document.getElementById('recordDesc').value.trim()
       };
-      if (!record.hospital || !record.date) {
-        showToast('请填写医院和日期');
+
+      if (!record.title) {
+        showToast('请填写诊断结果');
         return;
       }
 
       if (isGuest) {
-        record.id = 'rec_' + Date.now();
-        currentRecords.unshift(record);
-        localStorage.setItem('kangluka_guest', JSON.stringify({
-          user: currentUser,
-          profile: currentProfile,
-          records: currentRecords
-        }));
-        showToast('记录已添加（本地模式）');
-        closeAddRecord();
-        renderUI();
-        return;
+        record.id = 'guest_rec_' + Date.now();
+        record.user_id = currentUser.id;
+        userRecords.unshift(record);
+        localStorage.setItem('guest_records', JSON.stringify(userRecords));
+      } else {
+        const { error } = await supabaseClient
+          .from('records')
+          .insert([{ ...record, user_id: currentUser.id }]);
+        if (error) {
+          showToast('保存失败：' + error.message);
+          return;
+        }
       }
 
-      const { data, error } = await supabaseClient
-        .from('records')
-        .insert([{ ...record, user_id: currentUser.id }])
-        .select();
-
-      if (error) {
-        showToast('保存失败：' + error.message);
-        return;
-      }
-
-      if (data && data.length > 0) {
-        currentRecords.unshift(data[0]);
-      }
-      showToast('记录已保存');
       closeAddRecord();
-      renderUI();
+      showToast('添加成功！');
+      await loadUserData();
     }
 
-    // ==================== 删除记录 ====================
     async function deleteRecord(id) {
       if (!confirm('确定删除这条记录吗？')) return;
 
       if (isGuest) {
-        currentRecords = currentRecords.filter(r => r.id !== id);
-        localStorage.setItem('kangluka_guest', JSON.stringify({
-          user: currentUser,
-          profile: currentProfile,
-          records: currentRecords
-        }));
-        renderUI();
-        showToast('已删除');
-        return;
+        userRecords = userRecords.filter(r => r.id !== id);
+        localStorage.setItem('guest_records', JSON.stringify(userRecords));
+      } else {
+        const { error } = await supabaseClient.from('records').delete().eq('id', id);
+        if (error) {
+          showToast('删除失败：' + error.message);
+          return;
+        }
       }
 
-      const { error } = await supabaseClient
-        .from('records')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', currentUser.id);
-
-      if (error) {
-        showToast('删除失败：' + error.message);
-        return;
-      }
-
-      currentRecords = currentRecords.filter(r => r.id !== id);
-      renderUI();
       showToast('已删除');
+      await loadUserData();
     }
 
-    // ==================== 二维码 ====================
-    function generateQRCode() {
+    function renderRecords(records, containerId) {
+      const container = document.getElementById(containerId);
+      if (!records || records.length === 0) {
+        container.innerHTML = '<div class="empty-tip">暂无就诊记录</div>';
+        return;
+      }
+
+      container.innerHTML = records.map(r => `
+        <div class="record-item">
+          <div class="record-header">
+            <span class="record-title">${escapeHtml(r.title || '未命名')}</span>
+            <span>
+              <span class="record-date">${r.record_date || ''}</span>
+              <span class="delete-btn" onclick="event.stopPropagation(); deleteRecord('${r.id}')">删除</span>
+            </span>
+          </div>
+          <div class="record-desc">${escapeHtml(r.hospital || '')} ${escapeHtml(r.department || '')}</div>
+          <div class="record-desc">${escapeHtml(r.description || '')}</div>
+          ${r.department ? `<span class="record-tag">${escapeHtml(r.department)}</span>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // 生成二维码
+    function generateQR() {
       const container = document.getElementById('qrcode');
       container.innerHTML = '';
       if (!currentUser) return;
-      const qrUrl = 'https://ganxiaosong.github.io/kangluka-health/?uid=' + encodeURIComponent(currentUser.id);
-      document.getElementById('qrUid').textContent = 'UID: ' + currentUser.id;
-      try {
-        new QRCode(container, {
-          text: qrUrl,
-          width: 200,
-          height: 200,
-          colorDark: '#667eea',
-          colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.M
-        });
-      } catch (e) {
-        container.innerHTML = '<div style="color:#999;">二维码生成失败</div>';
-      }
+
+      const qrData = JSON.stringify({
+        type: 'kangluka',
+        uid: currentUser.id,
+        name: userProfile.name || ''
+      });
+
+      new QRCode(container, {
+        text: qrData,
+        width: 180,
+        height: 180,
+        colorDark: '#333',
+        colorLight: '#fff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      document.getElementById('qrUid').textContent = 'ID: ' + currentUser.id.slice(0, 16) + '...';
     }
 
-    // ==================== 工具函数 ====================
+    // Toast
     function showToast(msg) {
       const toast = document.getElementById('toast');
       toast.textContent = msg;
-      toast.style.display = 'block';
-      setTimeout(() => {
-        toast.style.display = 'none';
-      }, 2500);
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
     }
-
-    document.querySelectorAll('.modal').forEach(modal => {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.remove('active');
-      });
-    });
-    document.getElementById('loginPassword')?.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') handleLogin();
-    });
   </script>
 </body>
 </html>
