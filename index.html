@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>康录卡 - 跨院慢病病史整合</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="config.js"></script>
+    <script>
+    const SUPABASE_URL = 'https://yewemusfpujkmbznkwah.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlld2VtdXNmcHVqa21iem5rd2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNTU5NDQsImV4cCI6MjA5NzgzMTk0NH0.1BPDHG3ug62b_myHsIkKVIWW1ZTmZRXZJSLEDHHgA8E';
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; padding: 20px; }
@@ -65,15 +68,9 @@
         .badge-outpatient { background: #e3f2fd; color: #1976d2; }
         .badge-inpatient { background: #fce4ec; color: #c2185b; }
         .badge-checkup { background: #e8f5e9; color: #388e3c; }
-        
-        .config-alert { background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
-
-<div id="configAlert" class="config-alert hidden">
-    <strong>配置缺失：</strong>请确保已创建 <code>config.js</code> 文件，并包含 <code>SUPABASE_URL</code> 和 <code>SUPABASE_KEY</code>。
-</div>
 
 <div id="authPage" class="auth-box">
     <h2 id="authTitle">用户登录</h2>
@@ -167,12 +164,7 @@
 </div>
 
 <script>
-if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_KEY === 'undefined') {
-    document.getElementById('configAlert').classList.remove('hidden');
-    document.getElementById('authPage').classList.add('hidden');
-}
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 
 function showRegister() {
