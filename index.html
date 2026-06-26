@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>康录卡 - 跨院慢病病史整合</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Microsoft YaHei', sans-serif; background: #f5f7fa; padding: 20px; }
@@ -64,11 +65,16 @@
         .badge-outpatient { background: #e3f2fd; color: #1976d2; }
         .badge-inpatient { background: #fce4ec; color: #c2185b; }
         .badge-checkup { background: #e8f5e9; color: #388e3c; }
+        
+        .config-alert { background: #fff3cd; border: 1px solid #ffc107; color: #856404; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<!-- 登录/注册页面 -->
+<div id="configAlert" class="config-alert hidden">
+    <strong>配置缺失：</strong>请确保已创建 <code>config.js</code> 文件，并包含 <code>SUPABASE_URL</code> 和 <code>SUPABASE_KEY</code>。
+</div>
+
 <div id="authPage" class="auth-box">
     <h2 id="authTitle">用户登录</h2>
     <div id="loginForm">
@@ -103,7 +109,6 @@
     <div id="authMessage"></div>
 </div>
 
-<!-- 主页面 -->
 <div id="mainPage" class="container hidden">
     <div class="header">
         <div class="user-info">当前用户：<span id="userEmail"></span></div>
@@ -113,7 +118,6 @@
     <h1>康录卡</h1>
     <p class="subtitle">跨院慢病病史整合记录系统</p>
     
-    <!-- 添加/编辑记录表单 -->
     <div class="record-form">
         <h3 id="formTitle">添加就诊记录</h3>
         <input type="hidden" id="editId">
@@ -154,7 +158,6 @@
         <div id="formMessage"></div>
     </div>
     
-    <!-- 记录列表 -->
     <div class="records-list">
         <h3>就诊记录列表</h3>
         <div id="recordsContainer">
@@ -164,17 +167,14 @@
 </div>
 
 <script>
-// ==================== 配置区（已配置好） ====================
-const SUPABASE_URL = 'https://yewemusfpujkmbznkwah.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlld2VtdXNmcHVqa21iem5rd2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNTU5NDQsImV4cCI6MjA5NzgzMTk0NH0.1BPDHG3ug62b_myHsIkKVIWW1ZTmZRXZJSLEDHHgA8E';
+if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_KEY === 'undefined') {
+    document.getElementById('configAlert').classList.remove('hidden');
+    document.getElementById('authPage').classList.add('hidden');
+}
 
-// 初始化 Supabase
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// 当前用户
 let currentUser = null;
 
-// ==================== 页面切换 ====================
 function showRegister() {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('registerForm').classList.remove('hidden');
@@ -202,7 +202,6 @@ function showAuthPage() {
     currentUser = null;
 }
 
-// ==================== 认证功能 ====================
 async function handleRegister() {
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
@@ -263,7 +262,6 @@ async function handleLogout() {
     showAuthPage();
 }
 
-// 检查是否已登录
 async function checkAuth() {
     const { data: { session } } = await supabase.auth.getSession();
     if (session) {
@@ -272,7 +270,6 @@ async function checkAuth() {
     }
 }
 
-// ==================== 记录操作 ====================
 document.getElementById('recordDate').valueAsDate = new Date();
 
 async function saveRecord() {
@@ -430,7 +427,6 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// 页面加载时检查登录状态
 checkAuth();
 </script>
 
