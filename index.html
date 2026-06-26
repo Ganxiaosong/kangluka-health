@@ -18,7 +18,6 @@
             min-height: 100vh;
         }
         
-        /* 登录页 */
         .auth-container {
             display: flex;
             justify-content: center;
@@ -34,379 +33,164 @@
             max-width: 420px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        .auth-logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .auth-logo h1 {
-            color: #667eea;
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-        .auth-logo p {
-            color: #999;
-            font-size: 14px;
-        }
+        .auth-logo { text-align: center; margin-bottom: 30px; }
+        .auth-logo h1 { color: #667eea; font-size: 28px; margin-bottom: 8px; }
+        .auth-logo p { color: #999; font-size: 14px; }
         .form-group { margin-bottom: 20px; }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-size: 14px;
-            font-weight: 500;
+        .form-group label { display: block; margin-bottom: 8px; color: #333; font-size: 14px; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 12px 16px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 15px; transition: all 0.3s;
         }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e8e8e8;
-            border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
         .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
+            width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-        .btn-success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
-        .toggle-link {
-            text-align: center;
-            color: #667eea;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 20px;
-        }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+        .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+        .btn-cancel { background: #f0f0f0; color: #666; }
+        .toggle-link { text-align: center; color: #667eea; cursor: pointer; font-size: 14px; margin-top: 20px; }
         
-        /* 主页面 */
-        .app-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        .app-container { max-width: 900px; margin: 0 auto; padding: 20px; }
         .app-header {
-            background: white;
-            border-radius: 16px;
-            padding: 20px 30px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background: white; border-radius: 16px; padding: 20px 30px; margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        .app-header h1 {
-            color: #667eea;
-            font-size: 24px;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .app-header h1 { color: #667eea; font-size: 24px; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
         .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
         }
         
-        /* 个人档案卡片 */
         .profile-card {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        .profile-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 25px;
-        }
-        .profile-title {
-            font-size: 20px;
-            color: #333;
-            font-weight: 600;
-        }
-        .edit-btn {
-            background: #f0f0f0;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            color: #666;
-        }
-        .profile-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        .profile-item {
-            display: flex;
-            flex-direction: column;
-        }
-        .profile-item label {
-            color: #999;
-            font-size: 13px;
-            margin-bottom: 5px;
-        }
-        .profile-item span {
-            color: #333;
-            font-size: 16px;
-            font-weight: 500;
-        }
-        .profile-item .blood-type {
-            display: inline-block;
-            background: #ff6b6b;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            width: fit-content;
-        }
+        .profile-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
+        .profile-title { font-size: 20px; color: #333; font-weight: 600; }
+        .edit-btn { background: #f0f0f0; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; color: #666; }
+        .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .profile-item { display: flex; flex-direction: column; }
+        .profile-item label { color: #999; font-size: 13px; margin-bottom: 5px; }
+        .profile-item span { color: #333; font-size: 16px; font-weight: 500; }
+        .blood-type { display: inline-block; background: #ff6b6b; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; width: fit-content; }
         
-        /* 二维码区域 */
         .qr-section {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 20px;
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        .qr-section h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-        .qr-section p {
-            color: #999;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-        #qrcode {
-            display: inline-block;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
+        .qr-section h3 { color: #333; margin-bottom: 15px; }
+        .qr-section p { color: #999; font-size: 14px; margin-bottom: 20px; }
+        #qrcode { display: inline-block; padding: 20px; background: #f8f9fa; border-radius: 12px; }
         
-        /* 就诊记录 */
         .records-section {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        .records-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-        .records-header h3 {
-            color: #333;
-            font-size: 20px;
-        }
+        .records-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .records-header h3 { color: #333; font-size: 20px; }
         .add-record-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 500;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+            border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 500;
         }
         
-        /* 时间轴 */
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
+        .timeline { position: relative; padding-left: 30px; }
         .timeline::before {
-            content: '';
-            position: absolute;
-            left: 8px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
+            content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px;
             background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
         }
         .timeline-item {
-            position: relative;
-            margin-bottom: 25px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            transition: all 0.3s;
+            position: relative; margin-bottom: 25px; padding: 20px; background: #f8f9fa;
+            border-radius: 12px; transition: all 0.3s;
         }
-        .timeline-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+        .timeline-item:hover { transform: translateX(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .timeline-item::before {
-            content: '';
-            position: absolute;
-            left: -26px;
-            top: 24px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #667eea;
-            border: 3px solid white;
-            box-shadow: 0 0 0 3px #667eea;
+            content: ''; position: absolute; left: -26px; top: 24px; width: 12px; height: 12px;
+            border-radius: 50%; background: #667eea; border: 3px solid white; box-shadow: 0 0 0 3px #667eea;
         }
-        .timeline-date {
-            color: #667eea;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .timeline-title {
-            color: #333;
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        .timeline-type {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
+        .timeline-date { color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        .timeline-title { color: #333; font-size: 16px; font-weight: 600; margin-bottom: 5px; }
+        .timeline-type { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; margin-bottom: 10px; }
         .type-outpatient { background: #e3f2fd; color: #1976d2; }
         .type-inpatient { background: #fce4ec; color: #c2185b; }
         .type-checkup { background: #e8f5e9; color: #388e3c; }
-        .timeline-content {
-            color: #666;
-            font-size: 14px;
-            line-height: 1.6;
+        .timeline-content { color: #666; font-size: 14px; line-height: 1.6; }
+        .timeline-content p { margin: 4px 0; }
+        .timeline-actions { margin-top: 12px; text-align: right; }
+        .timeline-actions button { background: none; border: none; color: #667eea; cursor: pointer; font-size: 14px; margin-left: 15px; }
+        .timeline-actions button.delete { color: #ff6b6b; }
+        
+        .image-upload-area {
+            border: 2px dashed #667eea; border-radius: 12px; padding: 20px; text-align: center;
+            margin-bottom: 15px; cursor: pointer; transition: all 0.3s;
         }
-        .timeline-content p {
-            margin: 4px 0;
+        .image-upload-area:hover { background: #f0f4ff; }
+        .image-preview-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 15px;
         }
-        .timeline-actions {
-            margin-top: 12px;
-            text-align: right;
+        .image-preview-item {
+            position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden;
+            background: #f0f0f0; cursor: pointer;
         }
-        .timeline-actions button {
-            background: none;
-            border: none;
-            color: #667eea;
-            cursor: pointer;
-            font-size: 14px;
-            margin-left: 15px;
+        .image-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+        .image-preview-item .remove-btn {
+            position: absolute; top: 4px; right: 4px; width: 24px; height: 24px;
+            background: #ff6b6b; color: white; border: none; border-radius: 50%;
+            cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
         }
-        .timeline-actions button.delete {
-            color: #ff6b6b;
+        .record-images {
+            display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;
+        }
+        .record-image-thumb {
+            width: 80px; height: 80px; border-radius: 8px; object-fit: cover; cursor: pointer;
+            border: 2px solid #e0e0e0; transition: all 0.3s;
+        }
+        .record-image-thumb:hover { transform: scale(1.05); border-color: #667eea; }
+        
+        .image-viewer-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center;
+        }
+        .image-viewer-overlay.active { display: flex; }
+        .image-viewer-content { max-width: 90%; max-height: 90%; }
+        .image-viewer-content img { max-width: 100%; max-height: 90vh; border-radius: 8px; }
+        .image-viewer-close {
+            position: absolute; top: 20px; right: 30px; color: white; font-size: 40px;
+            cursor: pointer; background: none; border: none;
         }
         
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #999;
-        }
-        .empty-state-icon {
-            font-size: 60px;
-            margin-bottom: 15px;
-        }
+        .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+        .empty-state-icon { font-size: 60px; margin-bottom: 15px; }
         
-        /* 弹窗 */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px;
         }
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
         .modal {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            width: 100%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
+            background: white; border-radius: 20px; padding: 30px; width: 100%; max-width: 500px;
+            max-height: 90vh; overflow-y: auto;
         }
-        .modal h3 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-        .modal .form-group {
-            margin-bottom: 15px;
-        }
-        .modal .form-group textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e8e8e8;
-            border-radius: 12px;
-            font-size: 15px;
-            resize: vertical;
-            min-height: 80px;
-        }
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .modal-actions .btn {
-            flex: 1;
-        }
-        .btn-cancel {
-            background: #f0f0f0;
-            color: #666;
-        }
+        .modal h3 { margin-bottom: 20px; color: #333; }
+        .modal .form-group { margin-bottom: 15px; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-actions .btn { flex: 1; }
         
+        .success-msg { color: #27ae60; font-size: 14px; margin-top: 10px; }
+        .error-msg { color: #e74c3c; font-size: 14px; margin-top: 10px; }
         .hidden { display: none !important; }
         
-        .success-msg {
-            color: #27ae60;
-            font-size: 14px;
-            margin-top: 10px;
+        .upload-progress {
+            width: 100%; height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 10px; overflow: hidden;
         }
-        .error-msg {
-            color: #e74c3c;
-            font-size: 14px;
-            margin-top: 10px;
+        .upload-progress-bar {
+            height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px; transition: width 0.3s; width: 0%;
         }
     </style>
 </head>
 <body>
 
-<!-- 登录/注册 -->
 <div id="authPage" class="auth-container">
     <div class="auth-card">
         <div class="auth-logo">
@@ -445,10 +229,8 @@
     </div>
 </div>
 
-<!-- 主应用 -->
 <div id="mainPage" class="hidden">
     <div class="app-container">
-        <!-- 顶部导航 -->
         <div class="app-header">
             <h1>🏥 康录卡</h1>
             <div class="user-info">
@@ -458,49 +240,23 @@
             </div>
         </div>
         
-        <!-- 个人档案 -->
         <div class="profile-card">
             <div class="profile-header">
                 <h3 class="profile-title">👤 个人健康档案</h3>
                 <button class="edit-btn" onclick="editProfile()">编辑资料</button>
             </div>
             <div class="profile-grid" id="profileGrid">
-                <div class="profile-item">
-                    <label>姓名</label>
-                    <span id="pName">未填写</span>
-                </div>
-                <div class="profile-item">
-                    <label>性别</label>
-                    <span id="pGender">未填写</span>
-                </div>
-                <div class="profile-item">
-                    <label>年龄</label>
-                    <span id="pAge">未填写</span>
-                </div>
-                <div class="profile-item">
-                    <label>血型</label>
-                    <span id="pBlood" class="blood-type">未填写</span>
-                </div>
-                <div class="profile-item">
-                    <label>身高</label>
-                    <span id="pHeight">未填写</span>
-                </div>
-                <div class="profile-item">
-                    <label>体重</label>
-                    <span id="pWeight">未填写</span>
-                </div>
-                <div class="profile-item" style="grid-column: 1 / -1;">
-                    <label>过敏史</label>
-                    <span id="pAllergy">未填写</span>
-                </div>
-                <div class="profile-item" style="grid-column: 1 / -1;">
-                    <label>既往病史</label>
-                    <span id="pHistory">未填写</span>
-                </div>
+                <div class="profile-item"><label>姓名</label><span id="pName">未填写</span></div>
+                <div class="profile-item"><label>性别</label><span id="pGender">未填写</span></div>
+                <div class="profile-item"><label>年龄</label><span id="pAge">未填写</span></div>
+                <div class="profile-item"><label>血型</label><span id="pBlood" class="blood-type">未填写</span></div>
+                <div class="profile-item"><label>身高</label><span id="pHeight">未填写</span></div>
+                <div class="profile-item"><label>体重</label><span id="pWeight">未填写</span></div>
+                <div class="profile-item" style="grid-column: 1 / -1;"><label>过敏史</label><span id="pAllergy">未填写</span></div>
+                <div class="profile-item" style="grid-column: 1 / -1;"><label>既往病史</label><span id="pHistory">未填写</span></div>
             </div>
         </div>
         
-        <!-- 医生扫码区域 -->
         <div class="qr-section">
             <h3>📱 医生扫码查看</h3>
             <p>医生扫描下方二维码即可查看您的完整健康档案</p>
@@ -508,7 +264,6 @@
             <p style="margin-top:15px; color:#667eea; font-size:13px;">或访问链接：<span id="shareLink"></span></p>
         </div>
         
-        <!-- 就诊记录 -->
         <div class="records-section">
             <div class="records-header">
                 <h3>📋 就诊记录</h3>
@@ -525,53 +280,26 @@
     </div>
 </div>
 
-<!-- 编辑档案弹窗 -->
 <div class="modal-overlay" id="profileModal">
     <div class="modal">
         <h3>编辑个人档案</h3>
-        <div class="form-group">
-            <label>姓名</label>
-            <input type="text" id="editName" placeholder="请输入姓名">
-        </div>
+        <div class="form-group"><label>姓名</label><input type="text" id="editName" placeholder="请输入姓名"></div>
         <div class="form-group">
             <label>性别</label>
-            <select id="editGender">
-                <option value="">请选择</option>
-                <option value="男">男</option>
-                <option value="女">女</option>
-            </select>
+            <select id="editGender"><option value="">请选择</option><option value="男">男</option><option value="女">女</option></select>
         </div>
-        <div class="form-group">
-            <label>年龄</label>
-            <input type="number" id="editAge" placeholder="请输入年龄">
-        </div>
+        <div class="form-group"><label>年龄</label><input type="number" id="editAge" placeholder="请输入年龄"></div>
         <div class="form-group">
             <label>血型</label>
             <select id="editBlood">
-                <option value="">请选择</option>
-                <option value="A型">A型</option>
-                <option value="B型">B型</option>
-                <option value="AB型">AB型</option>
-                <option value="O型">O型</option>
-                <option value="Rh阴性">Rh阴性</option>
+                <option value="">请选择</option><option value="A型">A型</option><option value="B型">B型</option>
+                <option value="AB型">AB型</option><option value="O型">O型</option><option value="Rh阴性">Rh阴性</option>
             </select>
         </div>
-        <div class="form-group">
-            <label>身高 (cm)</label>
-            <input type="number" id="editHeight" placeholder="例如：175">
-        </div>
-        <div class="form-group">
-            <label>体重 (kg)</label>
-            <input type="number" id="editWeight" placeholder="例如：65">
-        </div>
-        <div class="form-group">
-            <label>过敏史</label>
-            <textarea id="editAllergy" placeholder="请输入过敏史，没有则填'无'"></textarea>
-        </div>
-        <div class="form-group">
-            <label>既往病史</label>
-            <textarea id="editHistory" placeholder="请输入既往病史，没有则填'无'"></textarea>
-        </div>
+        <div class="form-group"><label>身高 (cm)</label><input type="number" id="editHeight" placeholder="例如：175"></div>
+        <div class="form-group"><label>体重 (kg)</label><input type="number" id="editWeight" placeholder="例如：65"></div>
+        <div class="form-group"><label>过敏史</label><textarea id="editAllergy" placeholder="请输入过敏史，没有则填'无'"></textarea></div>
+        <div class="form-group"><label>既往病史</label><textarea id="editHistory" placeholder="请输入既往病史，没有则填'无'"></textarea></div>
         <div class="modal-actions">
             <button class="btn btn-cancel" onclick="closeModal('profileModal')">取消</button>
             <button class="btn btn-primary" onclick="saveProfile()">保存</button>
@@ -580,39 +308,32 @@
     </div>
 </div>
 
-<!-- 添加就诊记录弹窗 -->
 <div class="modal-overlay" id="recordModal">
     <div class="modal">
         <h3 id="recordModalTitle">添加就诊记录</h3>
         <input type="hidden" id="editRecordId">
-        <div class="form-group">
-            <label>就诊日期 *</label>
-            <input type="date" id="recordDate">
-        </div>
+        <div class="form-group"><label>就诊日期 *</label><input type="date" id="recordDate"></div>
         <div class="form-group">
             <label>记录类型</label>
-            <select id="recordType">
-                <option value="门诊">门诊</option>
-                <option value="住院">住院</option>
-                <option value="体检">体检</option>
-            </select>
+            <select id="recordType"><option value="门诊">门诊</option><option value="住院">住院</option><option value="体检">体检</option></select>
         </div>
+        <div class="form-group"><label>医院名称 *</label><input type="text" id="hospital" placeholder="例如：北京协和医院"></div>
+        <div class="form-group"><label>科室 *</label><input type="text" id="department" placeholder="例如：心内科"></div>
+        <div class="form-group"><label>诊断结果</label><textarea id="diagnosis" placeholder="请输入医生的诊断结果..."></textarea></div>
+        <div class="form-group"><label>用药记录</label><textarea id="medication" placeholder="请输入用药名称、剂量、用法..."></textarea></div>
+        
         <div class="form-group">
-            <label>医院名称 *</label>
-            <input type="text" id="hospital" placeholder="例如：北京协和医院">
+            <label>上传检查图片（X光、CT、化验单等）</label>
+            <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
+                <div style="font-size:40px;">📷</div>
+                <p style="color:#667eea; margin-top:8px;">点击上传图片</p>
+                <p style="color:#999; font-size:13px;">支持多张图片，可上传片子、化验单等</p>
+            </div>
+            <input type="file" id="imageInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelect(event)">
+            <div class="upload-progress hidden" id="uploadProgress"><div class="upload-progress-bar" id="progressBar"></div></div>
+            <div class="image-preview-grid" id="imagePreviewGrid"></div>
         </div>
-        <div class="form-group">
-            <label>科室 *</label>
-            <input type="text" id="department" placeholder="例如：心内科">
-        </div>
-        <div class="form-group">
-            <label>诊断结果</label>
-            <textarea id="diagnosis" placeholder="请输入医生的诊断结果..."></textarea>
-        </div>
-        <div class="form-group">
-            <label>用药记录</label>
-            <textarea id="medication" placeholder="请输入用药名称、剂量、用法..."></textarea>
-        </div>
+        
         <div class="modal-actions">
             <button class="btn btn-cancel" onclick="closeModal('recordModal')">取消</button>
             <button class="btn btn-primary" onclick="saveRecord()">保存</button>
@@ -621,10 +342,16 @@
     </div>
 </div>
 
+<div class="image-viewer-overlay" id="imageViewer" onclick="closeImageViewer()">
+    <button class="image-viewer-close">×</button>
+    <div class="image-viewer-content"><img id="viewerImage" src="" alt="查看图片"></div>
+</div>
+
 <script>
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let currentProfile = null;
+let selectedImages = [];
 
 function showRegister() {
     document.getElementById('loginForm').classList.add('hidden');
@@ -660,27 +387,13 @@ async function handleRegister() {
     const confirm = document.getElementById('regConfirm').value;
     const msgDiv = document.getElementById('authMessage');
     
-    if (!email || !password) {
-        msgDiv.innerHTML = '<p class="error-msg">请填写完整信息</p>';
-        return;
-    }
-    if (password.length < 6) {
-        msgDiv.innerHTML = '<p class="error-msg">密码至少6位</p>';
-        return;
-    }
-    if (password !== confirm) {
-        msgDiv.innerHTML = '<p class="error-msg">两次密码不一致</p>';
-        return;
-    }
+    if (!email || !password) { msgDiv.innerHTML = '<p class="error-msg">请填写完整信息</p>'; return; }
+    if (password.length < 6) { msgDiv.innerHTML = '<p class="error-msg">密码至少6位</p>'; return; }
+    if (password !== confirm) { msgDiv.innerHTML = '<p class="error-msg">两次密码不一致</p>'; return; }
     
     const { data, error } = await supabase.auth.signUp({ email, password });
-    
-    if (error) {
-        msgDiv.innerHTML = `<p class="error-msg">注册失败：${error.message}</p>`;
-    } else {
-        msgDiv.innerHTML = '<p class="success-msg">注册成功！请直接登录</p>';
-        setTimeout(showLogin, 1500);
-    }
+    if (error) { msgDiv.innerHTML = `<p class="error-msg">注册失败：${error.message}</p>`; }
+    else { msgDiv.innerHTML = '<p class="success-msg">注册成功！请直接登录</p>'; setTimeout(showLogin, 1500); }
 }
 
 async function handleLogin() {
@@ -688,19 +401,11 @@ async function handleLogin() {
     const password = document.getElementById('loginPassword').value;
     const msgDiv = document.getElementById('authMessage');
     
-    if (!email || !password) {
-        msgDiv.innerHTML = '<p class="error-msg">请填写邮箱和密码</p>';
-        return;
-    }
+    if (!email || !password) { msgDiv.innerHTML = '<p class="error-msg">请填写邮箱和密码</p>'; return; }
     
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-        msgDiv.innerHTML = `<p class="error-msg">登录失败：${error.message}</p>`;
-    } else {
-        currentUser = data.user;
-        showMainPage();
-    }
+    if (error) { msgDiv.innerHTML = `<p class="error-msg">登录失败：${error.message}</p>`; }
+    else { currentUser = data.user; showMainPage(); }
 }
 
 async function handleLogout() {
@@ -710,29 +415,18 @@ async function handleLogout() {
 
 async function checkAuth() {
     const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        currentUser = session.user;
-        showMainPage();
-    }
+    if (session) { currentUser = session.user; showMainPage(); }
 }
 
-// 个人档案
 async function loadProfile() {
-    const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUser.id)
-        .single();
-    
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
     if (data) {
         currentProfile = data;
         document.getElementById('pName').textContent = data.name || '未填写';
         document.getElementById('pGender').textContent = data.gender || '未填写';
         document.getElementById('pAge').textContent = data.age ? data.age + '岁' : '未填写';
         document.getElementById('pBlood').textContent = data.blood_type || '未填写';
-        if (data.blood_type) {
-            document.getElementById('pBlood').className = 'blood-type';
-        }
+        if (data.blood_type) document.getElementById('pBlood').className = 'blood-type';
         document.getElementById('pHeight').textContent = data.height ? data.height + 'cm' : '未填写';
         document.getElementById('pWeight').textContent = data.weight ? data.weight + 'kg' : '未填写';
         document.getElementById('pAllergy').textContent = data.allergy || '未填写';
@@ -769,39 +463,79 @@ async function saveProfile() {
         updated_at: new Date().toISOString()
     };
     
-    const { error } = await supabase
-        .from('profiles')
-        .upsert([profileData]);
-    
-    if (error) {
-        msgDiv.innerHTML = `<p class="error-msg">保存失败：${error.message}</p>`;
-    } else {
+    const { error } = await supabase.from('profiles').upsert([profileData]);
+    if (error) { msgDiv.innerHTML = `<p class="error-msg">保存失败：${error.message}</p>`; }
+    else {
         msgDiv.innerHTML = '<p class="success-msg">保存成功！</p>';
-        setTimeout(() => {
-            closeModal('profileModal');
-            loadProfile();
-        }, 1000);
+        setTimeout(() => { closeModal('profileModal'); loadProfile(); }, 1000);
     }
 }
 
-// 二维码
 function generateQRCode() {
     const shareUrl = `https://ganxiaosong.github.io/kangluka-health/?view=${currentUser.id}`;
     document.getElementById('shareLink').textContent = shareUrl;
-    
     const qrContainer = document.getElementById('qrcode');
     qrContainer.innerHTML = '';
-    new QRCode(qrContainer, {
-        text: shareUrl,
-        width: 180,
-        height: 180,
-        colorDark: '#667eea',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.H
+    new QRCode(qrContainer, { text: shareUrl, width: 180, height: 180, colorDark: '#667eea', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+}
+
+function handleImageSelect(event) {
+    const files = Array.from(event.target.files);
+    files.forEach(file => {
+        if (!file.type.startsWith('image/')) return;
+        selectedImages.push(file);
+        const reader = new FileReader();
+        reader.onload = (e) => addImagePreview(e.target.result, selectedImages.length - 1);
+        reader.readAsDataURL(file);
     });
 }
 
-// 就诊记录
+function addImagePreview(src, index) {
+    const grid = document.getElementById('imagePreviewGrid');
+    const div = document.createElement('div');
+    div.className = 'image-preview-item';
+    div.innerHTML = `<img src="${src}" alt="预览"><button class="remove-btn" onclick="removeImage(${index})">×</button>`;
+    grid.appendChild(div);
+}
+
+function removeImage(index) {
+    selectedImages.splice(index, 1);
+    refreshImagePreview();
+}
+
+function refreshImagePreview() {
+    const grid = document.getElementById('imagePreviewGrid');
+    grid.innerHTML = '';
+    selectedImages.forEach((file, i) => {
+        const reader = new FileReader();
+        reader.onload = (e) => addImagePreview(e.target.result, i);
+        reader.readAsDataURL(file);
+    });
+}
+
+async function uploadImages() {
+    if (selectedImages.length === 0) return [];
+    const urls = [];
+    const progressBar = document.getElementById('progressBar');
+    const progressContainer = document.getElementById('uploadProgress');
+    progressContainer.classList.remove('hidden');
+    
+    for (let i = 0; i < selectedImages.length; i++) {
+        const file = selectedImages[i];
+        const fileName = `${currentUser.id}/${Date.now()}_${i}_${file.name}`;
+        const { data, error } = await supabase.storage.from('medical-images').upload(fileName, file);
+        
+        if (error) { console.error('上传失败:', error); continue; }
+        
+        const { data: { publicUrl } } = supabase.storage.from('medical-images').getPublicUrl(fileName);
+        urls.push(publicUrl);
+        progressBar.style.width = `${((i + 1) / selectedImages.length) * 100}%`;
+    }
+    
+    setTimeout(() => { progressContainer.classList.add('hidden'); progressBar.style.width = '0%'; }, 500);
+    return urls;
+}
+
 document.getElementById('recordDate').valueAsDate = new Date();
 
 function openRecordModal() {
@@ -814,12 +548,17 @@ function openRecordModal() {
     document.getElementById('medication').value = '';
     document.getElementById('recordType').value = '门诊';
     document.getElementById('recordMessage').innerHTML = '';
+    selectedImages = [];
+    document.getElementById('imagePreviewGrid').innerHTML = '';
+    document.getElementById('uploadProgress').classList.add('hidden');
     openModal('recordModal');
 }
 
 async function saveRecord() {
     const msgDiv = document.getElementById('recordMessage');
     const editId = document.getElementById('editRecordId').value;
+    
+    const imageUrls = await uploadImages();
     
     const recordData = {
         user_id: currentUser.id,
@@ -828,7 +567,8 @@ async function saveRecord() {
         department: document.getElementById('department').value.trim(),
         diagnosis: document.getElementById('diagnosis').value.trim(),
         medication: document.getElementById('medication').value.trim(),
-        type: document.getElementById('recordType').value
+        type: document.getElementById('recordType').value,
+        images: imageUrls.length > 0 ? JSON.stringify(imageUrls) : null
     };
     
     if (!recordData.date || !recordData.hospital || !recordData.department) {
@@ -838,55 +578,47 @@ async function saveRecord() {
     
     let result;
     if (editId) {
+        const { data: existing } = await supabase.from('records').select('images').eq('id', editId).single();
+        const existingImages = existing?.images ? JSON.parse(existing.images) : [];
+        recordData.images = JSON.stringify([...existingImages, ...imageUrls]);
         result = await supabase.from('records').update(recordData).eq('id', editId).select();
     } else {
         result = await supabase.from('records').insert([recordData]).select();
     }
     
     const { error } = result;
-    
-    if (error) {
-        msgDiv.innerHTML = `<p class="error-msg">保存失败：${error.message}</p>`;
-    } else {
+    if (error) { msgDiv.innerHTML = `<p class="error-msg">保存失败：${error.message}</p>`; }
+    else {
         msgDiv.innerHTML = `<p class="success-msg">${editId ? '更新' : '保存'}成功！</p>`;
-        setTimeout(() => {
-            closeModal('recordModal');
-            loadRecords();
-        }, 1000);
+        selectedImages = [];
+        setTimeout(() => { closeModal('recordModal'); loadRecords(); }, 1000);
     }
 }
 
 async function loadRecords() {
     const container = document.getElementById('recordsContainer');
+    const { data, error } = await supabase.from('records').select('*').eq('user_id', currentUser.id).order('date', { ascending: false });
     
-    const { data, error } = await supabase
-        .from('records')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('date', { ascending: false });
-    
-    if (error) {
-        container.innerHTML = `<div class="error-msg">加载失败：${error.message}</div>`;
-        return;
-    }
-    
+    if (error) { container.innerHTML = `<div class="error-msg">加载失败：${error.message}</div>`; return; }
     if (!data || data.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">📝</div>
-                <p>暂无就诊记录</p>
-                <p style="font-size:13px; margin-top:10px;">点击上方按钮添加第一条记录</p>
-            </div>`;
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><p>暂无就诊记录</p><p style="font-size:13px; margin-top:10px;">点击上方按钮添加第一条记录</p></div>`;
         return;
     }
     
-    const typeClass = {
-        '门诊': 'type-outpatient',
-        '住院': 'type-inpatient',
-        '体检': 'type-checkup'
-    };
+    const typeClass = { '门诊': 'type-outpatient', '住院': 'type-inpatient', '体检': 'type-checkup' };
     
-    container.innerHTML = '<div class="timeline">' + data.map(record => `
+    container.innerHTML = '<div class="timeline">' + data.map(record => {
+        let imagesHtml = '';
+        if (record.images) {
+            try {
+                const imageUrls = JSON.parse(record.images);
+                imagesHtml = '<div class="record-images">' + imageUrls.map((url, i) => 
+                    `<img src="${url}" class="record-image-thumb" onclick="viewImage('${url}')" alt="检查图片${i+1}">`
+                ).join('') + '</div>';
+            } catch (e) {}
+        }
+        
+        return `
         <div class="timeline-item">
             <div class="timeline-date">${record.date}</div>
             <div class="timeline-title">${escapeHtml(record.hospital)} · ${escapeHtml(record.department)}</div>
@@ -895,16 +627,17 @@ async function loadRecords() {
                 ${record.diagnosis ? `<p><strong>诊断：</strong>${escapeHtml(record.diagnosis)}</p>` : ''}
                 ${record.medication ? `<p><strong>用药：</strong>${escapeHtml(record.medication)}</p>` : ''}
             </div>
+            ${imagesHtml}
             <div class="timeline-actions">
                 <button onclick="editRecord('${record.id}')">编辑</button>
                 <button class="delete" onclick="deleteRecord('${record.id}')">删除</button>
             </div>
-        </div>
-    `).join('') + '</div>';
+        </div>`;
+    }).join('') + '</div>';
 }
 
 function editRecord(id) {
-    const { data } = supabase.from('records').select('*').eq('id', id).single().then(({ data }) => {
+    supabase.from('records').select('*').eq('id', id).single().then(({ data }) => {
         if (data) {
             document.getElementById('editRecordId').value = id;
             document.getElementById('recordModalTitle').textContent = '编辑就诊记录';
@@ -914,6 +647,8 @@ function editRecord(id) {
             document.getElementById('diagnosis').value = data.diagnosis || '';
             document.getElementById('medication').value = data.medication || '';
             document.getElementById('recordType').value = data.type || '门诊';
+            selectedImages = [];
+            document.getElementById('imagePreviewGrid').innerHTML = '';
             openModal('recordModal');
         }
     });
@@ -925,42 +660,35 @@ async function deleteRecord(id) {
     if (!error) loadRecords();
 }
 
-// 弹窗控制
-function openModal(id) {
-    document.getElementById(id).classList.add('active');
+function viewImage(url) {
+    document.getElementById('viewerImage').src = url;
+    document.getElementById('imageViewer').classList.add('active');
 }
 
-function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
-    document.getElementById(id).querySelectorAll('.success-msg, .error-msg').forEach(el => el.innerHTML = '');
+function closeImageViewer() {
+    document.getElementById('imageViewer').classList.remove('active');
 }
 
-// 点击遮罩关闭弹窗
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', function(e) {
-        if (e.target === this) {
-            this.classList.remove('active');
-        }
-    });
+    overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
 });
 
 function escapeHtml(text) {
     if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    const div = document.createElement('div'); div.textContent = text; return div.innerHTML;
 }
 
-// 检查是否医生查看模式
 const urlParams = new URLSearchParams(window.location.search);
 const viewId = urlParams.get('view');
 if (viewId) {
-    // 医生查看模式，只显示档案和记录
     document.getElementById('authPage').classList.add('hidden');
     document.getElementById('mainPage').classList.remove('hidden');
     document.querySelector('.add-record-btn').style.display = 'none';
-    document.querySelector('.edit-btn').style.display = 'none';
-    document.querySelector('.timeline-actions').style.display = 'none';
+    document.querySelectorAll('.edit-btn').forEach(btn => btn.style.display = 'none');
+    document.querySelectorAll('.timeline-actions').forEach(btn => btn.style.display = 'none');
     currentUser = { id: viewId };
     loadProfile();
     loadRecords();
