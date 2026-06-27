@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <!-- 强制不缓存，代码更新后自动刷新 -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <script>
         (function(){
-            const CURRENT_VERSION = '2.1';
+            const CURRENT_VERSION = '2.2';
             const saved = localStorage.getItem('app_version');
             if (saved && saved !== CURRENT_VERSION) {
                 localStorage.setItem('app_version', CURRENT_VERSION);
@@ -34,12 +33,10 @@
     <script>
     const SUPABASE_URL = 'https://yewemusfpujkmbznkwah.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlld2VtdXNmcHVqa21iem5rd2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNTU5NDQsImV4cCI6MjA5NzgzMTk0NH0.1BPDHG3ug62b_myHsIkKVIWW1ZTmZRXZJSLEDHHgA8E';
-    // AI配置 - 硅基流动（国内免费）
     const AI_CONFIG = {
         provider: 'siliconflow',
         apiKey: 'sk-amtnfvgliwukhiptriqxdruihdwxqzhpmznvfqedlkgufumz',
         model: 'Qwen/Qwen2.5-7B-Instruct',
-        // 如果以后用Cloudflare Worker代理，填Worker链接，apiKey留空
         proxyUrl: ''
     };
     </script>
@@ -55,7 +52,6 @@
             -webkit-user-select: none;
             user-select: none;
         }
-        /* 安装提示 */
         .install-banner {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -87,8 +83,6 @@
             animation: bounceIn 0.5s;
         }
         @keyframes bounceIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
-        
-        /* 登录页 - 毛玻璃效果 */
         .auth-page {
             position: fixed;
             inset: 0;
@@ -148,8 +142,6 @@
         .toggle-link { text-align: center; color: #667eea; cursor: pointer; font-size: 14px; margin-top: 18px; font-weight: 500; }
         .success-msg { color: #27ae60; font-size: 14px; margin-top: 12px; text-align: center; font-weight: 500; }
         .error-msg { color: #e74c3c; font-size: 14px; margin-top: 12px; text-align: center; font-weight: 500; }
-        
-        /* 主应用 */
         #mainApp {
             height: 100vh;
             display: none;
@@ -187,8 +179,6 @@
         }
         .page.active { display: block; }
         @keyframes pageIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* 卡片美化 */
         .card {
             background: white;
             border-radius: 20px;
@@ -216,8 +206,6 @@
             cursor: pointer;
             font-weight: 600;
         }
-        
-        /* 档案网格 */
         .profile-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -238,8 +226,6 @@
             font-weight: 600;
             box-shadow: 0 2px 8px rgba(255,107,107,0.3);
         }
-        
-        /* 二维码 */
         .qr-card { text-align: center; }
         .qr-card p { color: #999; font-size: 13px; margin: 12px 0 8px; }
         .qr-wrap { display: inline-block; padding: 16px; background: #f8f9fa; border-radius: 16px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.04); }
@@ -264,8 +250,6 @@
             color: #667eea;
             font-weight: 600;
         }
-        
-        /* 时间轴 */
         .timeline { position: relative; padding-left: 28px; }
         .timeline::before {
             content: '';
@@ -323,8 +307,6 @@
             font-weight: 600;
         }
         .timeline-actions button.delete { color: #ff6b6b; }
-        
-        /* 图片 */
         .record-images { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
         .record-image-thumb {
             width: 75px;
@@ -389,8 +371,6 @@
             width: 0%;
             transition: width 0.3s;
         }
-        
-        /* 悬浮按钮 */
         .fab {
             position: fixed;
             right: 20px;
@@ -411,8 +391,6 @@
             transition: transform 0.2s;
         }
         .fab:active { transform: scale(0.9); }
-        
-        /* 底部导航 - 5个 */
         .bottom-nav {
             height: 68px;
             background: rgba(255,255,255,0.95);
@@ -443,13 +421,9 @@
         .nav-item.active { color: #667eea; }
         .nav-item .icon { font-size: 22px; margin-bottom: 1px; }
         .nav-item.active .icon { transform: scale(1.1); transition: transform 0.2s; }
-        
-        /* 空状态 */
         .empty-state { text-align: center; padding: 60px 20px; color: #ccc; }
         .empty-state-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.6; }
         .empty-state p { font-size: 15px; color: #999; }
-        
-        /* 弹窗 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -478,8 +452,6 @@
             margin-top: 24px;
         }
         .modal-actions .btn { flex: 1; }
-        
-        /* 图片查看器 */
         .image-viewer-overlay {
             display: none;
             position: fixed;
@@ -507,8 +479,6 @@
             justify-content: center;
             backdrop-filter: blur(10px);
         }
-        
-        /* 我的页面 */
         .me-avatar {
             width: 80px;
             height: 80px;
@@ -543,8 +513,6 @@
         .menu-item:active { background: #f9f9f9; }
         .menu-item:last-child { border-bottom: none; }
         .menu-item .arrow { color: #ccc; font-size: 14px; }
-        
-        /* AI分析页面 */
         .ai-result-box {
             background: linear-gradient(135deg, #f5f7fa 0%, #e8ecff 100%);
             border-radius: 16px;
@@ -563,8 +531,6 @@
         .ai-metric-value { font-size: 20px; font-weight: 700; color: #667eea; }
         .ai-metric-status { font-size: 13px; font-weight: 600; margin-top: 4px; }
         .ai-metric-range { font-size: 11px; color: #999; margin-top: 2px; }
-        
-        /* 加载动画 */
         .spinner {
             width: 40px;
             height: 40px;
@@ -575,8 +541,6 @@
             margin: 20px auto;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        
-        /* 提醒页面 */
         .reminder-card {
             background: white;
             border-radius: 16px;
@@ -623,9 +587,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .toggle-switch.active::after { transform: translateX(20px); }
-        
         .hidden { display: none !important; }
-        /* ===== AI分析页面新增样式 ===== */
         .ai-mode-tabs {
             display: flex;
             gap: 10px;
@@ -649,7 +611,6 @@
             color: white;
             border-color: rgba(102,126,234,0.3);
         }
-        
         .manual-input-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -663,8 +624,6 @@
             padding: 10px 12px;
             font-size: 14px;
         }
-        
-        /* 扫描动画 */
         .scan-container {
             position: relative;
             width: 100%;
@@ -688,8 +647,6 @@
             90% { opacity: 1; }
             100% { top: 60px; opacity: 0; }
         }
-        
-        /* AI思考 */
         .ai-thinking {
             display: flex;
             align-items: center;
@@ -718,8 +675,6 @@
             color: #667eea;
             font-weight: 600;
         }
-        
-        /* 分析步骤 */
         .analysis-steps {
             margin-top: 16px;
         }
@@ -747,8 +702,6 @@
             background: #e8f5e9;
         }
         .step-icon { font-size: 16px; }
-        
-        /* 进度条 */
         .ai-progress-container {
             width: 100%;
             height: 6px;
@@ -770,8 +723,6 @@
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
         }
-        
-        /* 指标结果卡片 */
         .metric-result-card {
             background: white;
             border-radius: 16px;
@@ -808,8 +759,6 @@
         .tag-normal { background: #e8f5e9; color: #27ae60; }
         .tag-high { background: #ffebee; color: #e74c3c; }
         .tag-low { background: #fff3e0; color: #f39c12; }
-        
-        /* 建议区块 */
         .advice-section {
             margin-top: 12px;
             padding-top: 12px;
@@ -846,8 +795,6 @@
             border-radius: 50%;
             background: #667eea;
         }
-        
-        /* 综合建议 */
         .comprehensive-advice {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -873,8 +820,6 @@
             background: #ffd700;
             box-shadow: 0 0 6px rgba(255,215,0,0.5);
         }
-        
-        /* 指标总览网格 */
         .metric-overview-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -907,8 +852,6 @@
             font-weight: 600;
             margin-top: 4px;
         }
-        
-        /* 识别到的原始文字 */
         .ocr-text-box {
             background: #f8f9fa;
             border-radius: 10px;
@@ -931,7 +874,6 @@
 </head>
 <body>
 
-<!-- 安装提示 -->
 <div class="install-banner" id="installBanner">
     <div>
         <div style="font-weight:700; font-size:15px;">📲 添加到主屏幕</div>
@@ -941,7 +883,6 @@
 </div>
 <div class="ios-hint" id="iosHint">点击底部"分享"按钮，选择"添加到主屏幕" 📲</div>
 
-<!-- 登录页 -->
 <div id="authPage" class="auth-page">
     <div style="text-align:center; color:white; margin-bottom:36px;">
         <div class="icon">🏥</div>
@@ -981,13 +922,9 @@
     </div>
 </div>
 
-<!-- 主应用 -->
 <div id="mainApp">
     <div class="app-header" id="pageHeader">健康档案</div>
-    
     <div class="pages-container" id="pagesContainer">
-        
-        <!-- 首页 -->
         <div class="page active" id="pageHome">
             <div class="card">
                 <div class="card-header">
@@ -1005,7 +942,6 @@
                     <div class="profile-item full"><label>既往病史</label><span id="pHistory">未填写</span></div>
                 </div>
             </div>
-            
             <div class="card qr-card">
                 <div class="card-title" style="margin-bottom:14px;">📱 医生扫码查看</div>
                 <p>医生扫描下方二维码即可查看完整档案</p>
@@ -1014,8 +950,6 @@
                 <button class="copy-btn" onclick="copyLink()">📋 复制链接</button>
             </div>
         </div>
-        
-        <!-- 记录页 -->
         <div class="page" id="pageRecords">
             <div id="recordsContainer">
                 <div class="empty-state">
@@ -1025,20 +959,14 @@
                 </div>
             </div>
         </div>
-        
-        <!-- AI分析页 -->
         <div class="page" id="pageAI">
             <div class="card">
                 <div class="card-title">🔬 AI 智能分析</div>
                 <p style="color:#999; font-size:13px; margin:12px 0 18px;">上传化验单或手动输入指标，AI自动识别并给出饮食、运动、生活全方位健康建议</p>
-                
-                <!-- 模式切换 -->
                 <div class="ai-mode-tabs">
                     <div class="ai-mode-tab active" id="tabImage" onclick="switchAIMode('image')">📷 图片识别</div>
                     <div class="ai-mode-tab" id="tabManual" onclick="switchAIMode('manual')">⌨️ 手动输入</div>
                 </div>
-                
-                <!-- 图片模式 -->
                 <div id="aiImageMode">
                     <div class="image-upload-area" onclick="document.getElementById('aiImageInput').click()">
                         <div style="font-size:40px;">📷</div>
@@ -1049,8 +977,6 @@
                     <div id="aiImagePreview" style="margin-top:14px;"></div>
                     <button class="btn btn-primary" onclick="startAIAnalysis()" style="margin-top:18px;">🔍 开始智能分析</button>
                 </div>
-                
-                <!-- 手动输入模式 -->
                 <div id="aiManualMode" class="hidden">
                     <div class="manual-input-grid">
                         <div class="form-group"><label>血压 (收缩压/舒张压)</label><input type="text" id="manualBP" placeholder="如：120/80"></div>
@@ -1071,8 +997,6 @@
                     </div>
                     <button class="btn btn-primary" onclick="startManualAnalysis()" style="margin-top:18px;">🔍 开始智能分析</button>
                 </div>
-                
-                <!-- 识别进度 -->
                 <div id="aiLoading" class="hidden">
                     <div class="scan-container"><div class="scan-line"></div></div>
                     <div class="ai-thinking">
@@ -1086,15 +1010,10 @@
                         <div class="step" id="step3"><span class="step-icon">🧠</span> 生成健康建议方案</div>
                     </div>
                 </div>
-                
-                <!-- 分析结果 -->
                 <div id="aiResult"></div>
             </div>
-            
             <div id="aiHistoryContainer"></div>
         </div>
-        
-        <!-- 提醒页 -->
         <div class="page" id="pageReminders">
             <div class="card">
                 <div class="card-title">💊 添加吃药提醒</div>
@@ -1112,7 +1031,6 @@
                 </div>
                 <button class="btn btn-primary" onclick="addReminder()">➕ 添加提醒</button>
             </div>
-            
             <div style="margin-top:8px;">
                 <div class="card-title" style="padding:0 8px; margin-bottom:12px;">📋 我的提醒</div>
                 <div id="reminderList">
@@ -1123,20 +1041,16 @@
                     </div>
                 </div>
             </div>
-            
             <div style="text-align:center; margin-top:24px; color:#ccc; font-size:12px;">
                 <p>💡 提示：请允许浏览器通知权限，到点会自动提醒</p>
             </div>
         </div>
-        
-        <!-- 我的页 -->
         <div class="page" id="pageMe">
             <div class="card" style="text-align:center; padding:36px 20px;">
                 <div class="me-avatar" id="meAvatar">👤</div>
                 <h3 id="meEmail" style="font-size:17px; margin-bottom:6px; font-weight:700;"></h3>
                 <p style="color:#999; font-size:13px;">康录卡用户</p>
             </div>
-            
             <div class="menu-list">
                 <div class="menu-item" onclick="showInstallHint()">
                     <span>📲 添加到主屏幕</span>
@@ -1158,18 +1072,13 @@
                     <span>🚪 退出登录</span>
                 </div>
             </div>
-            
             <div style="text-align:center; margin-top:40px; color:#ccc; font-size:12px;">
                 <p>康录卡 v2.0</p>
                 <p style="margin-top:4px;">跨院慢病病史整合 · AI智能分析</p>
             </div>
         </div>
     </div>
-    
-    <!-- 悬浮添加按钮 -->
     <button class="fab" id="fabBtn" onclick="openRecordModal()">+</button>
-    
-    <!-- 底部导航 -->
     <div class="bottom-nav" id="bottomNav">
         <div class="nav-item active" onclick="switchPage('home')">
             <span class="icon">🏠</span>
@@ -1194,7 +1103,6 @@
     </div>
 </div>
 
-<!-- 编辑档案弹窗 -->
 <div class="modal-overlay" id="profileModal" onclick="closeModalOnBg(event, 'profileModal')">
     <div class="modal" onclick="event.stopPropagation()">
         <h3>编辑个人档案</h3>
@@ -1224,7 +1132,6 @@
     </div>
 </div>
 
-<!-- 添加就诊记录弹窗 -->
 <div class="modal-overlay" id="recordModal" onclick="closeModalOnBg(event, 'recordModal')">
     <div class="modal" onclick="event.stopPropagation()">
         <h3 id="recordModalTitle">添加就诊记录</h3>
@@ -1238,7 +1145,6 @@
         <div class="form-group"><label>科室 *</label><input type="text" id="department" placeholder="例如：心内科"></div>
         <div class="form-group"><label>诊断结果</label><textarea id="diagnosis" placeholder="请输入医生的诊断结果..."></textarea></div>
         <div class="form-group"><label>用药记录</label><textarea id="medication" placeholder="请输入用药名称、剂量、用法..."></textarea></div>
-        
         <div class="form-group">
             <label>上传检查图片</label>
             <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
@@ -1250,7 +1156,6 @@
             <div class="upload-progress hidden" id="uploadProgress"><div class="upload-progress-bar" id="progressBar"></div></div>
             <div class="image-preview-grid" id="imagePreviewGrid"></div>
         </div>
-        
         <div class="modal-actions">
             <button class="btn btn-cancel" onclick="closeModal('recordModal')">取消</button>
             <button class="btn btn-primary" onclick="saveRecord()">保存</button>
@@ -1259,19 +1164,16 @@
     </div>
 </div>
 
-<!-- 图片查看器 -->
 <div class="image-viewer-overlay" id="imageViewer" onclick="closeImageViewer()">
     <button class="viewer-close">×</button>
     <img id="viewerImage" src="" alt="查看图片">
 </div>
 
 <script>
-// ========== PWA 注册 ==========
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(err => console.log('SW注册失败:', err));
 }
 
-// ========== 安装提示 ==========
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
@@ -1310,7 +1212,6 @@ function showInstallHint() {
     }
 }
 
-// ========== 页面路由 ==========
 function switchPage(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -1345,13 +1246,11 @@ function switchPage(page) {
     }
 }
 
-// ========== Supabase 初始化 ==========
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let currentProfile = null;
 let selectedImages = [];
 
-// ========== 认证功能 ==========
 function showRegister() {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('registerForm').classList.remove('hidden');
@@ -1415,7 +1314,6 @@ async function checkAuth() {
     if (session) { currentUser = session.user; showMainPage(); }
 }
 
-// ========== 个人档案 ==========
 async function loadProfile() {
     const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
     if (data) {
@@ -1470,7 +1368,6 @@ async function saveProfile() {
     }
 }
 
-// ========== 二维码与分享 ==========
 function generateQRCode() {
     const shareUrl = `https://ganxiaosong.github.io/kangluka-health/?view=${currentUser.id}`;
     document.getElementById('shareLink').textContent = shareUrl;
@@ -1489,7 +1386,6 @@ function copyLink() {
     }).catch(() => alert('链接：' + link));
 }
 
-// ========== 图片处理 ==========
 function handleImageSelect(event) {
     const files = Array.from(event.target.files);
     files.forEach(file => {
@@ -1547,7 +1443,6 @@ async function uploadImages() {
     return urls;
 }
 
-// ========== 就诊记录 ==========
 document.getElementById('recordDate').valueAsDate = new Date();
 
 function openRecordModal() {
@@ -1672,326 +1567,6 @@ async function deleteRecord(id) {
     if (!error) loadRecords();
 }
 
-// ========== 医学知识库（智能分析引擎）==========
-const MEDICAL_KNOWLEDGE = {
-  bloodPressure: {
-    name: '血压', unit: 'mmHg', icon: '🩺',
-    patterns: [/血压[：:]?\s*(\d+)[\/\\](\d+)/, /(\d+)\s*[\/\\]\s*(\d+)\s*(?:mmHg|毫米汞柱)/, /收缩压[：:]?\s*(\d+).*?舒张压[：:]?\s*(\d+)/s, /(\d+)\s*\/\s*(\d+)\s*(?:mmHg)?/, /(\d{2,3})\s*(?:\/|\\)\s*(\d{2,3})/],
-    labels: ['收缩压','舒张压'], normal: { sys:[90,140], dia:[60,90] },
-    parse: (m) => ({ sys:parseInt(m[1]), dia:parseInt(m[2]) }),
-    advice: {
-      high: {
-        summary: '血压偏高，处于高血压前期或高血压阶段，需积极干预预防心脑血管并发症',
-        diet: ['每日食盐严格控制在5g以下（约一啤酒瓶盖），使用限盐勺','多吃富钾食物：香蕉、土豆、菠菜、芹菜、蘑菇、牛油果、橙子','增加膳食纤维：燕麦、糙米、全麦面包、豆类、苹果','少吃腌制食品：咸菜、腊肉、火腿、酱菜、咸鸭蛋','限制饮酒：男性每日酒精<25g，女性<15g，最好戒酒','推荐降压食谱：芹菜炒木耳、海带豆腐汤、燕麦粥、清蒸鱼'],
-        exercise: ['首选有氧运动：快走、慢跑、游泳、骑自行车，每周5次，每次30-45分钟','尝试太极拳、八段锦，有助于调节自主神经、降低交感神经兴奋','避免憋气用力动作（如举重、硬拉），以免血压骤升','运动强度以"微微出汗、能说话但不能唱歌"为宜','晨起后1小时内避免剧烈运动（血压晨峰时段）','运动前后监测血压，如运动后血压>160/100应暂停'],
-        lifestyle: ['每日早晚监测血压并记录，就诊时带给医生看','BMI控制在24以下，腰围男性<90cm、女性<85cm','戒烟：吸烟会直接损伤血管内皮，加重高血压','保证睡眠7-8小时，避免熬夜（熬夜会显著升高血压）','学会减压：冥想、深呼吸、听音乐、园艺，避免情绪剧烈波动','如血压持续≥140/90，建议心内科就诊评估是否需要降压药','服药患者不可自行停药，即使血压正常也需维持治疗']
-      },
-      low: {
-        summary: '血压偏低，如无头晕乏力可观察，有症状需积极调理',
-        diet: ['适量增加盐分摄入（可比正常人多1-2g/天）','多喝水，每日2000-2500ml，增加血容量','适量饮用咖啡、浓茶（咖啡因可短暂升压）','食用补气血食物：红枣、桂圆、山药、莲子、猪肝、瘦肉','少食多餐，避免餐后血液集中于胃肠道导致低血压'],
-        exercise: ['适度有氧运动：散步、慢跑，避免剧烈运动和突然体位变化','加强下肢肌肉锻炼（如踮脚尖、深蹲），促进静脉回流','避免长时间站立，久站时做下肢屈伸活动','起床三步法：醒后躺30秒→坐起30秒→站立30秒再行走'],
-        lifestyle: ['改变体位时动作缓慢，尤其从卧位到站立','避免长时间热水浴、桑拿（血管扩张会加重低血压）','睡眠时可将床头抬高15-20度','如频繁头晕、眼前发黑、晕厥，需就医排查贫血、甲减、心律失常等','可尝试穿医用弹力袜（15-20mmHg）改善下肢血液回流']
-      }
-    }
-  },
-  fastingGlucose: {
-    name: '空腹血糖', unit: 'mmol/L', icon: '🍬',
-    patterns: [/(?:空腹)?血糖[：:]?\s*(\d+\.?\d*)/, /空腹血糖[：:]?\s*(\d+\.?\d*)/, /GLU[：:]?\s*(\d+\.?\d*)/, /葡萄糖[：:]?\s*(\d+\.?\d*)/],
-    labels: ['空腹血糖'], normal: { val:[3.9,6.1] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: '空腹血糖偏高，提示糖耐量受损或糖尿病前期，需立即生活方式干预',
-        diet: ['严格控制精制碳水：白米饭、白面条、白面包减半，替换为杂粮饭','优选低GI主食：燕麦、荞麦、糙米、藜麦、红薯、山药、玉米','每餐先吃蔬菜→再吃蛋白质→最后吃主食，延缓糖分吸收','多吃绿叶蔬菜：菠菜、油菜、芹菜、西兰花（每日500g以上）','选择优质蛋白：鱼、鸡胸肉、豆腐、鸡蛋，减少红肉','戒糖：不喝含糖饮料、奶茶、果汁，不吃甜点、蛋糕','推荐控糖食谱：杂粮饭+清蒸鱼+蒜蓉西兰花、苦瓜炒蛋、荞麦面'],
-        exercise: ['餐后1小时运动降糖效果最佳：快走、慢跑、游泳','每周至少150分钟中等强度有氧运动，分5次进行','每周2次抗阻训练：深蹲、俯卧撑、哑铃，增加肌肉对糖的利用','避免久坐，每坐1小时起身活动5分钟','运动前后监测血糖，随身携带糖果防低血糖','避免空腹运动，运动前血糖<5.6应补充碳水'],
-        lifestyle: ['减重：体重下降5-10%，血糖可显著改善甚至逆转','保证睡眠7-8小时：睡眠不足会降低胰岛素敏感性','定期监测：每3个月查糖化血红蛋白（HbA1c）','如空腹血糖≥7.0或随机血糖≥11.1，需内分泌科确诊糖尿病','学习糖尿病知识，预防并发症（眼底病变、肾病、神经病变、心血管病）']
-      },
-      low: {
-        summary: '血糖偏低，需警惕低血糖反应，尤其糖尿病患者',
-        diet: ['随身携带糖果、饼干、巧克力，出现心慌出汗立即补充15g糖','规律进餐，避免空腹时间过长（不超过4小时）','适当增加健康脂肪：坚果、牛油果、橄榄油，稳定血糖','选择缓释碳水：全麦、燕麦，避免血糖大起大落'],
-        exercise: ['避免空腹运动，运动前1小时适量进食','运动强度适中，避免过度消耗','长时间运动（>1小时）需中途补充能量'],
-        lifestyle: ['糖尿病患者需调整降糖药剂量，避免低血糖','佩戴医疗警示卡，告知亲友低血糖急救方法（补糖→15分钟复测）','如反复低血糖，需排查胰岛素瘤、肝功异常、甲减等病因']
-      }
-    }
-  },
-  hba1c: {
-    name: '糖化血红蛋白', unit: '%', icon: '📊',
-    patterns: [/糖化血红蛋白[：:]?\s*(\d+\.?\d*)/, /HbA1c[：:]?\s*(\d+\.?\d*)/, /A1C[：:]?\s*(\d+\.?\d*)/],
-    labels: ['HbA1c'], normal: { val:[4.0,6.0] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: '糖化血红蛋白偏高，反映近2-3个月平均血糖控制不佳',
-        diet: ['参考空腹血糖偏高饮食建议，更严格控糖','减少所有添加糖和精制碳水','增加苦瓜、桑叶茶、肉桂等辅助降糖食物'],
-        exercise: ['坚持规律运动，每周不可间断','运动时间固定，形成生物钟'],
-        lifestyle: ['每3个月复查HbA1c','已确诊糖尿病者目标一般<7%（年轻/无并发症<6.5%）','同时检查眼底和尿微量白蛋白，筛查并发症']
-      }
-    }
-  },
-  totalCholesterol: {
-    name: '总胆固醇', unit: 'mmol/L', icon: '🥚',
-    patterns: [/总胆固醇[：:]?\s*(\d+\.?\d*)/, /TC[：:]?\s*(\d+\.?\d*)/, /胆固醇[：:]?\s*(\d+\.?\d*)/],
-    labels: ['总胆固醇'], normal: { val:[0,5.2] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: '总胆固醇升高，增加动脉粥样硬化、冠心病和脑卒中风险',
-        diet: ['减少动物脂肪：猪油、牛油、肥肉、动物内脏、蛋黄（每周<3个）','少吃反式脂肪：植脂末、人造奶油、起酥油、油炸食品、奶茶','增加膳食纤维：燕麦（每日30-50g）、豆类、苹果、胡萝卜','多吃深海鱼：三文鱼、鲭鱼、沙丁鱼，每周2次（富含Omega-3）','用植物油替代动物油：橄榄油、茶籽油、亚麻籽油','多吃大蒜、洋葱、山楂、黑木耳，有助于降脂','推荐降脂食谱：燕麦粥+水煮蛋1个+凉拌木耳+绿茶'],
-        exercise: ['有氧运动是降脂首选：快走、游泳、骑车，每周5次，每次40分钟','运动强度要达到"有点喘但还能说话"','结合力量训练，提高基础代谢率','体重下降5%可显著改善胆固醇水平'],
-        lifestyle: ['戒烟：吸烟会降低好胆固醇（HDL），升高坏胆固醇（LDL）','限制饮酒：大量饮酒会升高甘油三酯','每3-6个月复查血脂','如TC>6.2且合并高血压/糖尿病，需心血管科评估是否用药（他汀类）']
-      }
-    }
-  },
-  triglycerides: {
-    name: '甘油三酯', unit: 'mmol/L', icon: '🍔',
-    patterns: [/甘油三酯[：:]?\s*(\d+\.?\d*)/, /TG[：:]?\s*(\d+\.?\d*)/],
-    labels: ['甘油三酯'], normal: { val:[0,1.7] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: '甘油三酯升高，与饮食直接相关，是急性胰腺炎的危险因素',
-        diet: ['严格戒酒：酒精是升高甘油三酯的最强因素，必须戒','杜绝甜食：蛋糕、奶茶、含糖饮料、果汁、精制碳水','减少油脂：油炸食品、肥肉、奶油、连坚果也要控制量','控制主食总量：每餐米饭不超过1小碗（约100g生重）','多吃蔬菜：每日500g以上，增加饱腹感','选择低脂蛋白：鸡胸肉、鱼、豆腐、脱脂奶','TG极高时需极低脂肪饮食（每日脂肪<30g）'],
-        exercise: ['有氧运动最有效：快走、慢跑、跳绳，每周5次','每周运动消耗热量>2000千卡','减少久坐，增加日常活动量（走路、爬楼梯）'],
-        lifestyle: ['TG>5.6是急性胰腺炎高危，需立即就医用药','控制体重，减重是降TG最有效方法','复查前3天保持日常饮食，避免刻意节食造成假象','如TG极高，需用贝特类药物，同时警惕胰腺炎']
-      }
-    }
-  },
-  hdl: {
-    name: '高密度脂蛋白', unit: 'mmol/L', icon: '💪',
-    patterns: [/高密度脂蛋白[：:]?\s*(\d+\.?\d*)/, /HDL[：:]?\s*(\d+\.?\d*)/, /HDL-C[：:]?\s*(\d+\.?\d*)/],
-    labels: ['HDL-C'], normal: { val:[1.0,99] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      low: {
-        summary: 'HDL偏低（"好胆固醇"不足），心血管保护力下降',
-        diet: ['增加健康脂肪：橄榄油、牛油果、坚果（每日一小把核桃/杏仁）','多吃深海鱼：三文鱼、金枪鱼（富含Omega-3）','适量饮酒者：红酒1小杯可能有益，但不建议不饮酒者开始饮酒','避免反式脂肪：油炸食品、人造奶油、植脂末'],
-        exercise: ['规律有氧运动是提升HDL最有效方法','每周至少150分钟中等强度运动'],
-        lifestyle: ['戒烟：吸烟会显著降低HDL','减重：体重下降HDL往往上升','避免久坐，增加日常活动']
-      }
-    }
-  },
-  ldl: {
-    name: '低密度脂蛋白', unit: 'mmol/L', icon: '⚠️',
-    patterns: [/低密度脂蛋白[：:]?\s*(\d+\.?\d*)/, /LDL[：:]?\s*(\d+\.?\d*)/, /LDL-C[：:]?\s*(\d+\.?\d*)/],
-    labels: ['LDL-C'], normal: { val:[0,3.4] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: 'LDL偏高（"坏胆固醇"），是动脉粥样硬化的主要危险因素',
-        diet: ['参考总胆固醇饮食建议','特别增加植物固醇：坚果、种子、豆类、全谷物','每日燕麦30-50g（含β-葡聚糖，可阻断胆固醇吸收）','多吃豆类：黄豆、黑豆（含大豆异黄酮）'],
-        exercise: ['规律有氧运动，每周5次'],
-        lifestyle: ['LDL>4.1为明显升高，>4.9需心血管科评估用药（他汀类）','合并糖尿病/高血压者LDL目标更严格（<2.6或<1.8）','他汀类药物需长期服用，不可自行停药','定期复查肝功能和肌酶（他汀副作用监测）']
-      }
-    }
-  },
-  alt: {
-    name: '谷丙转氨酶', unit: 'U/L', icon: '🍺',
-    patterns: [/谷丙转氨酶[：:]?\s*(\d+\.?\d*)/, /ALT[：:]?\s*(\d+\.?\d*)/, /丙氨酸氨基转移酶[：:]?\s*(\d+\.?\d*)/],
-    labels: ['ALT'], normal: { val:[0,40] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: 'ALT升高，提示肝细胞损伤，需排查原因并积极护肝',
-        diet: ['绝对戒酒：酒精是伤肝第一因素，必须戒','控制脂肪：少吃肥肉、油炸食品，预防/改善脂肪肝','增加优质蛋白：鱼、豆腐、鸡蛋（修复肝细胞必需）','多吃绿色蔬菜：菠菜、西兰花、芦笋、荠菜（富含叶酸和抗氧化物）','适量咖啡：每日1-2杯黑咖啡有助于护肝（不加糖奶）','避免霉变食物：花生、玉米发霉含黄曲霉素，是强致癌物','多喝水，促进代谢废物排出'],
-        exercise: ['脂肪肝导致的ALT升高：通过运动减脂最有效','每周3-5次有氧运动，每次30-60分钟，中等强度','避免过度剧烈运动（可能导致肌肉损伤，ALT假性升高）'],
-        lifestyle: ['排查原因：脂肪肝、病毒性肝炎、药物性肝损、酒精肝、自身免疫性肝病','停用可疑药物：他汀类、某些抗生素、中草药、保健品','避免熬夜：肝脏在夜间11点-3点修复，务必在此时段入睡','1-2周后复查肝功能，如持续升高或ALT>80需肝病科就诊','ALT>200需立即就医，提示明显肝细胞坏死']
-      }
-    }
-  },
-  ast: {
-    name: '谷草转氨酶', unit: 'U/L', icon: '🫀',
-    patterns: [/谷草转氨酶[：:]?\s*(\d+\.?\d*)/, /AST[：:]?\s*(\d+\.?\d*)/, /天门冬氨酸氨基转移酶[：:]?\s*(\d+\.?\d*)/],
-    labels: ['AST'], normal: { val:[0,40] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: 'AST升高，提示肝细胞或心肌细胞损伤',
-        diet: ['参考ALT饮食建议','增加辅酶Q10食物：沙丁鱼、牛肉、花生、菠菜'],
-        exercise: ['避免剧烈运动（肌肉损伤会升高AST）','运动后AST升高需鉴别是肌肉来源还是肝脏来源'],
-        lifestyle: ['如AST/ALT>1，需警惕酒精性肝病或肝硬化','排查心肌损伤：查心电图、心肌酶谱、肌钙蛋白','1-2周后复查，如持续升高需进一步检查']
-      }
-    }
-  },
-  creatinine: {
-    name: '肌酐', unit: 'μmol/L', icon: '🫘',
-    patterns: [/肌酐[：:]?\s*(\d+\.?\d*)/, /Cr[：:]?\s*(\d+\.?\d*)/, /CREA[：:]?\s*(\d+\.?\d*)/],
-    labels: ['肌酐'], normal: { val:[44,133] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: '肌酐升高，提示肾功能受损，需高度重视',
-        diet: ['低盐饮食：每日盐<5g，减轻肾脏负担','优质低蛋白：每日蛋白0.6-0.8g/kg体重，优选鸡蛋、牛奶、瘦肉','避免植物蛋白：豆制品、杂豆（非优质蛋白，含氮废物多）','限制高钾食物：香蕉、橙子、土豆、蘑菇（如血钾高）','限制高磷食物：动物内脏、坚果、可乐、加工食品','充足热量：防止身体分解自身蛋白产生更多废物'],
-        exercise: ['适度运动，避免过度疲劳','避免剧烈运动导致横纹肌溶解（会急剧升高肌酐）'],
-        lifestyle: ['立即肾内科就诊，评估肾功能分期（CKD分期）','查尿常规、肾脏B超、胱抑素C、估算肾小球滤过率（eGFR）','避免肾毒性药物：止痛药（布洛芬等）、某些抗生素、造影剂','控制血压（<130/80）、血糖（如合并糖尿病）','每日监测尿量和体重变化，记录出入量']
-      },
-      low: {
-        summary: '肌酐偏低，通常意义不大，少数情况需关注',
-        diet: ['适当增加蛋白质摄入','排除长期素食、肌肉萎缩'],
-        exercise: ['适度力量训练，增加肌肉量'],
-        lifestyle: ['如长期明显偏低，排查肌肉疾病、重症肌无力']
-      }
-    }
-  },
-  uricAcid: {
-    name: '尿酸', unit: 'μmol/L', icon: '🦶',
-    patterns: [/尿酸[：:]?\s*(\d+\.?\d*)/, /UA[：:]?\s*(\d+\.?\d*)/, /uric acid[：:]?\s*(\d+\.?\d*)/i],
-    labels: ['尿酸'], normal: { val:[208,428] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: '尿酸升高（高尿酸血症），是痛风和肾结石的危险因素',
-        diet: ['严格戒酒：尤其是啤酒和白酒（酒精抑制尿酸排泄）','避免高嘌呤食物：动物内脏、浓肉汤、沙丁鱼、凤尾鱼、贝类、酵母','限制中等嘌呤：猪牛羊肉、鱼虾、豆类（急性期避免，缓解期适量）','多吃低嘌呤食物：蔬菜、水果、鸡蛋、牛奶、大部分主食','大量饮水：每日2000-3000ml，促进尿酸排泄','喝苏打水：碱化尿液（尿pH维持在6.2-6.9）','避免含糖饮料：果糖会升高尿酸','可适量饮用咖啡（有助于降尿酸）'],
-        exercise: ['适度有氧运动：快走、游泳','避免剧烈运动和无氧运动（乳酸抑制尿酸排泄）','运动后及时补水，防止尿酸浓缩'],
-        lifestyle: ['控制体重：肥胖是高尿酸的重要因素，但减重不宜过快（每周<1kg）','避免受凉：关节受凉易诱发痛风','如尿酸>540μmol/L，需风湿免疫科评估用药（降尿酸治疗）','如已发作痛风，尿酸目标<360μmol/L（有痛风石者<300）','定期复查尿酸和肾功能，监测药物副作用']
-      }
-    }
-  },
-  wbc: {
-    name: '白细胞', unit: '×10⁹/L', icon: '🛡️',
-    patterns: [/白细胞[：:]?\s*(\d+\.?\d*)/, /WBC[：:]?\s*(\d+\.?\d*)/],
-    labels: ['白细胞'], normal: { val:[4,10] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: '白细胞升高，提示体内可能存在感染或炎症反应',
-        diet: ['多喝水：每日2000ml以上，促进代谢和毒素排出','清淡饮食：粥、面条、蔬菜，避免油腻辛辣刺激','增加维生素C：猕猴桃、橙子、草莓（促进免疫恢复）','补充优质蛋白：鸡蛋、牛奶、瘦肉（修复组织）','如发热：流质或半流质饮食，少量多餐'],
-        exercise: ['感染急性期：卧床休息，暂停运动','恢复期：逐渐恢复轻度活动，不可急于运动'],
-        lifestyle: ['排查感染灶：呼吸道、泌尿道、消化道、口腔、皮肤','如WBC>15，提示明显感染，需积极抗感染治疗','如WBC显著升高伴幼稚细胞，需血液科排查白血病','复查血常规，观察动态变化，结合C反应蛋白判断']
-      },
-      low: {
-        summary: '白细胞降低，免疫力下降，易发生感染',
-        diet: ['增加营养：高蛋白、高维生素饮食','多吃升白食物：红枣、花生、山药、香菇、牛尾汤、五红汤','食物需洁净：白细胞低时避免生冷、未煮熟食物','避免吃外卖和路边摊（防止细菌/寄生虫感染）'],
-        exercise: ['避免去人多拥挤场所（防交叉感染）','避免剧烈运动导致疲劳','适度散步即可'],
-        lifestyle: ['排查原因：病毒感染、药物（如抗生素、甲亢药、化疗药）、自身免疫病、血液病','注意个人卫生：勤洗手、戴口罩、保持室内通风','避免接触感冒患者','如WBC<3.0，需血液科就诊','必要时使用升白药物（粒细胞集落刺激因子）']
-      }
-    }
-  },
-  hemoglobin: {
-    name: '血红蛋白', unit: 'g/L', icon: '🩸',
-    patterns: [/血红蛋白[：:]?\s*(\d+\.?\d*)/, /HGB[：:]?\s*(\d+\.?\d*)/, /Hb[：:]?\s*(\d+\.?\d*)/],
-    labels: ['血红蛋白'], normal: { val:[110,160] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      low: {
-        summary: '血红蛋白偏低，提示贫血，需明确贫血类型再针对性治疗',
-        diet: ['补铁食物（缺铁性贫血）：猪肝、猪血、牛肉、菠菜、黑木耳、红枣、樱桃','补铁同时补维C：橙子、猕猴桃、番茄（促进铁吸收，餐中或餐后吃）','避免影响铁吸收：浓茶、咖啡、牛奶与补铁餐间隔2小时','补叶酸（巨幼细胞性贫血）：绿叶蔬菜、肝脏、豆类、坚果','补维生素B12：动物肝脏、鱼、蛋、奶、瘦肉','推荐补血食谱：猪肝菠菜汤、红枣桂圆粥、黑木耳炒肉、五红汤'],
-        exercise: ['贫血期间避免剧烈运动（缺氧会加重头晕、心悸）','轻度贫血：可散步、瑜伽、太极拳','中重度贫血：以休息为主，减少活动量'],
-        lifestyle: ['明确贫血原因：缺铁性？巨幼细胞性？溶血性？再障？','女性需排查月经量过多（妇科就诊）','查血清铁、铁蛋白、叶酸、维生素B12、网织红细胞','如HGB<90为中度贫血，<60为重度，需及时输血或就医','口服铁剂需持续3-6个月，即使血红蛋白正常也要继续补铁2-3个月（补足储存铁）','铁剂副作用：黑便、便秘、恶心，可配合维C服用减轻']
-      }
-    }
-  },
-  platelet: {
-    name: '血小板', unit: '×10⁹/L', icon: '🩹',
-    patterns: [/血小板[：:]?\s*(\d+\.?\d*)/, /PLT[：:]?\s*(\d+\.?\d*)/],
-    labels: ['血小板'], normal: { val:[100,300] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      low: {
-        summary: '血小板减少，出血风险增加，需警惕自发性出血',
-        diet: ['避免过硬、尖锐食物：鱼刺、坚果壳、硬糖（防划伤消化道黏膜）','避免过热食物（防烫伤口腔/食道黏膜）','多吃易消化软食：粥、面条、蒸蛋、豆腐','可适量食用花生衣（传统认为有助于升血小板）','避免粗纤维食物：芹菜、韭菜（损伤消化道）'],
-        exercise: ['避免剧烈运动和碰撞（防外伤出血）','避免使用硬毛牙刷（防牙龈出血，改用软毛/儿童牙刷）','避免抠鼻、用力擤鼻涕'],
-        lifestyle: ['避免使用阿司匹林、布洛芬等抗血小板/抗凝药物','避免肌肉注射（改口服或静脉，防止局部血肿）','PLT<50需警惕自发出血（皮肤瘀斑、牙龈出血、血尿），<20需紧急处理（颅内出血风险）','排查原因：免疫性血小板减少症（ITP）、药物、病毒感染、血液病','血液科就诊，必要时骨穿检查','女性月经量可能增多，需妇科协同管理']
-      }
-    }
-  },
-  temperature: {
-    name: '体温', unit: '℃', icon: '🌡️',
-    patterns: [/体温[：:]?\s*(\d+\.?\d*)/, /(\d+\.?\d*)\s*℃/, /(\d+\.?\d*)\s*度/],
-    labels: ['体温'], normal: { val:[36.0,37.2] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: '体温升高（发热），提示感染或炎症，需查明原因',
-        diet: ['大量饮水：每日2500-3000ml，可喝淡盐水、椰子水、稀释果汁、口服补液盐','清淡易消化：粥、面条、蒸蛋、蔬菜汤、水果泥','补充维生素C：橙子、猕猴桃、番茄（促进免疫）','避免油腻、高蛋白、难消化食物（增加代谢负担）','发热38.5℃以上可物理降温：温水擦浴、冰袋敷额头、减少衣被'],
-        exercise: ['发热期间绝对卧床休息','暂停一切运动，保存体力'],
-        lifestyle: ['监测体温变化，每4小时一次，记录体温曲线','如体温>38.5℃持续3天不退，或>39℃立即就医','如体温>40℃或伴有意识模糊、抽搐，立即急诊','观察伴随症状：咳嗽、咽痛、腹痛、尿频、皮疹、关节痛等','查明发热原因：查血常规、C反应蛋白、降钙素原、血培养','不要滥用退烧药（掩盖病情）和抗生素（需明确细菌感染）']
-      }
-    }
-  },
-  heartRate: {
-    name: '心率', unit: '次/分', icon: '❤️',
-    patterns: [/心率[：:]?\s*(\d+)/, /脉搏[：:]?\s*(\d+)/, /(\d+)\s*次\/分/],
-    labels: ['心率'], normal: { val:[60,100] },
-    parse: (m) => ({ val:parseInt(m[1]) }),
-    advice: {
-      high: {
-        summary: '心率偏快（心动过速），需排查原因',
-        diet: ['避免刺激：咖啡、浓茶、可乐、巧克力（含咖啡因）','避免饮酒','补充镁和钾：香蕉、深绿叶蔬菜、坚果（稳定心律）','避免过饱（餐后心率会生理性增快）'],
-        exercise: ['避免剧烈运动（可能加重心动过速）','可练习深呼吸、冥想、瑜伽（降低交感神经兴奋）','如为窦性心动过速，需先查明原因再恢复运动'],
-        lifestyle: ['排查原因：发热、贫血、甲亢、心衰、焦虑、药物（如哮喘药）、缺氧','记录心率日记：时间、活动、情绪、用药','如静息心率持续>100次/分，需心内科就诊（查心电图、甲功、血常规）','学习放松技巧：腹式呼吸（吸气4秒-屏息4秒-呼气6秒）、渐进性肌肉放松']
-      },
-      low: {
-        summary: '心率偏慢（心动过缓）',
-        diet: ['正常饮食即可','如使用降心率药物，避免与影响心律的食物同服'],
-        exercise: ['运动员心率慢（50-60次/分）属正常，无需担心','非运动员避免过度运动'],
-        lifestyle: ['如无症状（头晕、乏力、黑朦、晕厥）可观察','如有症状，需心内科就诊（查心电图、动态心电图、阿托品试验）','排查药物：β受体阻滞剂、地高辛、胺碘酮等可减慢心率','严重心动过缓（<50次/分且有症状）可能需要安装心脏起搏器']
-      }
-    }
-  },
-  urineProtein: {
-    name: '尿蛋白', unit: '', icon: '🧪',
-    patterns: [/尿蛋白[：:]?\s*([+-]\d*|\d+\.?\d*)/, /PRO[：:]?\s*([+-]\d*|\d+\.?\d*)/],
-    labels: ['尿蛋白'], normal: { val:[0,0.15] },
-    parse: (m) => ({ val: m[1].includes('+') ? 999 : parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: '尿蛋白阳性，提示肾脏可能受损，需进一步检查',
-        diet: ['低盐饮食：每日盐<5g','优质低蛋白：鸡蛋、牛奶、瘦肉，减少豆制品','避免高盐加工食品：咸菜、火腿、罐头','适量饮水，不要憋尿'],
-        exercise: ['避免剧烈运动（运动性蛋白尿）','适度活动即可'],
-        lifestyle: ['复查：留取晨尿、中段尿复查尿常规（排除污染和假阳性）','查24小时尿蛋白定量（确诊金标准，<0.15g/24h为正常）','排查原因：肾炎、肾病综合征、糖尿病肾病、高血压肾损害、狼疮性肾炎','肾内科就诊，查肾功能、肾脏B超、尿微量白蛋白/肌酐比','避免肾毒性药物']
-      }
-    }
-  },
-  urineGlucose: {
-    name: '尿糖', unit: '', icon: '🍭',
-    patterns: [/尿糖[：:]?\s*([+-]\d*)/, /GLU[：:]?\s*([+-]\d*)/],
-    labels: ['尿糖'], normal: { val:[0,0] },
-    parse: (m) => ({ val: m[1].includes('+') ? 1 : 0 }),
-    advice: {
-      high: {
-        summary: '尿糖阳性，提示血糖可能过高（超过肾糖阈约10mmol/L）',
-        diet: ['参考空腹血糖饮食建议','严格控制碳水化合物','避免高糖食物'],
-        exercise: ['规律运动，有助于降低血糖'],
-        lifestyle: ['查空腹血糖和糖化血红蛋白','排查糖尿病','内分泌科就诊','孕妇尿糖阳性需查妊娠糖尿病']
-      }
-    }
-  },
-  tsh: {
-    name: '促甲状腺激素', unit: 'mIU/L', icon: '🦋',
-    patterns: [/TSH[：:]?\s*(\d+\.?\d*)/, /促甲状腺激素[：:]?\s*(\d+\.?\d*)/],
-    labels: ['TSH'], normal: { val:[0.27,4.2] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: 'TSH升高，提示甲状腺功能减退（甲减）',
-        diet: ['适量补碘：海带、紫菜（但桥本甲状腺炎需限碘，需查抗体明确）','补充优质蛋白：鱼、蛋、奶','限制十字花科蔬菜大量生吃：卷心菜、花椰菜、萝卜（含致甲状腺肿物质）','避免高脂饮食（甲减易合并血脂异常）','限制大豆制品过量（影响甲状腺素吸收）'],
-        exercise: ['甲减患者代谢慢，需适度运动防肥胖和便秘','避免过度疲劳','如明显乏力、水肿，以休息为主'],
-        lifestyle: ['内分泌科就诊，查FT3、FT4、甲状腺抗体（TPOAb、TGAb）明确病因','如确诊甲减，需终身服用左甲状腺素（优甲乐），晨起空腹服用','服药时间：早餐前30-60分钟，空腹，与牛奶/豆浆/钙片间隔4小时','定期复查TSH（初期每4-6周，稳定后每6-12个月），调整药量','注意保暖，甲减患者怕冷、易便秘']
-      },
-      low: {
-        summary: 'TSH降低，提示甲状腺功能亢进（甲亢）',
-        diet: ['忌碘饮食：无碘盐、不吃海带紫菜海鲜、不用含碘药物','高热量高蛋白：补充高代谢消耗','避免咖啡、浓茶、巧克力（兴奋神经，加重心悸）','补充钙和维生素D（甲亢易骨质疏松）'],
-        exercise: ['甲亢急性期：卧床休息，禁止运动','控制后：适度运动，避免剧烈','不可运动至大汗淋漓'],
-        lifestyle: ['内分泌科就诊，查FT3、FT4、TRAb、甲状腺B超','抗甲状腺药物治疗（甲巯咪唑/丙硫氧嘧啶）或碘131或手术','定期复查血常规和肝功能（抗甲亢药可能引起白细胞减少和肝损）','避免情绪激动，保持心态平和','突眼患者需眼科协同，高枕卧位、戴墨镜、人工泪液']
-      }
-    }
-  },
-  bun: {
-    name: '尿素氮', unit: 'mmol/L', icon: '💧',
-    patterns: [/尿素氮[：:]?\s*(\d+\.?\d*)/, /BUN[：:]?\s*(\d+\.?\d*)/],
-    labels: ['尿素氮'], normal: { val:[2.6,7.5] },
-    parse: (m) => ({ val:parseFloat(m[1]) }),
-    advice: {
-      high: {
-        summary: '尿素氮升高，提示肾功能可能受损或高蛋白饮食/脱水',
-        diet: ['低蛋白饮食：每日0.6-0.8g/kg','优质蛋白：鸡蛋、牛奶、瘦肉','避免大量进食肉类后复查（假阳性）','多饮水'],
-        exercise: ['适度运动'],
-        lifestyle: ['排查肾功能（联合肌酐看）','排除脱水（饮水不足、腹泻、出汗多）','排除消化道出血（血液蛋白被分解吸收）','排除高蛋白饮食或剧烈运动后','肾内科就诊']
-      }
-    }
-  }
-};
-
 // ========== 硅基流动 AI API 调用 ==========
 async function callSiliconFlowAI(metricsText) {
     const apiUrl = AI_CONFIG.proxyUrl || 'https://api.siliconflow.cn/v1/chat/completions';
@@ -2002,9 +1577,9 @@ async function callSiliconFlowAI(metricsText) {
         headers['Authorization'] = 'Bearer ' + AI_CONFIG.apiKey;
     }
     
-    const prompt = `你是一位资深全科医生和健康顾问。请根据以下化验单/体检指标数据，进行专业分析并给出详细的健康建议。
+    const prompt = `你是一位资深全科医生和健康顾问。请根据以下化验单/体检报告识别出的文字内容，进行分析并给出详细的健康建议。
 
-【指标数据】
+【化验单识别文字】
 ${metricsText}
 
 请严格按照以下JSON格式返回（不要返回任何其他文字，只返回JSON）：
@@ -2028,13 +1603,14 @@ ${metricsText}
 }
 
 要求：
-1. 只分析有数据的指标，不要编造没有的指标
-2. 饮食建议要具体（吃什么、少吃什么、推荐食谱）
-3. 运动建议要具体（运动类型、频率、时长、注意事项）
-4. 生活建议要实用（作息、复查、用药提醒等）
-5. 异常指标必须给出三方面建议，正常指标简要说明即可
-6. 如果有多个异常，给出组合风险的综合建议
-7. 用中文回答`;
+1. 从文字中识别所有医学指标（如白细胞、红细胞、血红蛋白、血小板、血糖、血脂、肝功、肾功等），不要编造没有的指标
+2. 对比正常参考范围，判断每个指标是正常、偏高还是偏低
+3. 饮食建议要具体（吃什么、少吃什么、推荐食谱）
+4. 运动建议要具体（运动类型、频率、时长、注意事项）
+5. 生活建议要实用（作息、复查、用药提醒等）
+6. 异常指标必须给出三方面建议，正常指标简要说明即可
+7. 如果有多个异常，给出组合风险的综合建议
+8. 用中文回答`;
 
     const response = await fetch(apiUrl, {
         method: 'POST',
@@ -2042,7 +1618,7 @@ ${metricsText}
         body: JSON.stringify({
             model: AI_CONFIG.model,
             messages: [
-                { role: 'system', content: '你是一位专业的全科医生，擅长根据化验单给出详细的健康管理建议。' },
+                { role: 'system', content: '你是一位专业的全科医生，擅长根据化验单文字内容识别指标并给出详细的健康管理建议。' },
                 { role: 'user', content: prompt }
             ],
             temperature: 0.7,
@@ -2062,7 +1638,6 @@ ${metricsText}
         try {
             return JSON.parse(content);
         } catch (e) {
-            // 尝试从markdown代码块中提取JSON
             const jsonMatch = content.match(/```json\s*([\s\S]*?)```/) || content.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
                 return JSON.parse(jsonMatch[1] || jsonMatch[0]);
@@ -2076,14 +1651,12 @@ ${metricsText}
 function renderAIResult(aiData, rawText) {
     let html = '';
     
-    // 总结
     html += `<div class="ai-result-box" style="margin-top:16px;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; padding:16px; border-radius:14px; margin-bottom:16px;">
             <div style="font-size:13px; opacity:0.9; margin-bottom:6px;">🧠 AI 智能分析总结</div>
             <div style="font-size:15px; font-weight:600; line-height:1.6;">${escapeHtml(aiData.summary || '')}</div>
         </div>`;
     
-    // 指标总览
     if (aiData.metrics && aiData.metrics.length > 0) {
         html += `<div class="card-title" style="margin-bottom:14px;">📋 指标分析</div>
         <div class="metric-overview-grid">`;
@@ -2098,7 +1671,6 @@ function renderAIResult(aiData, rawText) {
         });
         html += `</div>`;
         
-        // 异常指标详细
         const abnormal = aiData.metrics.filter(m => m.status !== 'normal');
         if (abnormal.length > 0) {
             html += `<div class="card-title" style="margin:20px 0 14px;">⚠️ 异常指标深度建议</div>`;
@@ -2136,7 +1708,6 @@ function renderAIResult(aiData, rawText) {
         }
     }
     
-    // 综合建议
     if (aiData.comprehensive && aiData.comprehensive.length > 0) {
         html += `<div class="comprehensive-advice">
             <h4>🎯 综合健康方案</h4>
@@ -2145,14 +1716,12 @@ function renderAIResult(aiData, rawText) {
         html += `</ul></div>`;
     }
     
-    // 警告
     if (aiData.warning) {
         html += `<div style="margin-top:16px; padding:14px; background:#ffebee; border-radius:12px; border-left:4px solid #e74c3c; color:#c62828; font-size:13px; font-weight:600;">
             ⚠️ ${escapeHtml(aiData.warning)}
         </div>`;
     }
     
-    // 原始文字
     if (rawText && rawText.length > 10) {
         html += `<details class="ocr-text-box" style="margin-top:16px;">
             <summary>📝 查看识别到的原始文字</summary>
@@ -2164,170 +1733,7 @@ function renderAIResult(aiData, rawText) {
     return html;
 }
 
-function extractMetrics(text) {
-    const findings = [];
-    for (const [key, config] of Object.entries(MEDICAL_KNOWLEDGE)) {
-        for (const pattern of config.patterns) {
-            const match = text.match(pattern);
-            if (match) {
-                const parsed = config.parse(match);
-                let status = 'normal', statusText = '正常';
-                if (config.normal.val) {
-                    const val = parsed.val;
-                    if (val < config.normal.val[0]) { status = 'low'; statusText = '偏低'; }
-                    else if (val > config.normal.val[1]) { status = 'high'; statusText = '偏高'; }
-                } else if (config.normal.sys) {
-                    const { sys, dia } = parsed;
-                    if (sys > config.normal.sys[1] || dia > config.normal.dia[1]) { status = 'high'; statusText = '偏高'; }
-                    else if (sys < config.normal.sys[0] || dia < config.normal.dia[0]) { status = 'low'; statusText = '偏低'; }
-                }
-                findings.push({ key, name: config.name, icon: config.icon, unit: config.unit, values: parsed, labels: config.labels, status, statusText, advice: config.advice[status] || null });
-                break;
-            }
-        }
-    }
-    return findings;
-}
-
-function generateSmartReport(findings, rawText) {
-    if (findings.length === 0) {
-        const hasText = rawText && rawText.trim().length > 5;
-        return `<div class="ai-result-box" style="margin-top:16px;">
-            <div style="text-align:center; padding:30px 20px;">
-                <div style="font-size:48px; margin-bottom:12px;">🔍</div>
-                <div style="font-size:17px; font-weight:700; margin-bottom:10px; color:#333;">未能识别出明确的医学指标</div>
-                <div style="font-size:13px; color:#888; line-height:1.8; text-align:left; background:#f8f9fa; padding:14px; border-radius:10px;">
-                    <b>可能原因：</b><br>
-                    • 图片不够清晰（反光、模糊、手抖）<br>
-                    • 化验单格式特殊（手写、非标准排版）<br>
-                    • 识别引擎暂未覆盖该指标类型<br><br>
-                    <b>建议：</b><br>
-                    1. 尝试切换到「手动输入」模式，直接填写关键指标<br>
-                    2. 重新拍摄：光线充足、避免反光、尽量正对镜头<br>
-                    3. 确保图片包含完整的数值和单位
-                </div>
-                ${hasText ? `
-                <div style="margin-top:16px; text-align:left;">
-                    <div style="font-size:13px; color:#667eea; font-weight:600; margin-bottom:8px;">📝 OCR识别到的原始文字（供参考）：</div>
-                    <div style="background:#f0f0f0; padding:12px; border-radius:10px; font-size:12px; color:#666; max-height:150px; overflow-y:auto; line-height:1.6; white-space:pre-wrap; word-break:break-all;">${escapeHtml(rawText)}</div>
-                    <button class="btn btn-primary" onclick="copyOCRText()" style="margin-top:10px; font-size:13px; padding:8px;">📋 复制识别文字</button>
-                    <button class="btn btn-primary" onclick="switchAIMode('manual')" style="margin-top:10px; font-size:13px; padding:8px; background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">✏️ 切换到手动输入</button>
-                </div>
-                ` : ''}
-            </div>
-        </div>`;
-    }
-
-    let html = '';
-    
-    // 1. 指标总览
-    html += `<div class="ai-result-box" style="margin-top:16px; margin-bottom:16px;">
-        <div class="card-title" style="margin-bottom:14px;">📋 识别到的指标总览</div>
-        <div class="metric-overview-grid">`;
-    
-    findings.forEach(f => {
-        const color = f.status === 'normal' ? '#27ae60' : (f.status === 'high' ? '#e74c3c' : '#f39c12');
-        const bg = f.status === 'normal' ? '#e8f5e9' : (f.status === 'high' ? '#ffebee' : '#fff3e0');
-        let valText = '';
-        if (f.values.val !== undefined) valText = f.values.val;
-        else if (f.values.sys !== undefined) valText = `${f.values.sys}/${f.values.dia}`;
-        
-        html += `<div class="metric-overview-item" style="background:${bg};">
-            <div class="metric-ov-name">${f.icon} ${f.name}</div>
-            <div class="metric-ov-value" style="color:${color};">${valText}<span class="metric-ov-unit">${f.unit}</span></div>
-            <div class="metric-ov-status" style="color:${color};">${f.statusText}</div>
-        </div>`;
-    });
-    html += `</div></div>`;
-
-    // 2. 异常指标详细分析
-    const abnormal = findings.filter(f => f.status !== 'normal');
-    if (abnormal.length > 0) {
-        html += `<div class="card-title" style="margin:20px 8px 14px;">⚠️ 异常指标深度分析与建议</div>`;
-        abnormal.forEach((f, idx) => {
-            const advice = f.advice;
-            if (!advice) return;
-            const borderColor = f.status === 'high' ? '#e74c3c' : '#f39c12';
-            let valText = '';
-            if (f.values.val !== undefined) valText = f.values.val;
-            else if (f.values.sys !== undefined) valText = `${f.values.sys}/${f.values.dia}`;
-            
-            html += `<div class="metric-result-card" style="border-left-color:${borderColor}; animation-delay:${idx*0.15}s;">
-                <div class="metric-header">
-                    <div class="metric-name">${f.icon} ${f.name}</div>
-                    <div>
-                        <span class="metric-value ${f.status}">${valText} ${f.unit}</span>
-                        <span class="metric-status-tag tag-${f.status}">${f.statusText}</span>
-                    </div>
-                </div>
-                <div style="font-size:13px; color:#555; margin-bottom:12px; padding:12px; background:#f8f9fa; border-radius:10px; line-height:1.6;">
-                    <strong style="color:#667eea;">💡 医学解读：</strong>${advice.summary}
-                </div>`;
-            
-            if (advice.diet && advice.diet.length > 0) {
-                html += `<div class="advice-section"><div class="advice-title" style="color:#e67e22;">🍽️ 饮食建议</div><ul class="advice-list">`;
-                advice.diet.forEach(item => { html += `<li>${item}</li>`; });
-                html += `</ul></div>`;
-            }
-            if (advice.exercise && advice.exercise.length > 0) {
-                html += `<div class="advice-section"><div class="advice-title" style="color:#3498db;">🏃 运动建议</div><ul class="advice-list">`;
-                advice.exercise.forEach(item => { html += `<li>${item}</li>`; });
-                html += `</ul></div>`;
-            }
-            if (advice.lifestyle && advice.lifestyle.length > 0) {
-                html += `<div class="advice-section"><div class="advice-title" style="color:#9b59b6;">💤 生活调理</div><ul class="advice-list">`;
-                advice.lifestyle.forEach(item => { html += `<li>${item}</li>`; });
-                html += `</ul></div>`;
-            }
-            html += `</div>`;
-        });
-    } else {
-        html += `<div class="ai-result-box" style="margin-top:16px; text-align:center; padding:24px;">
-            <div style="font-size:48px; margin-bottom:10px;">🎉</div>
-            <div style="font-size:18px; font-weight:700; color:#27ae60; margin-bottom:8px;">恭喜！所有指标均在正常范围</div>
-            <div style="font-size:13px; color:#666; line-height:1.7;">请继续保持健康的生活方式，建议每年进行一次全面体检。</div>
-        </div>`;
-    }
-
-    // 3. 综合建议
-    const comprehensive = [];
-    const hasHighBP = abnormal.some(f => f.key === 'bloodPressure' && f.status === 'high');
-    const hasHighSugar = abnormal.some(f => f.key === 'fastingGlucose' && f.status === 'high');
-    const hasHighLipid = abnormal.some(f => ['totalCholesterol','triglycerides','ldl'].includes(f.key) && f.status === 'high');
-    const hasHighUA = abnormal.some(f => f.key === 'uricAcid' && f.status === 'high');
-    const hasHighALT = abnormal.some(f => f.key === 'alt' && f.status === 'high');
-    const hasAnemia = abnormal.some(f => f.key === 'hemoglobin' && f.status === 'low');
-    const hasHighCreatinine = abnormal.some(f => f.key === 'creatinine' && f.status === 'high');
-
-    if (hasHighBP && hasHighLipid) comprehensive.push('您同时存在血压和血脂异常，心血管风险叠加，建议尽快心血管科就诊，制定降压+降脂综合方案。');
-    if (hasHighSugar && hasHighLipid) comprehensive.push('血糖和血脂同时异常提示代谢综合征，核心是减重（目标减重5-10%），可显著改善两项指标。');
-    if (hasHighBP && hasHighSugar) comprehensive.push('高血压合并糖尿病需更严格控制血压（<130/80）和血糖，预防肾病和眼底病变。');
-    if (hasHighUA && hasHighLipid) comprehensive.push('高尿酸合并高血脂，需严格戒酒、低嘌呤低脂饮食，多喝水，预防痛风和急性胰腺炎。');
-    if (hasHighALT) comprehensive.push('肝功能异常期间避免自行服用保健品和中药，很多"保肝药"本身也会伤肝，需肝病科明确病因。');
-    if (hasAnemia) comprehensive.push('贫血需明确类型再补：缺铁性贫血补铁，巨幼细胞性贫血补叶酸/B12，切勿盲目进补。');
-    if (hasHighCreatinine) comprehensive.push('肾功能异常需肾内科专科管理，严格控制血压、血糖、蛋白摄入，避免肾毒性药物。');
-    if (abnormal.length > 0 && comprehensive.length === 0) comprehensive.push('建议携带完整化验单到相应专科就诊，医生会根据您的具体情况制定个性化方案。');
-    if (abnormal.length === 0) comprehensive.push('您的指标目前均在正常范围，请继续保持均衡饮食、规律运动、充足睡眠的良好习惯。');
-    comprehensive.push('⚠️ 以上建议由AI健康助手生成，仅供参考，不能替代医生的诊断和治疗。如有明显不适或指标严重异常，请及时就医。');
-
-    html += `<div class="comprehensive-advice">
-        <h4>🎯 综合健康方案</h4>
-        <ul class="advice-list">`;
-    comprehensive.forEach(item => { html += `<li>${item}</li>`; });
-    html += `</ul></div>`;
-
-    // 4. 原始识别文字（可折叠）
-    if (rawText && rawText.length > 10) {
-        html += `<details class="ocr-text-box" style="margin-top:16px;">
-            <summary>📝 查看AI识别到的原始文字（供核对）</summary>
-            <div style="margin-top:8px; white-space:pre-wrap; word-break:break-all;">${escapeHtml(rawText)}</div>
-        </details>`;
-    }
-
-    return html;
-}
-
-// ========== AI 智能分析（全新升级版）==========
+// ========== AI 智能分析 ==========
 let aiCurrentImage = null;
 let aiCurrentMode = 'image';
 
@@ -2366,44 +1772,6 @@ function setStepActive(stepNum) {
     }
 }
 
-async function preprocessImage(dataUrl) {
-    return new Promise((resolve) => {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const maxSize = 1200;
-            let w = img.width, h = img.height;
-            if (w > h && w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; }
-            else if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; }
-            canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            // 灰度化+对比度增强
-            const imageData = ctx.getImageData(0, 0, w, h);
-            const data = imageData.data;
-            for (let i = 0; i < data.length; i += 4) {
-                const gray = 0.299*data[i] + 0.587*data[i+1] + 0.114*data[i+2];
-                const enhanced = gray > 128 ? Math.min(255, gray + 20) : Math.max(0, gray - 20);
-                data[i] = data[i+1] = data[i+2] = enhanced;
-            }
-            ctx.putImageData(imageData, 0, 0);
-            resolve(canvas.toDataURL('image/jpeg', 0.85));
-        };
-        img.src = dataUrl;
-    });
-}
-
-function copyOCRText() {
-    const text = document.querySelector('.ai-result-box div[style*="white-space:pre-wrap"]')?.textContent || '';
-    if (text) {
-        navigator.clipboard.writeText(text).then(() => {
-            alert('识别文字已复制，请粘贴到手动输入框中');
-            switchAIMode('manual');
-            document.getElementById('manualOther').value = text;
-        }).catch(() => alert('复制失败，请手动复制'));
-    }
-}
-
 async function startAIAnalysis() {
     if (!aiCurrentImage) { alert('请先上传检查单图片'); return; }
     
@@ -2414,89 +1782,55 @@ async function startAIAnalysis() {
     setStepActive(0);
     
     let rawText = '';
-    let usedAI = false;
     
     try {
-        // 步骤1：预处理图片（但保留原图备用）
-        const processedImage = await preprocessImage(aiCurrentImage);
-        updateAIProgress(10);
-        
-        // 步骤2：OCR识别 - 先尝试预处理图
-        setStepActive(1);
-        document.getElementById('aiThinkingText').textContent = '正在提取医学指标（第1次尝试）...';
-        
-        let result = await Tesseract.recognize(processedImage, 'chi_sim', {
+        // 步骤1：OCR识别文字
+        setStepActive(0);
+        const result = await Tesseract.recognize(aiCurrentImage, 'chi_sim', {
             logger: m => {
                 if (m.status === 'recognizing text') {
-                    updateAIProgress(10 + m.progress * 20);
+                    updateAIProgress(m.progress * 40);
                 }
             }
         });
         
         rawText = result.data.text || '';
-        console.log('OCR第1次结果:', rawText);
+        console.log('OCR识别结果:', rawText);
         
-        // 如果预处理图识别太少，用原图再试一次
-        if (rawText.trim().length < 30) {
-            document.getElementById('aiThinkingText').textContent = '首次识别内容较少，尝试原图增强识别...';
-            const result2 = await Tesseract.recognize(aiCurrentImage, 'chi_sim', {
-                logger: m => {
-                    if (m.status === 'recognizing text') {
-                        updateAIProgress(30 + m.progress * 15);
-                    }
-                }
-            });
-            const rawText2 = result2.data.text || '';
-            if (rawText2.trim().length > rawText.trim().length) {
-                rawText = rawText2;
-                console.log('OCR第2次结果（原图）:', rawText);
-            }
+        if (rawText.trim().length < 5) {
+            throw new Error('未能从图片中识别出文字，请尝试手动输入');
         }
         
-        updateAIProgress(50);
+        updateAIProgress(45);
         
-        // 步骤3：优先调用真正的AI大模型
-        setStepActive(2);
+        // 步骤2：直接发给AI大模型分析
+        setStepActive(1);
         document.getElementById('aiThinkingText').textContent = '正在调用AI大模型分析...';
         
-        // 尝试调用硅基流动AI
-        if (AI_CONFIG.apiKey) {
-            try {
-                updateAIProgress(70);
-                const aiData = await callSiliconFlowAI(rawText);
-                updateAIProgress(95);
-                await new Promise(r => setTimeout(r, 400));
-                
-                const reportHtml = renderAIResult(aiData, rawText);
-                document.getElementById('aiResult').innerHTML = reportHtml;
-                saveAIHistory(rawText.substring(0, 80) + '...', reportHtml);
-                usedAI = true;
-            } catch (apiErr) {
-                console.log('AI API调用失败，fallback到本地规则:', apiErr);
-                document.getElementById('aiThinkingText').textContent = '云端AI连接失败，切换本地智能分析...';
-                await new Promise(r => setTimeout(r, 800));
-            }
-        }
+        const aiData = await callSiliconFlowAI(rawText);
+        updateAIProgress(95);
+        await new Promise(r => setTimeout(r, 400));
         
-        // Fallback到本地规则引擎
-        if (!usedAI) {
-            const findings = extractMetrics(rawText);
-            updateAIProgress(90);
-            await new Promise(r => setTimeout(r, 500));
-            updateAIProgress(100);
-            await new Promise(r => setTimeout(r, 300));
-            
-            const reportHtml = generateSmartReport(findings, rawText);
-            document.getElementById('aiResult').innerHTML = reportHtml;
-            saveAIHistory(rawText.substring(0, 80) + '...', reportHtml);
-        }
+        const reportHtml = renderAIResult(aiData, rawText);
+        document.getElementById('aiResult').innerHTML = reportHtml;
+        saveAIHistory(rawText.substring(0, 80) + '...', reportHtml);
         
     } catch (e) {
+        console.error('分析失败:', e);
         document.getElementById('aiResult').innerHTML = `
             <div class="ai-result-box" style="margin-top:16px;">
-                <p class="error-msg" style="text-align:center;">识别失败：${e.message}</p>
-                <p style="text-align:center; font-size:13px; color:#999; margin-top:10px;">建议切换到「手动输入」模式，直接填写关键指标</p>
-                <button class="btn btn-primary" onclick="switchAIMode('manual')" style="margin-top:12px;">切换到手动输入</button>
+                <div style="text-align:center; padding:20px;">
+                    <div style="font-size:36px; margin-bottom:10px;">😅</div>
+                    <div style="font-size:16px; font-weight:700; color:#333; margin-bottom:10px;">分析遇到问题</div>
+                    <div style="font-size:13px; color:#888; margin-bottom:16px;">${escapeHtml(e.message)}</div>
+                    ${rawText ? `
+                    <div style="text-align:left; margin-bottom:16px;">
+                        <div style="font-size:12px; color:#667eea; font-weight:600; margin-bottom:6px;">📝 OCR识别到的文字：</div>
+                        <div style="background:#f0f0f0; padding:10px; border-radius:8px; font-size:12px; color:#666; max-height:120px; overflow-y:auto; line-height:1.5; white-space:pre-wrap; word-break:break-all;">${escapeHtml(rawText)}</div>
+                    </div>
+                    ` : ''}
+                    <button class="btn btn-primary" onclick="switchAIMode('manual')" style="font-size:14px; padding:10px;">✏️ 切换到手动输入</button>
+                </div>
             </div>`;
     } finally {
         setTimeout(() => {
@@ -2529,39 +1863,20 @@ async function startManualAnalysis() {
     updateAIProgress(30);
     setStepActive(1);
     
-    let usedAI = false;
-    
-    // 优先调用真正的AI大模型
-    if (AI_CONFIG.apiKey) {
-        try {
-            updateAIProgress(60);
-            const aiData = await callSiliconFlowAI(text);
-            updateAIProgress(90);
-            await new Promise(r => setTimeout(r, 400));
-            
-            const reportHtml = renderAIResult(aiData, text);
-            document.getElementById('aiResult').innerHTML = reportHtml;
-            saveAIHistory(text.substring(0, 80) + '...', reportHtml);
-            usedAI = true;
-        } catch (apiErr) {
-            console.log('AI API调用失败，fallback到本地规则:', apiErr);
-            document.getElementById('aiThinkingText').textContent = '云端AI连接失败，切换本地智能分析...';
-            await new Promise(r => setTimeout(r, 800));
-        }
-    }
-    
-    // Fallback到本地规则引擎
-    if (!usedAI) {
-        updateAIProgress(70);
-        setStepActive(2);
-        const findings = extractMetrics(text);
-        await new Promise(r => setTimeout(r, 500));
-        updateAIProgress(100);
-        await new Promise(r => setTimeout(r, 300));
+    try {
+        const aiData = await callSiliconFlowAI(text);
+        updateAIProgress(90);
+        await new Promise(r => setTimeout(r, 400));
         
-        const reportHtml = generateSmartReport(findings, text);
+        const reportHtml = renderAIResult(aiData, text);
         document.getElementById('aiResult').innerHTML = reportHtml;
         saveAIHistory(text.substring(0, 80) + '...', reportHtml);
+    } catch (e) {
+        document.getElementById('aiResult').innerHTML = `
+            <div class="ai-result-box" style="margin-top:16px;">
+                <p class="error-msg" style="text-align:center;">分析失败：${escapeHtml(e.message)}</p>
+                <p style="text-align:center; font-size:13px; color:#999; margin-top:10px;">请检查网络连接或稍后重试</p>
+            </div>`;
     }
     
     setTimeout(() => {
@@ -2600,7 +1915,6 @@ function restoreAIHistory(index) {
     }
 }
 
-// ========== 吃药提醒 ==========
 let reminders = JSON.parse(localStorage.getItem('kangluka_reminders') || '[]');
 
 function addReminder() {
@@ -2616,7 +1930,6 @@ function addReminder() {
     reminders.push({ id: Date.now(), name, time, dose, enabled: true });
     localStorage.setItem('kangluka_reminders', JSON.stringify(reminders));
     
-    // 请求通知权限
     if (Notification.permission !== 'granted') {
         Notification.requestPermission();
     }
@@ -2656,19 +1969,16 @@ function deleteReminder(id) {
     renderReminders();
 }
 
-// 每分钟检查提醒
 function checkReminders() {
     if (Notification.permission !== 'granted') return;
     const now = new Date();
     const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
     const currentSec = now.getSeconds();
     
-    // 只在秒数为 0-5 之间触发（避免一分钟内多次触发）
     if (currentSec > 5) return;
     
     reminders.forEach(r => {
         if (r.enabled && r.time === currentTime) {
-            // 发送通知
             if (navigator.serviceWorker.controller) {
                 navigator.serviceWorker.controller.postMessage({
                     type: 'SHOW_NOTIFICATION',
@@ -2685,10 +1995,8 @@ function checkReminders() {
     });
 }
 
-// 启动提醒检查
 setInterval(checkReminders, 5000);
 
-// ========== 图片查看 ==========
 function viewImage(url) {
     document.getElementById('viewerImage').src = url;
     document.getElementById('imageViewer').classList.add('active');
@@ -2698,7 +2006,6 @@ function closeImageViewer() {
     document.getElementById('imageViewer').classList.remove('active');
 }
 
-// ========== 弹窗控制 ==========
 function openModal(id) { document.getElementById(id).classList.add('active'); }
 function closeModal(id) {
     document.getElementById(id).classList.remove('active');
@@ -2714,7 +2021,6 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// ========== 医生查看模式 ==========
 const urlParams = new URLSearchParams(window.location.search);
 const viewId = urlParams.get('view');
 if (viewId) {
