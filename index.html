@@ -472,7 +472,7 @@ async function saveProfile() {
 }
 
 function generateQRCode() {
-    const shareUrl = `https://ganxiaosong.github.io/kangluka-health/?view=${currentUser.id}`;
+    const shareUrl = `https://ganxiaosong.github.io/kangluka-health/doctor-view.html?patient=${currentUser.id}`;
     document.getElementById('shareLink').textContent = shareUrl;
     const qrContainer = document.getElementById('qrcode');
     qrContainer.innerHTML = '';
