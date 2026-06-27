@@ -1,129 +1,222 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>康录卡 - 医生查看</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh; padding: 20px;
-    }
-    .container { max-width: 420px; margin: 0 auto; }
-    .header { text-align: center; color: white; padding: 30px 0; }
-    .header h1 { font-size: 24px; margin-bottom: 8px; }
-    .header p { opacity: 0.9; font-size: 14px; }
-    .card { 
-      background: white; border-radius: 20px; padding: 24px; 
-      margin-bottom: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    }
-    .card-title { 
-      font-size: 18px; font-weight: 600; color: #333; 
-      margin-bottom: 16px; padding-bottom: 12px; 
-      border-bottom: 2px solid #f0f0f0;
-    }
-    .info-item { 
-      display: flex; justify-content: space-between; 
-      padding: 12px 0; border-bottom: 1px solid #f5f5f5;
-    }
-    .info-item:last-child { border-bottom: none; }
-    .info-label { color: #666; font-size: 14px; }
-    .info-value { color: #333; font-weight: 500; font-size: 14px; }
-    .record-item { 
-      background: #f8f9ff; border-radius: 12px; 
-      padding: 16px; margin-bottom: 12px;
-      border-left: 4px solid #667eea;
-    }
-    .record-title { font-weight: 600; color: #333; margin-bottom: 6px; }
-    .record-meta { font-size: 13px; color: #999; }
-    .tag { 
-      display: inline-block; background: #f0f7ff; color: #667eea; 
-      padding: 4px 12px; border-radius: 20px; font-size: 13px; margin-right: 8px;
-    }
-    .badge { 
-      display: inline-block; background: #e8f5e9; color: #2c9f7a; 
-      padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 16px;
-    }
-    .error { text-align: center; color: white; padding: 40px 20px; }
-    .error h2 { font-size: 20px; margin-bottom: 12px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>患者病历 - 康录卡</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script>
+    const SUPABASE_URL = 'https://yewemusfpujkmbznkwah.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlld2VtdXNmcHVqa21iem5rd2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNTU5NDQsImV4cCI6MjA5NzgzMTk0NH0.1BPDHG3ug62b_myHsIkKVIWW1ZTmZRXZJSLEDHHgA8E';
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa; padding: 15px; line-height: 1.6;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 20px; border-radius: 12px;
+            margin-bottom: 15px; text-align: center;
+        }
+        .header h1 { font-size: 22px; margin-bottom: 5px; }
+        .header p { font-size: 14px; opacity: 0.9; }
+        
+        .card {
+            background: white; border-radius: 12px; padding: 20px;
+            margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .card-title {
+            font-size: 18px; font-weight: bold; color: #333;
+            margin-bottom: 15px; padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .info-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        }
+        .info-item { display: flex; flex-direction: column; }
+        .info-item.full { grid-column: 1 / -1; }
+        .info-item label { color: #999; font-size: 13px; margin-bottom: 3px; }
+        .info-item span { color: #333; font-size: 16px; font-weight: 500; }
+        .info-item .blood { 
+            display: inline-block; background: #ff6b6b; color: white;
+            padding: 2px 10px; border-radius: 12px; font-size: 14px;
+        }
+        
+        .timeline { position: relative; padding-left: 25px; }
+        .timeline::before {
+            content: ''; position: absolute; left: 6px; top: 0; bottom: 0;
+            width: 2px; background: #e0e0e0;
+        }
+        .timeline-item {
+            position: relative; margin-bottom: 20px; padding: 15px;
+            background: #f8f9fa; border-radius: 10px;
+        }
+        .timeline-item::before {
+            content: ''; position: absolute; left: -19px; top: 20px;
+            width: 10px; height: 10px; border-radius: 50%;
+            background: #667eea; border: 2px solid white;
+        }
+        .timeline-date { color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+        .timeline-title { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .timeline-type {
+            display: inline-block; padding: 2px 8px; border-radius: 10px;
+            font-size: 12px; margin-bottom: 8px;
+        }
+        .type-outpatient { background: #e3f2fd; color: #1976d2; }
+        .type-inpatient { background: #fce4ec; color: #c2185b; }
+        .type-checkup { background: #e8f5e9; color: #388e3c; }
+        .timeline-content { color: #555; font-size: 15px; }
+        .timeline-content p { margin: 5px 0; }
+        
+        .record-images { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .record-image-thumb {
+            width: 70px; height: 70px; border-radius: 6px; object-fit: cover;
+            border: 1px solid #ddd;
+        }
+        
+        .loading { text-align: center; padding: 40px; color: #999; }
+        .error { text-align: center; padding: 40px; color: #e74c3c; }
+        
+        .footer {
+            text-align: center; padding: 20px; color: #999;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>🏥 康录卡</h1>
-      <p>医生查看模式 · 跨院慢病病史整合</p>
-    </div>
-    <div id="content"></div>
-  </div>
 
-  <script>
-    function render() {
-      const params = new URLSearchParams(window.location.search);
-      const data = params.get('data');
-      const content = document.getElementById('content');
-      
-      if (!data) {
-        content.innerHTML = `
-          <div class="error">
-            <h2>⚠️ 无法读取档案</h2>
-            <p>二维码链接无效或数据已过期</p>
-          </div>`;
+<div class="container" id="app">
+    <div class="loading">加载中...</div>
+</div>
+
+<script>
+var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const urlParams = new URLSearchParams(window.location.search);
+const patientId = urlParams.get('patient');
+
+async function loadPatientData() {
+    const app = document.getElementById('app');
+    
+    if (!patientId) {
+        app.innerHTML = '<div class="error">无效的患者链接</div>';
         return;
-      }
-      
-      try {
-        const user = JSON.parse(decodeURIComponent(atob(data)));
+    }
+    
+    const { data: profile, error: profileError } = await supabase
+        .from('profiles').select('*').eq('id', patientId).single();
+    
+    const { data: records, error: recordsError } = await supabase
+        .from('records').select('*').eq('user_id', patientId).order('date', { ascending: false });
+    
+    if (profileError && !profile) {
+        app.innerHTML = '<div class="error">未找到患者信息</div>';
+        return;
+    }
+    
+    let html = `
+        <div class="header">
+            <h1>🏥 患者病历档案</h1>
+            <p>康录卡 - 跨院慢病病史整合</p>
+        </div>
         
-        let html = `
-          <div style="text-align:center;margin-bottom:20px;">
-            <span class="badge">✓ 医生验证通过</span>
-          </div>
-          <div class="card">
-            <div class="card-title">👤 患者基本信息</div>
-            <div class="info-item"><span class="info-label">姓名</span><span class="info-value">${user.name || '--'}</span></div>
-            <div class="info-item"><span class="info-label">性别</span><span class="info-value">${user.gender || '--'}</span></div>
-            <div class="info-item"><span class="info-label">年龄</span><span class="info-value">${user.age || '--'}</span></div>
-            <div class="info-item"><span class="info-label">血型</span><span class="info-value">${user.blood || '--'}</span></div>
-            <div class="info-item"><span class="info-label">档案ID</span><span class="info-value" style="font-size:12px;">${user.uid || '--'}</span></div>
-          </div>
+        <div class="card">
+            <div class="card-title">👤 基本信息</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>姓名</label>
+                    <span>${profile?.name || '未填写'}</span>
+                </div>
+                <div class="info-item">
+                    <label>性别</label>
+                    <span>${profile?.gender || '未填写'}</span>
+                </div>
+                <div class="info-item">
+                    <label>年龄</label>
+                    <span>${profile?.age ? profile.age + '岁' : '未填写'}</span>
+                </div>
+                <div class="info-item">
+                    <label>血型</label>
+                    <span>${profile?.blood_type ? '<span class="blood">' + profile.blood_type + '</span>' : '未填写'}</span>
+                </div>
+                <div class="info-item">
+                    <label>身高</label>
+                    <span>${profile?.height ? profile.height + 'cm' : '未填写'}</span>
+                </div>
+                <div class="info-item">
+                    <label>体重</label>
+                    <span>${profile?.weight ? profile.weight + 'kg' : '未填写'}</span>
+                </div>
+                <div class="info-item full">
+                    <label>过敏史</label>
+                    <span>${profile?.allergy || '未填写'}</span>
+                </div>
+                <div class="info-item full">
+                    <label>既往病史</label>
+                    <span>${profile?.medical_history || '未填写'}</span>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    if (records && records.length > 0) {
+        const typeClass = { '门诊': 'type-outpatient', '住院': 'type-inpatient', '体检': 'type-checkup' };
+        
+        html += `
+            <div class="card">
+                <div class="card-title">📋 就诊记录（${records.length}条）</div>
+                <div class="timeline">
         `;
         
-        if (user.diseases && user.diseases.length > 0) {
-          html += `
-            <div class="card">
-              <div class="card-title">🏷️ 慢病标签</div>
-              <div>${user.diseases.map(d => `<span class="tag">${d}</span>`).join('')}</div>
-            </div>
-          `;
-        }
-        
-        if (user.records && user.records.length > 0) {
-          html += `
-            <div class="card">
-              <div class="card-title">📋 就诊记录</div>
-              ${user.records.map(r => `
-                <div class="record-item">
-                  <div class="record-title">${r.title}</div>
-                  <div class="record-meta">${r.date} · ${r.hospital} · ${r.type}</div>
+        records.forEach(record => {
+            let imagesHtml = '';
+            if (record.images) {
+                try {
+                    const imageUrls = JSON.parse(record.images);
+                    imagesHtml = '<div class="record-images">' + imageUrls.map(url => 
+                        `<img src="${url}" class="record-image-thumb" alt="检查图片">`
+                    ).join('') + '</div>';
+                } catch (e) {}
+            }
+            
+            html += `
+                <div class="timeline-item">
+                    <div class="timeline-date">${record.date}</div>
+                    <div class="timeline-title">${escapeHtml(record.hospital)} · ${escapeHtml(record.department)}</div>
+                    <span class="timeline-type ${typeClass[record.type] || 'type-outpatient'}">${record.type || '门诊'}</span>
+                    <div class="timeline-content">
+                        ${record.diagnosis ? `<p><strong>诊断：</strong>${escapeHtml(record.diagnosis)}</p>` : ''}
+                        ${record.medication ? `<p><strong>用药：</strong>${escapeHtml(record.medication)}</p>` : ''}
+                    </div>
+                    ${imagesHtml}
                 </div>
-              `).join('')}
-            </div>
-          `;
-        }
+            `;
+        });
         
-        content.innerHTML = html;
-      } catch (e) {
-        content.innerHTML = `
-          <div class="error">
-            <h2>⚠️ 数据解析失败</h2>
-            <p>二维码数据损坏，请重新生成</p>
-          </div>`;
-      }
+        html += '</div></div>';
+    } else {
+        html += '<div class="card"><div class="card-title">📋 就诊记录</div><p style="color:#999;text-align:center;padding:20px;">暂无就诊记录</p></div>';
     }
-    render();
-  </script>
+    
+    html += '<div class="footer">康录卡 - 跨院慢病病史整合记录系统</div>';
+    
+    app.innerHTML = html;
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+loadPatientData();
+</script>
+
 </body>
 </html>
