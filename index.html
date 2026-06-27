@@ -11,6 +11,7 @@
     <title>康录卡</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <script>
     const SUPABASE_URL = 'https://yewemusfpujkmbznkwah.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlld2VtdXNmcHVqa21iem5rd2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNTU5NDQsImV4cCI6MjA5NzgzMTk0NH0.1BPDHG3ug62b_myHsIkKVIWW1ZTmZRXZJSLEDHHgA8E';
@@ -20,13 +21,14 @@
         html, body { height: 100%; overflow: hidden; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: #f5f7fa;
+            background: #f0f2f5;
             color: #333;
             overscroll-behavior-y: none;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
         }
+        /* 安装提示 */
         .install-banner {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -58,6 +60,8 @@
             animation: bounceIn 0.5s;
         }
         @keyframes bounceIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        
+        /* 登录页 - 毛玻璃效果 */
         .auth-page {
             position: fixed;
             inset: 0;
@@ -68,51 +72,57 @@
             align-items: center;
             z-index: 100;
             padding: 20px;
-            transition: opacity 0.3s;
         }
-        .auth-page.hidden { opacity: 0; pointer-events: none; }
+        .auth-page.hidden { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .auth-card {
-            background: white;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
             border-radius: 24px;
-            padding: 32px;
+            padding: 36px 28px;
             width: 100%;
             max-width: 380px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.3);
         }
-        .auth-logo { text-align: center; margin-bottom: 24px; }
-        .auth-logo .icon { font-size: 56px; margin-bottom: 8px; }
-        .auth-logo h1 { color: #667eea; font-size: 26px; margin-bottom: 4px; }
+        .auth-logo { text-align: center; margin-bottom: 28px; }
+        .auth-logo .icon { font-size: 56px; margin-bottom: 10px; display: block; }
+        .auth-logo h1 { color: #667eea; font-size: 28px; margin-bottom: 6px; font-weight: 700; }
         .auth-logo p { color: #999; font-size: 14px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; margin-bottom: 6px; color: #555; font-size: 14px; font-weight: 500; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #555; font-size: 14px; font-weight: 600; }
         .form-group input, .form-group select, .form-group textarea {
             width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid #e8e8e8;
-            border-radius: 12px;
+            padding: 14px 16px;
+            border: 2px solid #f0f0f0;
+            border-radius: 14px;
             font-size: 15px;
             transition: all 0.2s;
             font-family: inherit;
+            background: #fafafa;
         }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
-        .form-group textarea { resize: vertical; min-height: 80px; -webkit-user-select: auto; user-select: auto; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; background: white; box-shadow: 0 0 0 4px rgba(102,126,234,0.1); }
+        .form-group textarea { resize: vertical; min-height: 90px; -webkit-user-select: auto; user-select: auto; }
         .btn {
             width: 100%;
-            padding: 14px;
+            padding: 15px;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            letter-spacing: 1px;
         }
-        .btn:active { transform: scale(0.98); }
-        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
-        .btn-cancel { background: #f0f0f0; color: #666; }
-        .toggle-link { text-align: center; color: #667eea; cursor: pointer; font-size: 14px; margin-top: 16px; }
-        .success-msg { color: #27ae60; font-size: 14px; margin-top: 10px; text-align: center; }
-        .error-msg { color: #e74c3c; font-size: 14px; margin-top: 10px; text-align: center; }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 8px 20px rgba(102,126,234,0.3); }
+        .btn-primary:active { box-shadow: 0 4px 10px rgba(102,126,234,0.2); }
+        .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; box-shadow: 0 8px 20px rgba(17,153,142,0.3); }
+        .btn-cancel { background: #f5f5f5; color: #666; }
+        .toggle-link { text-align: center; color: #667eea; cursor: pointer; font-size: 14px; margin-top: 18px; font-weight: 500; }
+        .success-msg { color: #27ae60; font-size: 14px; margin-top: 12px; text-align: center; font-weight: 500; }
+        .error-msg { color: #e74c3c; font-size: 14px; margin-top: 12px; text-align: center; font-weight: 500; }
+        
+        /* 主应用 */
         #mainApp {
             height: 100vh;
             display: none;
@@ -132,6 +142,7 @@
             flex-shrink: 0;
             position: relative;
             z-index: 10;
+            box-shadow: 0 2px 10px rgba(102,126,234,0.3);
         }
         .pages-container {
             flex: 1;
@@ -139,194 +150,210 @@
             overflow-x: hidden;
             position: relative;
             -webkit-overflow-scrolling: touch;
+            padding-bottom: 20px;
         }
         .page {
             display: none;
             padding: 16px;
             padding-bottom: 100px;
-            animation: pageIn 0.25s ease;
+            animation: pageIn 0.3s ease;
         }
         .page.active { display: block; }
-        @keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-        .pull-refresh {
-            height: 0;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #667eea;
-            font-size: 13px;
-            transition: height 0.2s;
-            background: #f5f7fa;
-        }
-        .pull-refresh.active { height: 50px; }
+        @keyframes pageIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 卡片美化 */
         .card {
             background: white;
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 24px;
             margin-bottom: 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
+        .card:active { transform: scale(0.995); }
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
-        .card-title { font-size: 18px; font-weight: 600; }
+        .card-title { font-size: 18px; font-weight: 700; color: #222; }
         .edit-btn {
-            background: #f0f0f0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecff 100%);
             border: none;
-            padding: 6px 14px;
-            border-radius: 8px;
+            padding: 8px 16px;
+            border-radius: 10px;
             font-size: 13px;
-            color: #666;
+            color: #667eea;
             cursor: pointer;
+            font-weight: 600;
         }
+        
+        /* 档案网格 */
         .profile-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 16px;
         }
-        .profile-item { display: flex; flex-direction: column; }
-        .profile-item label { color: #999; font-size: 12px; margin-bottom: 4px; }
-        .profile-item span { color: #333; font-size: 15px; font-weight: 500; }
+        .profile-item { display: flex; flex-direction: column; padding: 10px; background: #fafafa; border-radius: 12px; }
+        .profile-item label { color: #999; font-size: 12px; margin-bottom: 6px; font-weight: 500; }
+        .profile-item span { color: #333; font-size: 15px; font-weight: 600; }
         .profile-item.full { grid-column: 1 / -1; }
         .blood-tag {
             display: inline-block;
-            background: #ff6b6b;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
             color: white;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 20px;
             font-size: 13px;
             width: fit-content;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(255,107,107,0.3);
         }
+        
+        /* 二维码 */
         .qr-card { text-align: center; }
         .qr-card p { color: #999; font-size: 13px; margin: 12px 0 8px; }
-        .qr-wrap { display: inline-block; padding: 16px; background: #f8f9fa; border-radius: 12px; }
+        .qr-wrap { display: inline-block; padding: 16px; background: #f8f9fa; border-radius: 16px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.04); }
         .link-text {
             font-size: 12px;
             color: #667eea;
             word-break: break-all;
-            margin-top: 8px;
-            line-height: 1.4;
+            margin-top: 10px;
+            line-height: 1.5;
+            background: #f5f7fa;
+            padding: 8px 12px;
+            border-radius: 8px;
         }
         .copy-btn {
-            background: #f0f0f0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecff 100%);
             border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
+            padding: 10px 20px;
+            border-radius: 10px;
             font-size: 13px;
-            margin-top: 10px;
+            margin-top: 12px;
             cursor: pointer;
-            color: #333;
+            color: #667eea;
+            font-weight: 600;
         }
-        .timeline { position: relative; padding-left: 24px; }
+        
+        /* 时间轴 */
+        .timeline { position: relative; padding-left: 28px; }
         .timeline::before {
             content: '';
             position: absolute;
-            left: 6px; top: 8px; bottom: 8px;
+            left: 8px; top: 8px; bottom: 8px;
             width: 2px;
             background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
             border-radius: 1px;
         }
         .timeline-item {
             position: relative;
-            margin-bottom: 16px;
-            padding: 16px;
+            margin-bottom: 18px;
+            padding: 18px;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
             transition: transform 0.2s;
+            border: 1px solid rgba(0,0,0,0.03);
         }
         .timeline-item:active { transform: scale(0.98); }
         .timeline-item::before {
             content: '';
             position: absolute;
-            left: -22px; top: 20px;
-            width: 10px; height: 10px;
+            left: -26px; top: 22px;
+            width: 12px; height: 12px;
             border-radius: 50%;
-            background: #667eea;
-            border: 2px solid white;
-            box-shadow: 0 0 0 2px #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.2);
         }
-        .timeline-date { color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-        .timeline-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .timeline-date { color: #667eea; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+        .timeline-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: #222; }
         .timeline-type {
             display: inline-block;
-            padding: 2px 8px;
+            padding: 3px 10px;
             border-radius: 20px;
             font-size: 11px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
         .type-outpatient { background: #e3f2fd; color: #1976d2; }
         .type-inpatient { background: #fce4ec; color: #c2185b; }
         .type-checkup { background: #e8f5e9; color: #388e3c; }
-        .timeline-content { color: #666; font-size: 14px; line-height: 1.6; }
-        .timeline-content p { margin: 4px 0; }
-        .timeline-actions { margin-top: 12px; text-align: right; }
+        .timeline-content { color: #666; font-size: 14px; line-height: 1.7; }
+        .timeline-content p { margin: 6px 0; }
+        .timeline-actions { margin-top: 14px; text-align: right; }
         .timeline-actions button {
             background: none;
             border: none;
             color: #667eea;
             cursor: pointer;
             font-size: 13px;
-            margin-left: 12px;
-            padding: 4px 8px;
+            margin-left: 14px;
+            padding: 6px 10px;
+            font-weight: 600;
         }
         .timeline-actions button.delete { color: #ff6b6b; }
-        .record-images { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        
+        /* 图片 */
+        .record-images { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
         .record-image-thumb {
-            width: 70px;
-            height: 70px;
-            border-radius: 8px;
+            width: 75px;
+            height: 75px;
+            border-radius: 10px;
             object-fit: cover;
             cursor: pointer;
-            border: 1px solid #eee;
+            border: 2px solid #f0f0f0;
+            transition: transform 0.2s;
         }
+        .record-image-thumb:active { transform: scale(0.95); }
         .image-upload-area {
             border: 2px dashed #667eea;
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 14px;
+            padding: 24px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
+            background: rgba(102,126,234,0.03);
         }
-        .image-upload-area:active { background: #f0f4ff; }
+        .image-upload-area:active { background: rgba(102,126,234,0.08); }
         .image-preview-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 12px;
+            gap: 10px;
+            margin-top: 14px;
         }
         .image-preview-item {
             position: relative;
             aspect-ratio: 1;
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
             background: #f0f0f0;
         }
         .image-preview-item img { width: 100%; height: 100%; object-fit: cover; }
         .image-preview-item .remove-btn {
             position: absolute;
-            top: 4px; right: 4px;
-            width: 22px; height: 22px;
+            top: 5px; right: 5px;
+            width: 24px; height: 24px;
             background: #ff6b6b;
             color: white;
             border: none;
             border-radius: 50%;
-            font-size: 12px;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
         .upload-progress {
             width: 100%;
-            height: 3px;
+            height: 4px;
             background: #e0e0e0;
             border-radius: 2px;
-            margin-top: 10px;
+            margin-top: 12px;
             overflow: hidden;
         }
         .upload-progress-bar {
@@ -335,36 +362,42 @@
             width: 0%;
             transition: width 0.3s;
         }
+        
+        /* 悬浮按钮 */
         .fab {
             position: fixed;
             right: 20px;
-            bottom: 84px;
-            width: 56px;
-            height: 56px;
+            bottom: 90px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            font-size: 28px;
+            font-size: 30px;
             display: none;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(102,126,234,0.4);
             z-index: 50;
             cursor: pointer;
             transition: transform 0.2s;
         }
         .fab:active { transform: scale(0.9); }
+        
+        /* 底部导航 - 5个 */
         .bottom-nav {
-            height: 64px;
-            background: white;
-            border-top: 1px solid #eee;
+            height: 68px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0,0,0,0.06);
             display: flex;
             justify-content: space-around;
             align-items: center;
             flex-shrink: 0;
             padding-bottom: env(safe-area-inset-bottom);
             z-index: 10;
+            position: relative;
         }
         .nav-item {
             flex: 1;
@@ -372,17 +405,24 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 3px;
             color: #bbb;
             font-size: 10px;
-            transition: color 0.2s;
+            transition: all 0.2s;
             cursor: pointer;
             height: 100%;
+            padding-top: 4px;
         }
         .nav-item.active { color: #667eea; }
-        .nav-item .icon { font-size: 22px; margin-bottom: 2px; }
-        .empty-state { text-align: center; padding: 60px 20px; color: #bbb; }
-        .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+        .nav-item .icon { font-size: 22px; margin-bottom: 1px; }
+        .nav-item.active .icon { transform: scale(1.1); transition: transform 0.2s; }
+        
+        /* 空状态 */
+        .empty-state { text-align: center; padding: 60px 20px; color: #ccc; }
+        .empty-state-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.6; }
+        .empty-state p { font-size: 15px; color: #999; }
+        
+        /* 弹窗 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -396,21 +436,23 @@
         .modal-overlay.active { display: flex; }
         .modal {
             background: white;
-            border-radius: 24px 24px 0 0;
-            padding: 24px;
+            border-radius: 28px 28px 0 0;
+            padding: 28px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            animation: slideUp 0.3s ease;
+            animation: slideUp 0.35s ease;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .modal h3 { margin-bottom: 20px; font-size: 18px; }
+        .modal h3 { margin-bottom: 24px; font-size: 20px; font-weight: 700; color: #222; }
         .modal-actions {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 12px;
+            margin-top: 24px;
         }
         .modal-actions .btn { flex: 1; }
+        
+        /* 图片查看器 */
         .image-viewer-overlay {
             display: none;
             position: fixed;
@@ -421,37 +463,48 @@
             align-items: center;
         }
         .image-viewer-overlay.active { display: flex; }
-        .image-viewer-overlay img { max-width: 95%; max-height: 90vh; border-radius: 8px; }
+        .image-viewer-overlay img { max-width: 95%; max-height: 90vh; border-radius: 12px; }
         .viewer-close {
             position: absolute;
             top: 20px;
             right: 20px;
             color: white;
-            font-size: 36px;
-            background: none;
+            font-size: 40px;
+            background: rgba(255,255,255,0.2);
             border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
         }
+        
+        /* 我的页面 */
         .me-avatar {
-            width: 72px;
-            height: 72px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
-            margin: 0 auto 12px;
+            font-size: 36px;
+            margin: 0 auto 16px;
+            box-shadow: 0 8px 25px rgba(102,126,234,0.3);
         }
         .menu-list {
             background: white;
-            border-radius: 16px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0,0,0,0.03);
         }
         .menu-item {
-            padding: 16px 20px;
+            padding: 18px 24px;
             border-bottom: 1px solid #f5f5f5;
             display: flex;
             justify-content: space-between;
@@ -459,10 +512,92 @@
             cursor: pointer;
             font-size: 15px;
             transition: background 0.2s;
+            font-weight: 500;
         }
         .menu-item:active { background: #f9f9f9; }
         .menu-item:last-child { border-bottom: none; }
-        .menu-item .arrow { color: #ccc; font-size: 13px; }
+        .menu-item .arrow { color: #ccc; font-size: 14px; }
+        
+        /* AI分析页面 */
+        .ai-result-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecff 100%);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+            border: 1px solid rgba(102,126,234,0.1);
+        }
+        .ai-metric {
+            background: white;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .ai-metric-title { font-weight: 700; font-size: 14px; color: #333; margin-bottom: 4px; }
+        .ai-metric-value { font-size: 20px; font-weight: 700; color: #667eea; }
+        .ai-metric-status { font-size: 13px; font-weight: 600; margin-top: 4px; }
+        .ai-metric-range { font-size: 11px; color: #999; margin-top: 2px; }
+        
+        /* 加载动画 */
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f0f0f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* 提醒页面 */
+        .reminder-card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+        .reminder-info { flex: 1; }
+        .reminder-name { font-weight: 700; font-size: 16px; color: #222; margin-bottom: 4px; }
+        .reminder-time { color: #667eea; font-size: 14px; font-weight: 600; }
+        .reminder-dose { color: #999; font-size: 12px; margin-top: 2px; }
+        .reminder-delete {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 8px;
+        }
+        .toggle-switch {
+            width: 44px;
+            height: 24px;
+            background: #ddd;
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .toggle-switch.active { background: #667eea; }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active::after { transform: translateX(20px); }
+        
         .hidden { display: none !important; }
     </style>
 </head>
@@ -471,18 +606,18 @@
 <!-- 安装提示 -->
 <div class="install-banner" id="installBanner">
     <div>
-        <div style="font-weight:600; font-size:15px;">📲 添加到主屏幕</div>
-        <div style="font-size:12px; opacity:0.8; margin-top:2px;">像App一样快速打开，离线也能用</div>
+        <div style="font-weight:700; font-size:15px;">📲 添加到主屏幕</div>
+        <div style="font-size:12px; opacity:0.8; margin-top:3px;">像App一样快速打开，离线也能用</div>
     </div>
-    <button onclick="installApp()" style="background:#667eea; color:white; border:none; padding:8px 16px; border-radius:8px; font-weight:600; font-size:14px;">安装</button>
+    <button onclick="installApp()" style="background:#667eea; color:white; border:none; padding:10px 18px; border-radius:10px; font-weight:700; font-size:14px;">安装</button>
 </div>
 <div class="ios-hint" id="iosHint">点击底部"分享"按钮，选择"添加到主屏幕" 📲</div>
 
 <!-- 登录页 -->
 <div id="authPage" class="auth-page">
-    <div style="text-align:center; color:white; margin-bottom:32px;">
+    <div style="text-align:center; color:white; margin-bottom:36px;">
         <div class="icon">🏥</div>
-        <h1 style="font-size:32px; margin-bottom:6px;">康录卡</h1>
+        <h1 style="font-size:36px; margin-bottom:8px; font-weight:800;">康录卡</h1>
         <p style="opacity:0.9; font-size:15px;">个人健康档案管理系统</p>
     </div>
     <div class="auth-card">
@@ -495,7 +630,7 @@
                 <label>密码</label>
                 <input type="password" id="loginPassword" placeholder="请输入密码">
             </div>
-            <button class="btn btn-primary" onclick="handleLogin()">登录</button>
+            <button class="btn btn-primary" onclick="handleLogin()">登 录</button>
             <div class="toggle-link" onclick="showRegister()">还没有账号？立即注册</div>
         </div>
         <div id="registerForm" class="hidden">
@@ -511,7 +646,7 @@
                 <label>确认密码</label>
                 <input type="password" id="regConfirm" placeholder="请再次输入密码">
             </div>
-            <button class="btn btn-success" onclick="handleRegister()">注册</button>
+            <button class="btn btn-success" onclick="handleRegister()">注 册</button>
             <div class="toggle-link" onclick="showLogin()">已有账号？立即登录</div>
         </div>
         <div id="authMessage"></div>
@@ -523,14 +658,13 @@
     <div class="app-header" id="pageHeader">健康档案</div>
     
     <div class="pages-container" id="pagesContainer">
-        <div class="pull-refresh" id="pullRefresh"><span>↓ 松开刷新</span></div>
         
         <!-- 首页 -->
         <div class="page active" id="pageHome">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">👤 个人档案</div>
-                    <button class="edit-btn" onclick="editProfile()">编辑</button>
+                    <button class="edit-btn" onclick="editProfile()">✏️ 编辑</button>
                 </div>
                 <div class="profile-grid" id="profileGrid">
                     <div class="profile-item"><label>姓名</label><span id="pName">未填写</span></div>
@@ -545,11 +679,11 @@
             </div>
             
             <div class="card qr-card">
-                <div class="card-title" style="margin-bottom:12px;">📱 医生扫码查看</div>
+                <div class="card-title" style="margin-bottom:14px;">📱 医生扫码查看</div>
                 <p>医生扫描下方二维码即可查看完整档案</p>
                 <div class="qr-wrap" id="qrcode"></div>
                 <div class="link-text" id="shareLink"></div>
-                <button class="copy-btn" onclick="copyLink()">复制链接</button>
+                <button class="copy-btn" onclick="copyLink()">📋 复制链接</button>
             </div>
         </div>
         
@@ -559,31 +693,98 @@
                 <div class="empty-state">
                     <div class="empty-state-icon">📝</div>
                     <p>暂无就诊记录</p>
-                    <p style="font-size:13px; margin-top:8px;">点击右下角按钮添加</p>
+                    <p style="font-size:13px; margin-top:8px; color:#bbb;">点击右下角按钮添加</p>
                 </div>
+            </div>
+        </div>
+        
+        <!-- AI分析页 -->
+        <div class="page" id="pageAI">
+            <div class="card">
+                <div class="card-title">🔬 AI 智能分析</div>
+                <p style="color:#999; font-size:13px; margin:12px 0 18px;">上传化验单、检查报告，AI自动识别关键指标</p>
+                
+                <div class="image-upload-area" onclick="document.getElementById('aiImageInput').click()">
+                    <div style="font-size:40px;">📷</div>
+                    <p style="color:#667eea; margin-top:8px; font-weight:600;">点击上传检查单</p>
+                    <p style="color:#999; font-size:12px; margin-top:4px;">支持化验单、血压单、体检报告等</p>
+                </div>
+                <input type="file" id="aiImageInput" accept="image/*" style="display:none;" onchange="handleAIImageSelect(event)">
+                <div id="aiImagePreview" style="margin-top:14px;"></div>
+                
+                <button class="btn btn-primary" onclick="startAIAnalysis()" style="margin-top:18px;">
+                    🔍 开始智能分析
+                </button>
+                
+                <div id="aiLoading" class="hidden">
+                    <div class="spinner"></div>
+                    <p style="text-align:center; color:#667eea; font-size:13px; margin-top:8px;">AI 正在识别中，请稍候...</p>
+                </div>
+                <div id="aiResult"></div>
+            </div>
+            
+            <div id="aiHistoryContainer"></div>
+        </div>
+        
+        <!-- 提醒页 -->
+        <div class="page" id="pageReminders">
+            <div class="card">
+                <div class="card-title">💊 添加吃药提醒</div>
+                <div class="form-group" style="margin-top:16px;">
+                    <label>药品名称</label>
+                    <input type="text" id="reminderName" placeholder="例如：降压药、维生素C">
+                </div>
+                <div class="form-group">
+                    <label>提醒时间</label>
+                    <input type="time" id="reminderTime">
+                </div>
+                <div class="form-group">
+                    <label>剂量</label>
+                    <input type="text" id="reminderDose" placeholder="例如：1片、2粒">
+                </div>
+                <button class="btn btn-primary" onclick="addReminder()">➕ 添加提醒</button>
+            </div>
+            
+            <div style="margin-top:8px;">
+                <div class="card-title" style="padding:0 8px; margin-bottom:12px;">📋 我的提醒</div>
+                <div id="reminderList">
+                    <div class="empty-state" style="padding:40px 20px;">
+                        <div class="empty-state-icon">⏰</div>
+                        <p>暂无提醒</p>
+                        <p style="font-size:13px; margin-top:8px; color:#bbb;">添加后会自动提醒</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align:center; margin-top:24px; color:#ccc; font-size:12px;">
+                <p>💡 提示：请允许浏览器通知权限，到点会自动提醒</p>
             </div>
         </div>
         
         <!-- 我的页 -->
         <div class="page" id="pageMe">
-            <div class="card" style="text-align:center; padding:32px 20px;">
+            <div class="card" style="text-align:center; padding:36px 20px;">
                 <div class="me-avatar" id="meAvatar">👤</div>
-                <h3 id="meEmail" style="font-size:16px; margin-bottom:4px;"></h3>
+                <h3 id="meEmail" style="font-size:17px; margin-bottom:6px; font-weight:700;"></h3>
                 <p style="color:#999; font-size:13px;">康录卡用户</p>
             </div>
             
             <div class="menu-list">
                 <div class="menu-item" onclick="showInstallHint()">
                     <span>📲 添加到主屏幕</span>
-                    <span class="arrow">></span>
+                    <span class="arrow">›</span>
                 </div>
                 <div class="menu-item" onclick="editProfile()">
                     <span>✏️ 编辑个人档案</span>
-                    <span class="arrow">></span>
+                    <span class="arrow">›</span>
                 </div>
                 <div class="menu-item" onclick="switchPage('records')">
                     <span>📋 查看就诊记录</span>
-                    <span class="arrow">></span>
+                    <span class="arrow">›</span>
+                </div>
+                <div class="menu-item" onclick="switchPage('reminders')">
+                    <span>⏰ 吃药提醒</span>
+                    <span class="arrow">›</span>
                 </div>
                 <div class="menu-item" onclick="handleLogout()" style="color:#ff6b6b;">
                     <span>🚪 退出登录</span>
@@ -591,8 +792,8 @@
             </div>
             
             <div style="text-align:center; margin-top:40px; color:#ccc; font-size:12px;">
-                <p>康录卡 v1.0</p>
-                <p style="margin-top:4px;">跨院慢病病史整合</p>
+                <p>康录卡 v2.0</p>
+                <p style="margin-top:4px;">跨院慢病病史整合 · AI智能分析</p>
             </div>
         </div>
     </div>
@@ -609,6 +810,14 @@
         <div class="nav-item" onclick="switchPage('records')">
             <span class="icon">📋</span>
             <span>记录</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('ai')">
+            <span class="icon">🔬</span>
+            <span>AI分析</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('reminders')">
+            <span class="icon">⏰</span>
+            <span>提醒</span>
         </div>
         <div class="nav-item" onclick="switchPage('me')">
             <span class="icon">👤</span>
@@ -663,10 +872,10 @@
         <div class="form-group"><label>用药记录</label><textarea id="medication" placeholder="请输入用药名称、剂量、用法..."></textarea></div>
         
         <div class="form-group">
-            <label>上传检查图片（X光、CT、化验单等）</label>
+            <label>上传检查图片</label>
             <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
                 <div style="font-size:32px;">📷</div>
-                <p style="color:#667eea; margin-top:6px; font-size:14px;">点击上传图片</p>
+                <p style="color:#667eea; margin-top:6px; font-size:14px; font-weight:600;">点击上传图片</p>
                 <p style="color:#999; font-size:12px;">支持多张图片</p>
             </div>
             <input type="file" id="imageInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelect(event)">
@@ -749,36 +958,24 @@ function switchPage(page) {
         document.getElementById('pageHeader').textContent = '就诊记录';
         document.getElementById('fabBtn').style.display = 'flex';
         loadRecords();
+    } else if (page === 'ai') {
+        document.getElementById('pageAI').classList.add('active');
+        document.querySelectorAll('.nav-item')[2].classList.add('active');
+        document.getElementById('pageHeader').textContent = 'AI 智能分析';
+        loadAIHistory();
+    } else if (page === 'reminders') {
+        document.getElementById('pageReminders').classList.add('active');
+        document.querySelectorAll('.nav-item')[3].classList.add('active');
+        document.getElementById('pageHeader').textContent = '吃药提醒';
+        renderReminders();
     } else if (page === 'me') {
         document.getElementById('pageMe').classList.add('active');
-        document.querySelectorAll('.nav-item')[2].classList.add('active');
+        document.querySelectorAll('.nav-item')[4].classList.add('active');
         document.getElementById('pageHeader').textContent = '我的';
         document.getElementById('meEmail').textContent = currentUser?.email || '';
         document.getElementById('meAvatar').textContent = (currentUser?.email?.charAt(0) || '👤').toUpperCase();
     }
 }
-
-// ========== 下拉刷新 ==========
-let touchStartY = 0;
-const container = document.getElementById('pagesContainer');
-container.addEventListener('touchstart', e => {
-    if (container.scrollTop <= 0) touchStartY = e.touches[0].clientY;
-});
-container.addEventListener('touchmove', e => {
-    if (container.scrollTop <= 0 && touchStartY) {
-        const diff = e.touches[0].clientY - touchStartY;
-        if (diff > 70) document.getElementById('pullRefresh').classList.add('active');
-    }
-});
-container.addEventListener('touchend', () => {
-    if (document.getElementById('pullRefresh').classList.contains('active')) {
-        setTimeout(() => {
-            document.getElementById('pullRefresh').classList.remove('active');
-            if (document.getElementById('pageRecords').classList.contains('active')) loadRecords();
-        }, 800);
-    }
-    touchStartY = 0;
-});
 
 // ========== Supabase 初始化 ==========
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -919,7 +1116,7 @@ function copyLink() {
     navigator.clipboard.writeText(link).then(() => {
         const btn = document.querySelector('.copy-btn');
         const old = btn.textContent;
-        btn.textContent = '已复制！';
+        btn.textContent = '✅ 已复制！';
         setTimeout(() => btn.textContent = old, 1500);
     }).catch(() => alert('链接：' + link));
 }
@@ -1048,7 +1245,7 @@ async function loadRecords() {
     
     if (error) { container.innerHTML = `<div class="error-msg" style="text-align:center;padding:20px;">加载失败：${error.message}</div>`; return; }
     if (!data || data.length === 0) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><p>暂无就诊记录</p><p style="font-size:13px; margin-top:8px;">点击右下角按钮添加</p></div>`;
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><p>暂无就诊记录</p><p style="font-size:13px; margin-top:8px; color:#bbb;">点击右下角按钮添加</p></div>`;
         return;
     }
     
@@ -1106,6 +1303,239 @@ async function deleteRecord(id) {
     const { error } = await supabase.from('records').delete().eq('id', id);
     if (!error) loadRecords();
 }
+
+// ========== AI 智能分析 ==========
+let aiCurrentImage = null;
+
+function handleAIImageSelect(event) {
+    const file = event.target.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        aiCurrentImage = e.target.result;
+        document.getElementById('aiImagePreview').innerHTML = `<img src="${e.target.result}" style="width:100%; max-height:200px; object-fit:cover; border-radius:12px;">`;
+    };
+    reader.readAsDataURL(file);
+}
+
+async function startAIAnalysis() {
+    if (!aiCurrentImage) {
+        alert('请先上传检查单图片');
+        return;
+    }
+    
+    document.getElementById('aiLoading').classList.remove('hidden');
+    document.getElementById('aiResult').innerHTML = '';
+    
+    try {
+        const result = await Tesseract.recognize(aiCurrentImage, 'chi_sim+eng', {
+            logger: m => console.log(m)
+        });
+        analyzeText(result.data.text);
+    } catch (e) {
+        document.getElementById('aiResult').innerHTML = '<p class="error-msg" style="text-align:center;">识别失败，请尝试上传更清晰的图片</p>';
+    } finally {
+        document.getElementById('aiLoading').classList.add('hidden');
+    }
+}
+
+function analyzeText(text) {
+    let html = '<div class="ai-result-box">';
+    html += '<div class="card-title" style="margin-bottom:12px;">📋 识别结果</div>';
+    html += `<div style="background:white; padding:12px; border-radius:10px; font-size:13px; color:#666; margin-bottom:16px; max-height:150px; overflow-y:auto; line-height:1.6;">${escapeHtml(text)}</div>`;
+    html += '<div class="card-title" style="margin-bottom:12px;">🔍 智能分析</div>';
+    
+    let found = false;
+    
+    // 血压分析
+    const bpMatch = text.match(/血压[：:]?\s*(\d+)[\/\\](\d+)/) || text.match(/收缩压[：:]?\s*(\d+).*?舒张压[：:]?\s*(\d+)/s);
+    if (bpMatch) {
+        const sys = parseInt(bpMatch[1]);
+        const dia = parseInt(bpMatch[2]);
+        let status = '正常', color = '#27ae60';
+        if (sys > 140 || dia > 90) { status = '偏高 ⚠️'; color = '#e74c3c'; }
+        else if (sys < 90 || dia < 60) { status = '偏低 ⚠️'; color = '#f39c12'; }
+        html += `<div class="ai-metric">
+            <div class="ai-metric-title">🩺 血压</div>
+            <div class="ai-metric-value" style="color:${color};">${sys}/${dia} <span style="font-size:14px;">mmHg</span></div>
+            <div class="ai-metric-status" style="color:${color};">状态：${status}</div>
+            <div class="ai-metric-range">正常范围：收缩压 90-140，舒张压 60-90</div>
+        </div>`;
+        found = true;
+    }
+    
+    // 血糖分析
+    const sugarMatch = text.match(/(?:空腹)?血糖[：:]?\s*(\d+\.?\d*)/);
+    if (sugarMatch) {
+        const val = parseFloat(sugarMatch[1]);
+        let status = '正常', color = '#27ae60';
+        if (val > 6.1) { status = '偏高 ⚠️'; color = '#e74c3c'; }
+        else if (val < 3.9) { status = '偏低 ⚠️'; color = '#f39c12'; }
+        html += `<div class="ai-metric">
+            <div class="ai-metric-title">🍬 空腹血糖</div>
+            <div class="ai-metric-value" style="color:${color};">${val} <span style="font-size:14px;">mmol/L</span></div>
+            <div class="ai-metric-status" style="color:${color};">状态：${status}</div>
+            <div class="ai-metric-range">正常范围：3.9 - 6.1</div>
+        </div>`;
+        found = true;
+    }
+    
+    // 体温分析
+    const tempMatch = text.match(/体温[：:]?\s*(\d+\.?\d*)/);
+    if (tempMatch) {
+        const val = parseFloat(tempMatch[1]);
+        let status = '正常', color = '#27ae60';
+        if (val > 37.2) { status = '发热 🌡️'; color = '#e74c3c'; }
+        else if (val < 36) { status = '偏低 ⚠️'; color = '#f39c12'; }
+        html += `<div class="ai-metric">
+            <div class="ai-metric-title">🌡️ 体温</div>
+            <div class="ai-metric-value" style="color:${color};">${val} <span style="font-size:14px;">℃</span></div>
+            <div class="ai-metric-status" style="color:${color};">状态：${status}</div>
+            <div class="ai-metric-range">正常范围：36.0 - 37.2</div>
+        </div>`;
+        found = true;
+    }
+    
+    // 心率分析
+    const hrMatch = text.match(/心率[：:]?\s*(\d+)/) || text.match(/脉搏[：:]?\s*(\d+)/);
+    if (hrMatch) {
+        const val = parseInt(hrMatch[1]);
+        let status = '正常', color = '#27ae60';
+        if (val > 100) { status = '偏快 ⚠️'; color = '#f39c12'; }
+        else if (val < 60) { status = '偏慢 ⚠️'; color = '#f39c12'; }
+        html += `<div class="ai-metric">
+            <div class="ai-metric-title">❤️ 心率/脉搏</div>
+            <div class="ai-metric-value" style="color:${color};">${val} <span style="font-size:14px;">次/分</span></div>
+            <div class="ai-metric-status" style="color:${color};">状态：${status}</div>
+            <div class="ai-metric-range">正常范围：60 - 100</div>
+        </div>`;
+        found = true;
+    }
+    
+    if (!found) {
+        html += `<div style="padding:14px; background:white; border-radius:10px; color:#666; font-size:13px; text-align:center;">
+            未能识别出明确的指标数据<br>
+            <span style="font-size:12px; color:#999;">建议上传更清晰的检查单，或手动记录到就诊记录中</span>
+        </div>`;
+    }
+    
+    html += '</div>';
+    document.getElementById('aiResult').innerHTML = html;
+    
+    // 保存到历史
+    saveAIHistory(text, html);
+}
+
+function saveAIHistory(text, resultHtml) {
+    let history = JSON.parse(localStorage.getItem('kangluka_ai_history') || '[]');
+    history.unshift({ date: new Date().toLocaleString(), text: text.substring(0, 100) + '...', result: resultHtml });
+    if (history.length > 5) history = history.slice(0, 5);
+    localStorage.setItem('kangluka_ai_history', JSON.stringify(history));
+    loadAIHistory();
+}
+
+function loadAIHistory() {
+    const container = document.getElementById('aiHistoryContainer');
+    const history = JSON.parse(localStorage.getItem('kangluka_ai_history') || '[]');
+    if (history.length === 0) return;
+    
+    container.innerHTML = '<div class="card-title" style="padding:0 8px; margin-bottom:12px;">🕐 最近分析记录</div>' + 
+        history.map((h, i) => `
+        <div class="card" style="padding:16px; margin-bottom:10px;">
+            <div style="font-size:12px; color:#999; margin-bottom:6px;">${h.date}</div>
+            <div style="font-size:13px; color:#666; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(h.text)}</div>
+        </div>
+    `).join('');
+}
+
+// ========== 吃药提醒 ==========
+let reminders = JSON.parse(localStorage.getItem('kangluka_reminders') || '[]');
+
+function addReminder() {
+    const name = document.getElementById('reminderName').value.trim();
+    const time = document.getElementById('reminderTime').value;
+    const dose = document.getElementById('reminderDose').value.trim();
+    
+    if (!name || !time) {
+        alert('请填写药品名称和提醒时间');
+        return;
+    }
+    
+    reminders.push({ id: Date.now(), name, time, dose, enabled: true });
+    localStorage.setItem('kangluka_reminders', JSON.stringify(reminders));
+    
+    // 请求通知权限
+    if (Notification.permission !== 'granted') {
+        Notification.requestPermission();
+    }
+    
+    renderReminders();
+    document.getElementById('reminderName').value = '';
+    document.getElementById('reminderDose').value = '';
+    document.getElementById('reminderTime').value = '';
+}
+
+function renderReminders() {
+    const container = document.getElementById('reminderList');
+    if (reminders.length === 0) {
+        container.innerHTML = `<div class="empty-state" style="padding:40px 20px;">
+            <div class="empty-state-icon">⏰</div>
+            <p>暂无提醒</p>
+            <p style="font-size:13px; margin-top:8px; color:#bbb;">添加后会自动提醒</p>
+        </div>`;
+        return;
+    }
+    
+    container.innerHTML = reminders.map(r => `
+        <div class="reminder-card">
+            <div class="reminder-info">
+                <div class="reminder-name">💊 ${escapeHtml(r.name)}</div>
+                <div class="reminder-time">⏰ ${r.time} ${r.dose ? '· ' + escapeHtml(r.dose) : ''}</div>
+            </div>
+            <button class="reminder-delete" onclick="deleteReminder(${r.id})">🗑️</button>
+        </div>
+    `).join('');
+}
+
+function deleteReminder(id) {
+    if (!confirm('确定删除这个提醒吗？')) return;
+    reminders = reminders.filter(r => r.id !== id);
+    localStorage.setItem('kangluka_reminders', JSON.stringify(reminders));
+    renderReminders();
+}
+
+// 每分钟检查提醒
+function checkReminders() {
+    if (Notification.permission !== 'granted') return;
+    const now = new Date();
+    const currentTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const currentSec = now.getSeconds();
+    
+    // 只在秒数为 0-5 之间触发（避免一分钟内多次触发）
+    if (currentSec > 5) return;
+    
+    reminders.forEach(r => {
+        if (r.enabled && r.time === currentTime) {
+            // 发送通知
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'SHOW_NOTIFICATION',
+                    title: '康录卡 · 吃药提醒',
+                    body: `该吃 ${r.name} 了${r.dose ? '，剂量：' + r.dose : ''}`,
+                    tag: 'reminder-' + r.id
+                });
+            } else {
+                new Notification('康录卡 · 吃药提醒', {
+                    body: `该吃 ${r.name} 了${r.dose ? '，剂量：' + r.dose : ''}`
+                });
+            }
+        }
+    });
+}
+
+// 启动提醒检查
+setInterval(checkReminders, 5000);
 
 // ========== 图片查看 ==========
 function viewImage(url) {
