@@ -36,7 +36,8 @@
     const AI_CONFIG = {
         provider: 'siliconflow',
         apiKey: 'sk-amtnfvgliwukhiptriqxdruihdwxqzhpmznvfqedlkgufumz',
-        model: 'Qwen/Qwen2.5-7B-Instruct',
+        model: 'Qwen/Qwen2.5-VL-7B-Instruct',
+        textModel: 'deepseek-ai/DeepSeek-V3',
         proxyUrl: ''
     };
     </script>
@@ -871,6 +872,7 @@
             font-size: 13px;
         }
     </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -951,12 +953,43 @@
             </div>
         </div>
         <div class="page" id="pageRecords">
-            <div id="recordsContainer">
-                <div class="empty-state">
-                    <div class="empty-state-icon">📝</div>
-                    <p>暂无就诊记录</p>
-                    <p style="font-size:13px; margin-top:8px; color:#bbb;">点击右下角按钮添加</p>
+            <div class="card" style="padding:0; overflow:hidden;">
+                <div style="display:flex; border-bottom:1px solid #f0f0f0;">
+                    <div id="tabMedical" style="flex:1; padding:14px; text-align:center; font-size:14px; font-weight:600; color:#667eea; border-bottom:2px solid #667eea; cursor:pointer;" onclick="switchRecordTab('medical')">🏥 就诊记录</div>
+                    <div id="tabDaily" style="flex:1; padding:14px; text-align:center; font-size:14px; font-weight:600; color:#999; cursor:pointer;" onclick="switchRecordTab('daily')">📝 日常记录</div>
                 </div>
+            </div>
+
+            <div id="medicalRecordsSection">
+                <div id="recordsContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <p>暂无就诊记录</p>
+                        <p style="font-size:13px; margin-top:8px; color:#bbb;">点击右下角按钮添加</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="dailyRecordsSection" class="hidden">
+                <div class="card">
+                    <div class="card-title">➕ 添加日常健康记录</div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+                        <div class="type-tag active" data-type="diet" onclick="selectDailyType(this)" style="padding:8px 14px; border-radius:20px; font-size:13px; cursor:pointer; border:2px solid transparent; background:#667eea15; color:#667eea; font-weight:600;">🍱 饮食</div>
+                        <div class="type-tag" data-type="habit" onclick="selectDailyType(this)" style="padding:8px 14px; border-radius:20px; font-size:13px; cursor:pointer; border:2px solid transparent; background:#f0f0f0; color:#666; font-weight:600;">🏃 生活习惯</div>
+                        <div class="type-tag" data-type="symptom" onclick="selectDailyType(this)" style="padding:8px 14px; border-radius:20px; font-size:13px; cursor:pointer; border:2px solid transparent; background:#f0f0f0; color:#666; font-weight:600;">😷 症状</div>
+                        <div class="type-tag" data-type="medicine" onclick="selectDailyType(this)" style="padding:8px 14px; border-radius:20px; font-size:13px; cursor:pointer; border:2px solid transparent; background:#f0f0f0; color:#666; font-weight:600;">💊 用药</div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:12px;">
+                        <label style="font-size:13px; color:#555; font-weight:600;">记录日期</label>
+                        <input type="date" id="dailyRecordDate" style="width:100%; padding:12px; border:2px solid #f0f0f0; border-radius:12px; font-size:15px;" value="">
+                    </div>
+                    <div class="form-group" style="margin-bottom:12px;">
+                        <label style="font-size:13px; color:#555; font-weight:600;">详细内容</label>
+                        <textarea id="dailyRecordContent" placeholder="例如：今天早餐吃了油条豆浆，中午吃了米饭和红烧肉..." style="width:100%; padding:12px; border:2px solid #f0f0f0; border-radius:12px; font-size:15px; min-height:80px; resize:vertical; -webkit-user-select:auto; user-select:auto;"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveDailyRecord()">保存记录</button>
+                </div>
+                <div id="dailyRecordsContainer" style="margin-top:8px;"></div>
             </div>
         </div>
         <div class="page" id="pageAI">
@@ -1567,8 +1600,36 @@ async function deleteRecord(id) {
     if (!error) loadRecords();
 }
 
+// ========== 图片压缩（上传前压缩，减少90%传输时间） ==========
+function compressImage(base64OrFile, maxWidth = 1200, quality = 0.85) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            let w = img.width, h = img.height;
+            if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+            const canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            canvas.toBlob((blob) => {
+                const fr = new FileReader();
+                fr.onload = () => resolve(fr.result);
+                fr.readAsDataURL(blob);
+            }, 'image/jpeg', quality);
+        };
+        img.onerror = reject;
+        if (typeof base64OrFile === 'string') {
+            img.src = base64OrFile;
+        } else {
+            const reader = new FileReader();
+            reader.onload = (e) => { img.src = e.target.result; };
+            reader.readAsDataURL(base64OrFile);
+        }
+    });
+}
+
 // ========== 硅基流动 AI API 调用 ==========
-async function callSiliconFlowAI(metricsText) {
+async function callSiliconFlowAI(input, isImage = false) {
     const apiUrl = AI_CONFIG.proxyUrl || 'https://api.siliconflow.cn/v1/chat/completions';
     const headers = {
         'Content-Type': 'application/json'
@@ -1576,62 +1637,126 @@ async function callSiliconFlowAI(metricsText) {
     if (AI_CONFIG.apiKey) {
         headers['Authorization'] = 'Bearer ' + AI_CONFIG.apiKey;
     }
-    
-    const prompt = `你是一位资深全科医生和健康顾问。请根据以下化验单/体检报告识别出的文字内容，进行分析并给出详细的健康建议。
 
-【化验单识别文字】
-${metricsText}
+    const model = isImage ? AI_CONFIG.model : (AI_CONFIG.textModel || AI_CONFIG.model);
 
-请严格按照以下JSON格式返回（不要返回任何其他文字，只返回JSON）：
+    const systemPrompt = `你是一位拥有20年临床经验的检验医学主任医师、注册营养师和全科医生。你精通国内外所有医学检验指标，包括罕见项目。你的任务是仔细查看化验单/体检报告，逐字逐行识别每一个检验指标，绝不遗漏任何信息。`;
+
+    const userPrompt = `请仔细查看这份医疗检验报告，执行以下任务：
+
+【强制识别要求 - 必须逐行识别，不得遗漏任何指标】
+1. 识别图片中所有可见指标，包括但不限于：
+   - 血常规：WBC、RBC、HGB、HCT、MCV、MCH、MCHC、RDW-CV、RDW-SD、PLT、MPV、PDW、PCT、P-LCR、LYMPH%、NEUT%、MONO%、EO%、BASO%、LYMPH#、NEUT#、MONO#、EO#、BASO#、NRBC、Ret等
+   - 生化全套：ALT、AST、ALP、GGT、CHE、TBIL、DBIL、IBIL、TP、ALB、GLB、A/G、PA、BUN、Cr、UA、eGFR、CysC、GLU、TG、TC、HDL-C、LDL-C、ApoA1、ApoB、Lp(a)、sdLDL、CK、CK-MB、LDH、HBDH、α-HBDH、K、Na、Cl、Ca、P、Mg、Fe、Ferritin、Transferrin、TSAT、VitB12、Folate等
+   - 尿常规：pH、SG、GLU、PRO、KET、BIL、URO、NIT、LEU、RBC、WBC、EC、CAST、CRYSTAL、Bacteria、MUCUS等
+   - 甲功：TSH、FT3、FT4、TT3、TT4、TPOAb、TGAb、TRAb、Tg等
+   - 肿瘤标志物：AFP、CEA、CA125、CA199、CA153、CA724、CA242、NSE、CYFRA21-1、SCC、PSA、fPSA、ProGRP等
+   - 凝血功能：PT、APTT、TT、FIB、D-Dimer、INR、AT-III、FDP等
+   - 免疫：IgG、IgA、IgM、C3、C4、RF、ASO、CRP、hs-CRP、ESR、ANA、ds-DNA、ENA、ACL等
+   - 糖代谢：FPG、2hPG、HbA1c、GA、Insulin、C-Peptide等
+   - 脂代谢：TC、TG、HDL-C、LDL-C、ApoA1、ApoB、Lp(a)、sdLDL等
+   - 心肌标志物：cTnI、cTnT、MYO、CK-MB、BNP、NT-proBNP等
+   - 血气分析：pH、PaO2、PaCO2、HCO3-、BE、SaO2、Lac等
+   - 任何其他出现的指标，即使你不熟悉，也要根据图片上的文字如实记录并尝试分析
+
+2. 对每个指标必须提取：
+   - 中文全称（如图片上写的）
+   - 英文缩写
+   - 检测数值（必须准确，不能遗漏数字或小数点）
+   - 单位
+   - 参考范围（上下限）
+   - 高低箭头（↑↓）
+
+3. 数值判断必须严谨：
+   - 严格对比参考范围上下限
+   - 标注：正常 / 偏高 / 偏低 / 危急值
+   - 注意单位换算（如10^9/L 与 /L，mmol/L 与 μmol/L）
+
+【分析深度要求】
+- 正常指标：简要说明生理意义，以及如何维持良好水平
+- 异常指标：
+  * 详细说明临床意义
+  * 分析可能原因（生理性和病理性都要考虑）
+  * 提示与哪些疾病相关
+  * 给出具体干预措施
+- 综合判断：
+  * 根据所有指标组合判断整体健康状态
+  * 识别指标间的关联（如：MCH低+MCHC低+RDW高→缺铁性贫血可能；ALT高+GGT高→肝损伤可能）
+  * 明确判断是"健康"、"亚健康"、"需关注"还是"建议就医"
+- 营养干预（必须具体）：
+  * 具体说明"缺什么补什么"
+  * 推荐具体食物（如：铁缺乏→牛肉、猪肝、猪血、菠菜搭配橙汁；钙缺乏→牛奶、酸奶、豆腐、芝麻）
+  * 说明哪些食物要控制（如：尿酸高→限制海鲜、动物内脏、浓肉汤、酒精；血脂高→减少油炸食品、肥肉、蛋黄）
+- 生活方式：
+  * 运动建议（类型、频率、时长、强度）
+  * 作息建议
+  * 复查时间和具体项目
+
+【输出格式 - 严格遵循】
+请严格按照以下JSON格式返回（只返回JSON，不要任何其他文字、不要markdown代码块标记、所有字段值必须是中文）：
 {
-  "summary": "整体健康状况一句话总结",
+  "summary": "一句话整体健康判断（30字以内）",
+  "overall_status": "健康/亚健康/需关注/建议就医",
   "metrics": [
     {
-      "name": "指标名称",
-      "value": "检测值",
+      "name": "指标中文名",
+      "abbr": "英文缩写",
+      "value": "数值",
       "unit": "单位",
-      "status": "normal/high/low",
-      "statusText": "正常/偏高/偏低",
-      "interpretation": "该指标的医学意义解读",
-      "diet": ["饮食建议1", "饮食建议2", "饮食建议3"],
+      "ref_range": "参考范围",
+      "status": "normal/high/low/critical",
+      "statusText": "正常/偏高/偏低/危急",
+      "interpretation": "详细医学解读，包括生理意义和异常原因分析",
+      "diet": ["饮食建议1", "饮食建议2"],
       "exercise": ["运动建议1", "运动建议2"],
-      "lifestyle": ["生活建议1", "生活建议2", "生活建议3"]
+      "lifestyle": ["生活建议1", "生活建议2"],
+      "food": ["推荐食物1", "推荐食物2", "需限制食物1"]
     }
   ],
-  "comprehensive": ["综合建议1", "综合建议2"],
-  "warning": "如有严重异常需就医的提醒，无则留空"
-}
+  "comprehensive": ["综合建议1", "综合建议2", "综合建议3"],
+  "warning": "如有严重异常需立即就医的提醒，无则留空",
+  "review": "具体复查建议，包括时间和项目"
+}`;
 
-要求：
-1. 从文字中识别所有医学指标（如白细胞、红细胞、血红蛋白、血小板、血糖、血脂、肝功、肾功等），不要编造没有的指标
-2. 对比正常参考范围，判断每个指标是正常、偏高还是偏低
-3. 饮食建议要具体（吃什么、少吃什么、推荐食谱）
-4. 运动建议要具体（运动类型、频率、时长、注意事项）
-5. 生活建议要实用（作息、复查、用药提醒等）
-6. 异常指标必须给出三方面建议，正常指标简要说明即可
-7. 如果有多个异常，给出组合风险的综合建议
-8. 用中文回答`;
+    let messages;
+    if (isImage) {
+        messages = [
+            { role: 'system', content: systemPrompt },
+            { 
+                role: 'user', 
+                content: [
+                    { type: 'image_url', image_url: { url: input, detail: 'high' } },
+                    { type: 'text', text: userPrompt }
+                ]
+            }
+        ];
+    } else {
+        messages = [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt + '
+
+【化验单文字内容】
+' + input }
+        ];
+    }
 
     const response = await fetch(apiUrl, {
         method: 'POST',
-        headers: headers,
+        headers,
         body: JSON.stringify({
-            model: AI_CONFIG.model,
-            messages: [
-                { role: 'system', content: '你是一位专业的全科医生，擅长根据化验单文字内容识别指标并给出详细的健康管理建议。' },
-                { role: 'user', content: prompt }
-            ],
-            temperature: 0.7,
-            max_tokens: 3000,
+            model: model,
+            messages: messages,
+            temperature: 0.2,
+            max_tokens: 4000,
             response_format: { type: 'json_object' }
         })
     });
-    
+
     if (!response.ok) {
         const errorText = await response.text();
         throw new Error('AI服务请求失败: ' + errorText);
     }
-    
+
     const data = await response.json();
     if (data.choices && data.choices[0] && data.choices[0].message) {
         const content = data.choices[0].message.content;
@@ -1642,7 +1767,7 @@ ${metricsText}
             if (jsonMatch) {
                 return JSON.parse(jsonMatch[1] || jsonMatch[0]);
             }
-            throw new Error('AI返回格式异常');
+            throw new Error('AI返回格式异常，无法解析JSON');
         }
     }
     throw new Error('AI返回数据异常');
@@ -1650,44 +1775,54 @@ ${metricsText}
 
 function renderAIResult(aiData, rawText) {
     let html = '';
-    
+
+    const statusColors = {
+        '健康': '#27ae60',
+        '亚健康': '#f39c12',
+        '需关注': '#e67e22',
+        '建议就医': '#e74c3c'
+    };
+    const statusColor = statusColors[aiData.overall_status] || '#667eea';
+
     html += `<div class="ai-result-box" style="margin-top:16px;">
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; padding:16px; border-radius:14px; margin-bottom:16px;">
             <div style="font-size:13px; opacity:0.9; margin-bottom:6px;">🧠 AI 智能分析总结</div>
             <div style="font-size:15px; font-weight:600; line-height:1.6;">${escapeHtml(aiData.summary || '')}</div>
+            ${aiData.overall_status ? `<div style="margin-top:10px; display:inline-block; padding:4px 14px; background:rgba(255,255,255,0.2); border-radius:20px; font-size:13px; font-weight:600;">状态：${aiData.overall_status}</div>` : ''}
         </div>`;
-    
+
     if (aiData.metrics && aiData.metrics.length > 0) {
-        html += `<div class="card-title" style="margin-bottom:14px;">📋 指标分析</div>
+        html += `<div class="card-title" style="margin-bottom:14px;">📋 指标分析（共${aiData.metrics.length}项）</div>
         <div class="metric-overview-grid">`;
         aiData.metrics.forEach(m => {
-            const color = m.status === 'normal' ? '#27ae60' : (m.status === 'high' ? '#e74c3c' : '#f39c12');
-            const bg = m.status === 'normal' ? '#e8f5e9' : (m.status === 'high' ? '#ffebee' : '#fff3e0');
+            const color = m.status === 'normal' ? '#27ae60' : (m.status === 'high' ? '#e74c3c' : (m.status === 'critical' ? '#c0392b' : '#f39c12'));
+            const bg = m.status === 'normal' ? '#e8f5e9' : (m.status === 'high' ? '#ffebee' : (m.status === 'critical' ? '#ffcdd2' : '#fff3e0'));
             html += `<div class="metric-overview-item" style="background:${bg};">
-                <div class="metric-ov-name">${escapeHtml(m.name)}</div>
+                <div class="metric-ov-name">${escapeHtml(m.name)}${m.abbr ? ` (${m.abbr})` : ''}</div>
                 <div class="metric-ov-value" style="color:${color};">${escapeHtml(m.value)}<span class="metric-ov-unit">${escapeHtml(m.unit)}</span></div>
                 <div class="metric-ov-status" style="color:${color};">${escapeHtml(m.statusText)}</div>
             </div>`;
         });
         html += `</div>`;
-        
+
         const abnormal = aiData.metrics.filter(m => m.status !== 'normal');
         if (abnormal.length > 0) {
-            html += `<div class="card-title" style="margin:20px 0 14px;">⚠️ 异常指标深度建议</div>`;
+            html += `<div class="card-title" style="margin:20px 0 14px;">⚠️ 异常指标深度建议（${abnormal.length}项）</div>`;
             abnormal.forEach((m, idx) => {
-                const borderColor = m.status === 'high' ? '#e74c3c' : '#f39c12';
+                const borderColor = m.status === 'critical' ? '#c0392b' : (m.status === 'high' ? '#e74c3c' : '#f39c12');
                 html += `<div class="metric-result-card" style="border-left-color:${borderColor}; animation-delay:${idx*0.15}s;">
                     <div class="metric-header">
-                        <div class="metric-name">${escapeHtml(m.name)}</div>
+                        <div class="metric-name">${escapeHtml(m.name)}${m.abbr ? ` <span style="color:#999;font-size:13px;">${m.abbr}</span>` : ''}</div>
                         <div>
                             <span class="metric-value ${m.status}">${escapeHtml(m.value)} ${escapeHtml(m.unit)}</span>
-                            <span class="metric-status-tag tag-${m.status}">${escapeHtml(m.statusText)}</span>
+                            <span class="metric-status-tag tag-${m.status === 'critical' ? 'high' : m.status}">${escapeHtml(m.statusText)}</span>
                         </div>
                     </div>
+                    <div style="font-size:12px; color:#888; margin-bottom:10px;">参考范围：${escapeHtml(m.ref_range)}</div>
                     <div style="font-size:13px; color:#555; margin-bottom:12px; padding:12px; background:#f8f9fa; border-radius:10px; line-height:1.6;">
                         <strong style="color:#667eea;">💡 医学解读：</strong>${escapeHtml(m.interpretation || '')}
                     </div>`;
-                
+
                 if (m.diet && m.diet.length > 0) {
                     html += `<div class="advice-section"><div class="advice-title" style="color:#e67e22;">🍽️ 饮食建议</div><ul class="advice-list">`;
                     m.diet.forEach(item => html += `<li>${escapeHtml(item)}</li>`);
@@ -1703,11 +1838,16 @@ function renderAIResult(aiData, rawText) {
                     m.lifestyle.forEach(item => html += `<li>${escapeHtml(item)}</li>`);
                     html += `</ul></div>`;
                 }
+                if (m.food && m.food.length > 0) {
+                    html += `<div class="advice-section"><div class="advice-title" style="color:#27ae60;">🥗 具体食物推荐与限制</div><ul class="advice-list">`;
+                    m.food.forEach(item => html += `<li>${escapeHtml(item)}</li>`);
+                    html += `</ul></div>`;
+                }
                 html += `</div>`;
             });
         }
     }
-    
+
     if (aiData.comprehensive && aiData.comprehensive.length > 0) {
         html += `<div class="comprehensive-advice">
             <h4>🎯 综合健康方案</h4>
@@ -1715,106 +1855,55 @@ function renderAIResult(aiData, rawText) {
         aiData.comprehensive.forEach(item => html += `<li>${escapeHtml(item)}</li>`);
         html += `</ul></div>`;
     }
-    
+
+    if (aiData.review) {
+        html += `<div style="margin-top:16px; padding:14px; background:#e3f2fd; border-radius:12px; border-left:4px solid #2196f3; color:#1565c0; font-size:13px; font-weight:600;">
+            📅 复查建议：${escapeHtml(aiData.review)}
+        </div>`;
+    }
+
     if (aiData.warning) {
-        html += `<div style="margin-top:16px; padding:14px; background:#ffebee; border-radius:12px; border-left:4px solid #e74c3c; color:#c62828; font-size:13px; font-weight:600;">
+        html += `<div style="margin-top:12px; padding:14px; background:#ffebee; border-radius:12px; border-left:4px solid #e74c3c; color:#c62828; font-size:13px; font-weight:600;">
             ⚠️ ${escapeHtml(aiData.warning)}
         </div>`;
     }
-    
+
     if (rawText && rawText.length > 10) {
         html += `<details class="ocr-text-box" style="margin-top:16px;">
             <summary>📝 查看识别到的原始文字</summary>
             <div style="margin-top:8px; white-space:pre-wrap; word-break:break-all;">${escapeHtml(rawText)}</div>
         </details>`;
     }
-    
+
     html += `</div>`;
     return html;
 }
 
-// ========== AI 智能分析 ==========
-let aiCurrentImage = null;
-let aiCurrentMode = 'image';
-
-function switchAIMode(mode) {
-    aiCurrentMode = mode;
-    document.getElementById('tabImage').classList.toggle('active', mode === 'image');
-    document.getElementById('tabManual').classList.toggle('active', mode === 'manual');
-    document.getElementById('aiImageMode').classList.toggle('hidden', mode !== 'image');
-    document.getElementById('aiManualMode').classList.toggle('hidden', mode !== 'manual');
-    document.getElementById('aiResult').innerHTML = '';
-}
-
-function handleAIImageSelect(event) {
-    const file = event.target.files[0];
-    if (!file || !file.type.startsWith('image/')) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        aiCurrentImage = e.target.result;
-        document.getElementById('aiImagePreview').innerHTML = `<img src="${e.target.result}" style="width:100%; max-height:200px; object-fit:cover; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);">`;
-    };
-    reader.readAsDataURL(file);
-}
-
-function updateAIProgress(percent) {
-    document.getElementById('aiProgressBar').style.width = percent + '%';
-}
-
-function setStepActive(stepNum) {
-    document.querySelectorAll('.analysis-steps .step').forEach((s, i) => {
-        s.classList.remove('active');
-        if (i < stepNum) s.classList.add('done');
-        else s.classList.remove('done');
-    });
-    if (stepNum >= 0 && stepNum < 3) {
-        document.getElementById('step' + (stepNum+1)).classList.add('active');
-    }
-}
-
 async function startAIAnalysis() {
     if (!aiCurrentImage) { alert('请先上传检查单图片'); return; }
-    
+
     document.getElementById('aiLoading').classList.remove('hidden');
     document.getElementById('aiResult').innerHTML = '';
-    document.getElementById('aiThinkingText').textContent = 'AI正在识别化验单文字...';
-    updateAIProgress(0);
+    document.getElementById('aiThinkingText').textContent = '正在压缩图片，准备AI视觉分析...';
+    updateAIProgress(10);
     setStepActive(0);
-    
-    let rawText = '';
-    
+
     try {
-        // 步骤1：OCR识别文字
         setStepActive(0);
-        const result = await Tesseract.recognize(aiCurrentImage, 'chi_sim', {
-            logger: m => {
-                if (m.status === 'recognizing text') {
-                    updateAIProgress(m.progress * 40);
-                }
-            }
-        });
-        
-        rawText = result.data.text || '';
-        console.log('OCR识别结果:', rawText);
-        
-        if (rawText.trim().length < 5) {
-            throw new Error('未能从图片中识别出文字，请尝试手动输入');
-        }
-        
-        updateAIProgress(45);
-        
-        // 步骤2：直接发给AI大模型分析
+        const compressedImage = await compressImage(aiCurrentImage);
+        updateAIProgress(30);
+        document.getElementById('aiThinkingText').textContent = 'AI视觉模型正在逐字阅读报告单...';
+
         setStepActive(1);
-        document.getElementById('aiThinkingText').textContent = '正在调用AI大模型分析...';
-        
-        const aiData = await callSiliconFlowAI(rawText);
-        updateAIProgress(95);
+        const aiData = await callSiliconFlowAI(compressedImage, true);
+        updateAIProgress(90);
         await new Promise(r => setTimeout(r, 400));
-        
-        const reportHtml = renderAIResult(aiData, rawText);
+
+        setStepActive(2);
+        const reportHtml = renderAIResult(aiData, '');
         document.getElementById('aiResult').innerHTML = reportHtml;
-        saveAIHistory(rawText.substring(0, 80) + '...', reportHtml);
-        
+        saveAIHistory('图片化验单分析', reportHtml);
+
     } catch (e) {
         console.error('分析失败:', e);
         document.getElementById('aiResult').innerHTML = `
@@ -1823,12 +1912,9 @@ async function startAIAnalysis() {
                     <div style="font-size:36px; margin-bottom:10px;">😅</div>
                     <div style="font-size:16px; font-weight:700; color:#333; margin-bottom:10px;">分析遇到问题</div>
                     <div style="font-size:13px; color:#888; margin-bottom:16px;">${escapeHtml(e.message)}</div>
-                    ${rawText ? `
-                    <div style="text-align:left; margin-bottom:16px;">
-                        <div style="font-size:12px; color:#667eea; font-weight:600; margin-bottom:6px;">📝 OCR识别到的文字：</div>
-                        <div style="background:#f0f0f0; padding:10px; border-radius:8px; font-size:12px; color:#666; max-height:120px; overflow-y:auto; line-height:1.5; white-space:pre-wrap; word-break:break-all;">${escapeHtml(rawText)}</div>
+                    <div style="font-size:13px; color:#667eea; margin-bottom:16px; padding:10px; background:#f5f7fa; border-radius:8px;">
+                        💡 建议：如果视觉模型分析失败，请尝试使用"手动输入"模式，将报告单上的关键指标输入后分析
                     </div>
-                    ` : ''}
                     <button class="btn btn-primary" onclick="switchAIMode('manual')" style="font-size:14px; padding:10px;">✏️ 切换到手动输入</button>
                 </div>
             </div>`;
