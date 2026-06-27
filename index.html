@@ -7,7 +7,7 @@
     <meta http-equiv="Expires" content="0">
     <script>
         (function(){
-            const CURRENT_VERSION = '2.0';
+            const CURRENT_VERSION = '2.1';
             const saved = localStorage.getItem('app_version');
             if (saved && saved !== CURRENT_VERSION) {
                 localStorage.setItem('app_version', CURRENT_VERSION);
@@ -1676,7 +1676,7 @@ async function deleteRecord(id) {
 const MEDICAL_KNOWLEDGE = {
   bloodPressure: {
     name: '血压', unit: 'mmHg', icon: '🩺',
-    patterns: [/血压[：:]?\s*(\d+)[\/\\](\d+)/, /(\d+)\s*[\/\\]\s*(\d+)\s*(?:mmHg|毫米汞柱)/, /收缩压[：:]?\s*(\d+).*?舒张压[：:]?\s*(\d+)/s, /(\d+)\s*\/\s*(\d+)\s*(?:mmHg)?/],
+    patterns: [/血压[：:]?\s*(\d+)[\/\\](\d+)/, /(\d+)\s*[\/\\]\s*(\d+)\s*(?:mmHg|毫米汞柱)/, /收缩压[：:]?\s*(\d+).*?舒张压[：:]?\s*(\d+)/s, /(\d+)\s*\/\s*(\d+)\s*(?:mmHg)?/, /(\d{2,3})\s*(?:\/|\\)\s*(\d{2,3})/],
     labels: ['收缩压','舒张压'], normal: { sys:[90,140], dia:[60,90] },
     parse: (m) => ({ sys:parseInt(m[1]), dia:parseInt(m[2]) }),
     advice: {
@@ -2191,6 +2191,7 @@ function extractMetrics(text) {
 
 function generateSmartReport(findings, rawText) {
     if (findings.length === 0) {
+        const hasText = rawText && rawText.trim().length > 5;
         return `<div class="ai-result-box" style="margin-top:16px;">
             <div style="text-align:center; padding:30px 20px;">
                 <div style="font-size:48px; margin-bottom:12px;">🔍</div>
@@ -2205,6 +2206,14 @@ function generateSmartReport(findings, rawText) {
                     2. 重新拍摄：光线充足、避免反光、尽量正对镜头<br>
                     3. 确保图片包含完整的数值和单位
                 </div>
+                ${hasText ? `
+                <div style="margin-top:16px; text-align:left;">
+                    <div style="font-size:13px; color:#667eea; font-weight:600; margin-bottom:8px;">📝 OCR识别到的原始文字（供参考）：</div>
+                    <div style="background:#f0f0f0; padding:12px; border-radius:10px; font-size:12px; color:#666; max-height:150px; overflow-y:auto; line-height:1.6; white-space:pre-wrap; word-break:break-all;">${escapeHtml(rawText)}</div>
+                    <button class="btn btn-primary" onclick="copyOCRText()" style="margin-top:10px; font-size:13px; padding:8px;">📋 复制识别文字</button>
+                    <button class="btn btn-primary" onclick="switchAIMode('manual')" style="margin-top:10px; font-size:13px; padding:8px; background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">✏️ 切换到手动输入</button>
+                </div>
+                ` : ''}
             </div>
         </div>`;
     }
@@ -2384,6 +2393,17 @@ async function preprocessImage(dataUrl) {
     });
 }
 
+function copyOCRText() {
+    const text = document.querySelector('.ai-result-box div[style*="white-space:pre-wrap"]')?.textContent || '';
+    if (text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('识别文字已复制，请粘贴到手动输入框中');
+            switchAIMode('manual');
+            document.getElementById('manualOther').value = text;
+        }).catch(() => alert('复制失败，请手动复制'));
+    }
+}
+
 async function startAIAnalysis() {
     if (!aiCurrentImage) { alert('请先上传检查单图片'); return; }
     
@@ -2397,24 +2417,43 @@ async function startAIAnalysis() {
     let usedAI = false;
     
     try {
-        // 步骤1：预处理图片
+        // 步骤1：预处理图片（但保留原图备用）
         const processedImage = await preprocessImage(aiCurrentImage);
-        updateAIProgress(15);
+        updateAIProgress(10);
         
-        // 步骤2：OCR识别
+        // 步骤2：OCR识别 - 先尝试预处理图
         setStepActive(1);
-        document.getElementById('aiThinkingText').textContent = '正在提取医学指标...';
+        document.getElementById('aiThinkingText').textContent = '正在提取医学指标（第1次尝试）...';
         
-        const result = await Tesseract.recognize(processedImage, 'chi_sim+eng', {
+        let result = await Tesseract.recognize(processedImage, 'chi_sim', {
             logger: m => {
                 if (m.status === 'recognizing text') {
-                    updateAIProgress(15 + m.progress * 35);
+                    updateAIProgress(10 + m.progress * 20);
                 }
             }
         });
         
-        rawText = result.data.text;
-        updateAIProgress(55);
+        rawText = result.data.text || '';
+        console.log('OCR第1次结果:', rawText);
+        
+        // 如果预处理图识别太少，用原图再试一次
+        if (rawText.trim().length < 30) {
+            document.getElementById('aiThinkingText').textContent = '首次识别内容较少，尝试原图增强识别...';
+            const result2 = await Tesseract.recognize(aiCurrentImage, 'chi_sim', {
+                logger: m => {
+                    if (m.status === 'recognizing text') {
+                        updateAIProgress(30 + m.progress * 15);
+                    }
+                }
+            });
+            const rawText2 = result2.data.text || '';
+            if (rawText2.trim().length > rawText.trim().length) {
+                rawText = rawText2;
+                console.log('OCR第2次结果（原图）:', rawText);
+            }
+        }
+        
+        updateAIProgress(50);
         
         // 步骤3：优先调用真正的AI大模型
         setStepActive(2);
