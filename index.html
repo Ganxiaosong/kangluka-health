@@ -1820,10 +1820,7 @@ async function callSiliconFlowAI(input, isImage = false) {
     } else {
         messages = [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt + '
-
-【化验单文字内容】
-' + input }
+            { role: 'user', content: userPrompt + '\n\n【化验单文字内容】\n' + input }
         ];
     }
 
