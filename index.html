@@ -2,8 +2,13 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>康录卡 - 个人健康档案</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="康录卡">
+    <link rel="manifest" href="manifest.json">
+    <title>康录卡</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
@@ -11,192 +16,476 @@
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlld2VtdXNmcHVqa21iem5rd2FoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIyNTU5NDQsImV4cCI6MjA5NzgzMTk0NH0.1BPDHG3ug62b_myHsIkKVIWW1ZTmZRXZJSLEDHHgA8E';
     </script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        html, body { height: 100%; overflow: hidden; }
+        body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            background: #f5f7fa;
+            color: #333;
+            overscroll-behavior-y: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
-        
-        .auth-container {
+        .install-banner {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.85);
+            color: white;
+            padding: 12px 16px;
+            padding-top: max(12px, env(safe-area-inset-top));
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+        .install-banner.show { transform: translateY(0); }
+        .ios-hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 24px;
+            font-size: 14px;
+            white-space: nowrap;
+            z-index: 1000;
+            display: none;
+            animation: bounceIn 0.5s;
+        }
+        @keyframes bounceIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        .auth-page {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            z-index: 100;
             padding: 20px;
+            transition: opacity 0.3s;
         }
+        .auth-page.hidden { opacity: 0; pointer-events: none; }
         .auth-card {
             background: white;
-            border-radius: 20px;
-            padding: 40px;
+            border-radius: 24px;
+            padding: 32px;
             width: 100%;
-            max-width: 420px;
+            max-width: 380px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        .auth-logo { text-align: center; margin-bottom: 30px; }
-        .auth-logo h1 { color: #667eea; font-size: 28px; margin-bottom: 8px; }
+        .auth-logo { text-align: center; margin-bottom: 24px; }
+        .auth-logo .icon { font-size: 56px; margin-bottom: 8px; }
+        .auth-logo h1 { color: #667eea; font-size: 26px; margin-bottom: 4px; }
         .auth-logo p { color: #999; font-size: 14px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #333; font-size: 14px; font-weight: 500; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; color: #555; font-size: 14px; font-weight: 500; }
         .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 12px 16px; border: 2px solid #e8e8e8; border-radius: 12px; font-size: 15px; transition: all 0.3s;
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e8e8e8;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.2s;
+            font-family: inherit;
         }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #667eea; }
-        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-group textarea { resize: vertical; min-height: 80px; -webkit-user-select: auto; user-select: auto; }
         .btn {
-            width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
         }
+        .btn:active { transform: scale(0.98); }
         .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
         .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
         .btn-cancel { background: #f0f0f0; color: #666; }
-        .toggle-link { text-align: center; color: #667eea; cursor: pointer; font-size: 14px; margin-top: 20px; }
-        
-        .app-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        .toggle-link { text-align: center; color: #667eea; cursor: pointer; font-size: 14px; margin-top: 16px; }
+        .success-msg { color: #27ae60; font-size: 14px; margin-top: 10px; text-align: center; }
+        .error-msg { color: #e74c3c; font-size: 14px; margin-top: 10px; text-align: center; }
+        #mainApp {
+            height: 100vh;
+            display: none;
+            flex-direction: column;
+            padding-top: env(safe-area-inset-top);
+        }
+        #mainApp.active { display: flex; }
         .app-header {
-            background: white; border-radius: 16px; padding: 20px 30px; margin-bottom: 20px;
-            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            height: 56px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
         }
-        .app-header h1 { color: #667eea; font-size: 24px; }
-        .user-info { display: flex; align-items: center; gap: 15px; }
-        .user-avatar {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
-            display: flex; align-items: center; justify-content: center; font-weight: bold;
+        .pages-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-overflow-scrolling: touch;
         }
-        
-        .profile-card {
-            background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        .page {
+            display: none;
+            padding: 16px;
+            padding-bottom: 100px;
+            animation: pageIn 0.25s ease;
         }
-        .profile-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
-        .profile-title { font-size: 20px; color: #333; font-weight: 600; }
-        .edit-btn { background: #f0f0f0; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; color: #666; }
-        .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .page.active { display: block; }
+        @keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .pull-refresh {
+            height: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 13px;
+            transition: height 0.2s;
+            background: #f5f7fa;
+        }
+        .pull-refresh.active { height: 50px; }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .card-title { font-size: 18px; font-weight: 600; }
+        .edit-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+        }
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
         .profile-item { display: flex; flex-direction: column; }
-        .profile-item label { color: #999; font-size: 13px; margin-bottom: 5px; }
-        .profile-item span { color: #333; font-size: 16px; font-weight: 500; }
-        .blood-type { display: inline-block; background: #ff6b6b; color: white; padding: 4px 12px; border-radius: 20px; font-size: 14px; width: fit-content; }
-        
-        .qr-section {
-            background: white; border-radius: 16px; padding: 30px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        .profile-item label { color: #999; font-size: 12px; margin-bottom: 4px; }
+        .profile-item span { color: #333; font-size: 15px; font-weight: 500; }
+        .profile-item.full { grid-column: 1 / -1; }
+        .blood-tag {
+            display: inline-block;
+            background: #ff6b6b;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            width: fit-content;
         }
-        .qr-section h3 { color: #333; margin-bottom: 15px; }
-        .qr-section p { color: #999; font-size: 14px; margin-bottom: 20px; }
-        #qrcode { display: inline-block; padding: 20px; background: #f8f9fa; border-radius: 12px; }
-        
-        .records-section {
-            background: white; border-radius: 16px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        .qr-card { text-align: center; }
+        .qr-card p { color: #999; font-size: 13px; margin: 12px 0 8px; }
+        .qr-wrap { display: inline-block; padding: 16px; background: #f8f9fa; border-radius: 12px; }
+        .link-text {
+            font-size: 12px;
+            color: #667eea;
+            word-break: break-all;
+            margin-top: 8px;
+            line-height: 1.4;
         }
-        .records-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .records-header h3 { color: #333; font-size: 20px; }
-        .add-record-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
-            border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 15px; font-weight: 500;
+        .copy-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 10px;
+            cursor: pointer;
+            color: #333;
         }
-        
-        .timeline { position: relative; padding-left: 30px; }
+        .timeline { position: relative; padding-left: 24px; }
         .timeline::before {
-            content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px;
+            content: '';
+            position: absolute;
+            left: 6px; top: 8px; bottom: 8px;
+            width: 2px;
             background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 1px;
         }
         .timeline-item {
-            position: relative; margin-bottom: 25px; padding: 20px; background: #f8f9fa;
-            border-radius: 12px; transition: all 0.3s;
+            position: relative;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.2s;
         }
-        .timeline-item:hover { transform: translateX(5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .timeline-item:active { transform: scale(0.98); }
         .timeline-item::before {
-            content: ''; position: absolute; left: -26px; top: 24px; width: 12px; height: 12px;
-            border-radius: 50%; background: #667eea; border: 3px solid white; box-shadow: 0 0 0 3px #667eea;
+            content: '';
+            position: absolute;
+            left: -22px; top: 20px;
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #667eea;
         }
-        .timeline-date { color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
-        .timeline-title { color: #333; font-size: 16px; font-weight: 600; margin-bottom: 5px; }
-        .timeline-type { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; margin-bottom: 10px; }
+        .timeline-date { color: #667eea; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+        .timeline-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .timeline-type {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
         .type-outpatient { background: #e3f2fd; color: #1976d2; }
         .type-inpatient { background: #fce4ec; color: #c2185b; }
         .type-checkup { background: #e8f5e9; color: #388e3c; }
         .timeline-content { color: #666; font-size: 14px; line-height: 1.6; }
         .timeline-content p { margin: 4px 0; }
         .timeline-actions { margin-top: 12px; text-align: right; }
-        .timeline-actions button { background: none; border: none; color: #667eea; cursor: pointer; font-size: 14px; margin-left: 15px; }
-        .timeline-actions button.delete { color: #ff6b6b; }
-        
-        .image-upload-area {
-            border: 2px dashed #667eea; border-radius: 12px; padding: 20px; text-align: center;
-            margin-bottom: 15px; cursor: pointer; transition: all 0.3s;
+        .timeline-actions button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 13px;
+            margin-left: 12px;
+            padding: 4px 8px;
         }
-        .image-upload-area:hover { background: #f0f4ff; }
+        .timeline-actions button.delete { color: #ff6b6b; }
+        .record-images { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .record-image-thumb {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid #eee;
+        }
+        .image-upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .image-upload-area:active { background: #f0f4ff; }
         .image-preview-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 12px;
         }
         .image-preview-item {
-            position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden;
-            background: #f0f0f0; cursor: pointer;
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f0f0f0;
         }
         .image-preview-item img { width: 100%; height: 100%; object-fit: cover; }
         .image-preview-item .remove-btn {
-            position: absolute; top: 4px; right: 4px; width: 24px; height: 24px;
-            background: #ff6b6b; color: white; border: none; border-radius: 50%;
-            cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center;
+            position: absolute;
+            top: 4px; right: 4px;
+            width: 22px; height: 22px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .record-images {
-            display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;
+        .upload-progress {
+            width: 100%;
+            height: 3px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 10px;
+            overflow: hidden;
         }
-        .record-image-thumb {
-            width: 80px; height: 80px; border-radius: 8px; object-fit: cover; cursor: pointer;
-            border: 2px solid #e0e0e0; transition: all 0.3s;
+        .upload-progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
         }
-        .record-image-thumb:hover { transform: scale(1.05); border-color: #667eea; }
-        
-        .image-viewer-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center;
+        .fab {
+            position: fixed;
+            right: 20px;
+            bottom: 84px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-size: 28px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            z-index: 50;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
-        .image-viewer-overlay.active { display: flex; }
-        .image-viewer-content { max-width: 90%; max-height: 90%; }
-        .image-viewer-content img { max-width: 100%; max-height: 90vh; border-radius: 8px; }
-        .image-viewer-close {
-            position: absolute; top: 20px; right: 30px; color: white; font-size: 40px;
-            cursor: pointer; background: none; border: none;
+        .fab:active { transform: scale(0.9); }
+        .bottom-nav {
+            height: 64px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-shrink: 0;
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 10;
         }
-        
-        .empty-state { text-align: center; padding: 60px 20px; color: #999; }
-        .empty-state-icon { font-size: 60px; margin-bottom: 15px; }
-        
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            color: #bbb;
+            font-size: 10px;
+            transition: color 0.2s;
+            cursor: pointer;
+            height: 100%;
+        }
+        .nav-item.active { color: #667eea; }
+        .nav-item .icon { font-size: 22px; margin-bottom: 2px; }
+        .empty-state { text-align: center; padding: 60px 20px; color: #bbb; }
+        .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
         .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px;
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 0;
         }
         .modal-overlay.active { display: flex; }
         .modal {
-            background: white; border-radius: 20px; padding: 30px; width: 100%; max-width: 500px;
-            max-height: 90vh; overflow-y: auto;
+            background: white;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
         }
-        .modal h3 { margin-bottom: 20px; color: #333; }
-        .modal .form-group { margin-bottom: 15px; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal h3 { margin-bottom: 20px; font-size: 18px; }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
         .modal-actions .btn { flex: 1; }
-        
-        .success-msg { color: #27ae60; font-size: 14px; margin-top: 10px; }
-        .error-msg { color: #e74c3c; font-size: 14px; margin-top: 10px; }
+        .image-viewer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .image-viewer-overlay.active { display: flex; }
+        .image-viewer-overlay img { max-width: 95%; max-height: 90vh; border-radius: 8px; }
+        .viewer-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 36px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .me-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin: 0 auto 12px;
+        }
+        .menu-list {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .menu-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+        .menu-item:active { background: #f9f9f9; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item .arrow { color: #ccc; font-size: 13px; }
         .hidden { display: none !important; }
-        
-        .upload-progress {
-            width: 100%; height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 10px; overflow: hidden;
-        }
-        .upload-progress-bar {
-            height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 2px; transition: width 0.3s; width: 0%;
-        }
     </style>
 </head>
 <body>
 
-<div id="authPage" class="auth-container">
+<!-- 安装提示 -->
+<div class="install-banner" id="installBanner">
+    <div>
+        <div style="font-weight:600; font-size:15px;">📲 添加到主屏幕</div>
+        <div style="font-size:12px; opacity:0.8; margin-top:2px;">像App一样快速打开，离线也能用</div>
+    </div>
+    <button onclick="installApp()" style="background:#667eea; color:white; border:none; padding:8px 16px; border-radius:8px; font-weight:600; font-size:14px;">安装</button>
+</div>
+<div class="ios-hint" id="iosHint">点击底部"分享"按钮，选择"添加到主屏幕" 📲</div>
+
+<!-- 登录页 -->
+<div id="authPage" class="auth-page">
+    <div style="text-align:center; color:white; margin-bottom:32px;">
+        <div class="icon">🏥</div>
+        <h1 style="font-size:32px; margin-bottom:6px;">康录卡</h1>
+        <p style="opacity:0.9; font-size:15px;">个人健康档案管理系统</p>
+    </div>
     <div class="auth-card">
-        <div class="auth-logo">
-            <h1>🏥 康录卡</h1>
-            <p>个人健康档案管理系统</p>
-        </div>
         <div id="loginForm">
             <div class="form-group">
                 <label>邮箱</label>
@@ -229,59 +518,108 @@
     </div>
 </div>
 
-<div id="mainPage" class="hidden">
-    <div class="app-container">
-        <div class="app-header">
-            <h1>🏥 康录卡</h1>
-            <div class="user-info">
-                <span id="userEmail"></span>
-                <div class="user-avatar" id="userAvatar">用</div>
-                <button class="edit-btn" onclick="handleLogout()">退出</button>
+<!-- 主应用 -->
+<div id="mainApp">
+    <div class="app-header" id="pageHeader">健康档案</div>
+    
+    <div class="pages-container" id="pagesContainer">
+        <div class="pull-refresh" id="pullRefresh"><span>↓ 松开刷新</span></div>
+        
+        <!-- 首页 -->
+        <div class="page active" id="pageHome">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">👤 个人档案</div>
+                    <button class="edit-btn" onclick="editProfile()">编辑</button>
+                </div>
+                <div class="profile-grid" id="profileGrid">
+                    <div class="profile-item"><label>姓名</label><span id="pName">未填写</span></div>
+                    <div class="profile-item"><label>性别</label><span id="pGender">未填写</span></div>
+                    <div class="profile-item"><label>年龄</label><span id="pAge">未填写</span></div>
+                    <div class="profile-item"><label>血型</label><span id="pBlood" class="blood-tag">未填写</span></div>
+                    <div class="profile-item"><label>身高</label><span id="pHeight">未填写</span></div>
+                    <div class="profile-item"><label>体重</label><span id="pWeight">未填写</span></div>
+                    <div class="profile-item full"><label>过敏史</label><span id="pAllergy">未填写</span></div>
+                    <div class="profile-item full"><label>既往病史</label><span id="pHistory">未填写</span></div>
+                </div>
+            </div>
+            
+            <div class="card qr-card">
+                <div class="card-title" style="margin-bottom:12px;">📱 医生扫码查看</div>
+                <p>医生扫描下方二维码即可查看完整档案</p>
+                <div class="qr-wrap" id="qrcode"></div>
+                <div class="link-text" id="shareLink"></div>
+                <button class="copy-btn" onclick="copyLink()">复制链接</button>
             </div>
         </div>
         
-        <div class="profile-card">
-            <div class="profile-header">
-                <h3 class="profile-title">👤 个人健康档案</h3>
-                <button class="edit-btn" onclick="editProfile()">编辑资料</button>
-            </div>
-            <div class="profile-grid" id="profileGrid">
-                <div class="profile-item"><label>姓名</label><span id="pName">未填写</span></div>
-                <div class="profile-item"><label>性别</label><span id="pGender">未填写</span></div>
-                <div class="profile-item"><label>年龄</label><span id="pAge">未填写</span></div>
-                <div class="profile-item"><label>血型</label><span id="pBlood" class="blood-type">未填写</span></div>
-                <div class="profile-item"><label>身高</label><span id="pHeight">未填写</span></div>
-                <div class="profile-item"><label>体重</label><span id="pWeight">未填写</span></div>
-                <div class="profile-item" style="grid-column: 1 / -1;"><label>过敏史</label><span id="pAllergy">未填写</span></div>
-                <div class="profile-item" style="grid-column: 1 / -1;"><label>既往病史</label><span id="pHistory">未填写</span></div>
-            </div>
-        </div>
-        
-        <div class="qr-section">
-            <h3>📱 医生扫码查看</h3>
-            <p>医生扫描下方二维码即可查看您的完整健康档案</p>
-            <div id="qrcode"></div>
-            <p style="margin-top:15px; color:#667eea; font-size:13px;">或访问链接：<span id="shareLink"></span></p>
-        </div>
-        
-        <div class="records-section">
-            <div class="records-header">
-                <h3>📋 就诊记录</h3>
-                <button class="add-record-btn" onclick="openRecordModal()">+ 添加就诊记录</button>
-            </div>
+        <!-- 记录页 -->
+        <div class="page" id="pageRecords">
             <div id="recordsContainer">
                 <div class="empty-state">
                     <div class="empty-state-icon">📝</div>
                     <p>暂无就诊记录</p>
-                    <p style="font-size:13px; margin-top:10px;">点击上方按钮添加第一条记录</p>
+                    <p style="font-size:13px; margin-top:8px;">点击右下角按钮添加</p>
                 </div>
             </div>
+        </div>
+        
+        <!-- 我的页 -->
+        <div class="page" id="pageMe">
+            <div class="card" style="text-align:center; padding:32px 20px;">
+                <div class="me-avatar" id="meAvatar">👤</div>
+                <h3 id="meEmail" style="font-size:16px; margin-bottom:4px;"></h3>
+                <p style="color:#999; font-size:13px;">康录卡用户</p>
+            </div>
+            
+            <div class="menu-list">
+                <div class="menu-item" onclick="showInstallHint()">
+                    <span>📲 添加到主屏幕</span>
+                    <span class="arrow">></span>
+                </div>
+                <div class="menu-item" onclick="editProfile()">
+                    <span>✏️ 编辑个人档案</span>
+                    <span class="arrow">></span>
+                </div>
+                <div class="menu-item" onclick="switchPage('records')">
+                    <span>📋 查看就诊记录</span>
+                    <span class="arrow">></span>
+                </div>
+                <div class="menu-item" onclick="handleLogout()" style="color:#ff6b6b;">
+                    <span>🚪 退出登录</span>
+                </div>
+            </div>
+            
+            <div style="text-align:center; margin-top:40px; color:#ccc; font-size:12px;">
+                <p>康录卡 v1.0</p>
+                <p style="margin-top:4px;">跨院慢病病史整合</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 悬浮添加按钮 -->
+    <button class="fab" id="fabBtn" onclick="openRecordModal()">+</button>
+    
+    <!-- 底部导航 -->
+    <div class="bottom-nav" id="bottomNav">
+        <div class="nav-item active" onclick="switchPage('home')">
+            <span class="icon">🏠</span>
+            <span>首页</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('records')">
+            <span class="icon">📋</span>
+            <span>记录</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('me')">
+            <span class="icon">👤</span>
+            <span>我的</span>
         </div>
     </div>
 </div>
 
-<div class="modal-overlay" id="profileModal">
-    <div class="modal">
+<!-- 编辑档案弹窗 -->
+<div class="modal-overlay" id="profileModal" onclick="closeModalOnBg(event, 'profileModal')">
+    <div class="modal" onclick="event.stopPropagation()">
         <h3>编辑个人档案</h3>
         <div class="form-group"><label>姓名</label><input type="text" id="editName" placeholder="请输入姓名"></div>
         <div class="form-group">
@@ -292,14 +630,15 @@
         <div class="form-group">
             <label>血型</label>
             <select id="editBlood">
-                <option value="">请选择</option><option value="A型">A型</option><option value="B型">B型</option>
+                <option value="">请选择</option>
+                <option value="A型">A型</option><option value="B型">B型</option>
                 <option value="AB型">AB型</option><option value="O型">O型</option><option value="Rh阴性">Rh阴性</option>
             </select>
         </div>
         <div class="form-group"><label>身高 (cm)</label><input type="number" id="editHeight" placeholder="例如：175"></div>
         <div class="form-group"><label>体重 (kg)</label><input type="number" id="editWeight" placeholder="例如：65"></div>
-        <div class="form-group"><label>过敏史</label><textarea id="editAllergy" placeholder="请输入过敏史，没有则填'无'"></textarea></div>
-        <div class="form-group"><label>既往病史</label><textarea id="editHistory" placeholder="请输入既往病史，没有则填'无'"></textarea></div>
+        <div class="form-group"><label>过敏史</label><textarea id="editAllergy" placeholder="没有则填'无'"></textarea></div>
+        <div class="form-group"><label>既往病史</label><textarea id="editHistory" placeholder="没有则填'无'"></textarea></div>
         <div class="modal-actions">
             <button class="btn btn-cancel" onclick="closeModal('profileModal')">取消</button>
             <button class="btn btn-primary" onclick="saveProfile()">保存</button>
@@ -308,8 +647,9 @@
     </div>
 </div>
 
-<div class="modal-overlay" id="recordModal">
-    <div class="modal">
+<!-- 添加就诊记录弹窗 -->
+<div class="modal-overlay" id="recordModal" onclick="closeModalOnBg(event, 'recordModal')">
+    <div class="modal" onclick="event.stopPropagation()">
         <h3 id="recordModalTitle">添加就诊记录</h3>
         <input type="hidden" id="editRecordId">
         <div class="form-group"><label>就诊日期 *</label><input type="date" id="recordDate"></div>
@@ -325,9 +665,9 @@
         <div class="form-group">
             <label>上传检查图片（X光、CT、化验单等）</label>
             <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
-                <div style="font-size:40px;">📷</div>
-                <p style="color:#667eea; margin-top:8px;">点击上传图片</p>
-                <p style="color:#999; font-size:13px;">支持多张图片，可上传片子、化验单等</p>
+                <div style="font-size:32px;">📷</div>
+                <p style="color:#667eea; margin-top:6px; font-size:14px;">点击上传图片</p>
+                <p style="color:#999; font-size:12px;">支持多张图片</p>
             </div>
             <input type="file" id="imageInput" accept="image/*" multiple style="display:none;" onchange="handleImageSelect(event)">
             <div class="upload-progress hidden" id="uploadProgress"><div class="upload-progress-bar" id="progressBar"></div></div>
@@ -342,17 +682,111 @@
     </div>
 </div>
 
+<!-- 图片查看器 -->
 <div class="image-viewer-overlay" id="imageViewer" onclick="closeImageViewer()">
-    <button class="image-viewer-close">×</button>
-    <div class="image-viewer-content"><img id="viewerImage" src="" alt="查看图片"></div>
+    <button class="viewer-close">×</button>
+    <img id="viewerImage" src="" alt="查看图片">
 </div>
 
 <script>
+// ========== PWA 注册 ==========
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW注册失败:', err));
+}
+
+// ========== 安装提示 ==========
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!window.matchMedia('(display-mode: standalone)').matches && !navigator.standalone) {
+        setTimeout(() => document.getElementById('installBanner').classList.add('show'), 1500);
+    }
+});
+
+function installApp() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+            document.getElementById('installBanner').classList.remove('show');
+            deferredPrompt = null;
+        });
+    }
+}
+
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+if (isIOS && !isStandalone) {
+    setTimeout(() => {
+        document.getElementById('iosHint').style.display = 'block';
+        setTimeout(() => document.getElementById('iosHint').style.display = 'none', 6000);
+    }, 3000);
+}
+
+function showInstallHint() {
+    if (isIOS) {
+        alert('请点击 Safari 底部的"分享"按钮，然后选择"添加到主屏幕"');
+    } else if (deferredPrompt) {
+        installApp();
+    } else {
+        alert('请使用浏览器菜单中的"添加到主屏幕"或"安装应用"');
+    }
+}
+
+// ========== 页面路由 ==========
+function switchPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('fabBtn').style.display = 'none';
+    
+    if (page === 'home') {
+        document.getElementById('pageHome').classList.add('active');
+        document.querySelectorAll('.nav-item')[0].classList.add('active');
+        document.getElementById('pageHeader').textContent = '健康档案';
+    } else if (page === 'records') {
+        document.getElementById('pageRecords').classList.add('active');
+        document.querySelectorAll('.nav-item')[1].classList.add('active');
+        document.getElementById('pageHeader').textContent = '就诊记录';
+        document.getElementById('fabBtn').style.display = 'flex';
+        loadRecords();
+    } else if (page === 'me') {
+        document.getElementById('pageMe').classList.add('active');
+        document.querySelectorAll('.nav-item')[2].classList.add('active');
+        document.getElementById('pageHeader').textContent = '我的';
+        document.getElementById('meEmail').textContent = currentUser?.email || '';
+        document.getElementById('meAvatar').textContent = (currentUser?.email?.charAt(0) || '👤').toUpperCase();
+    }
+}
+
+// ========== 下拉刷新 ==========
+let touchStartY = 0;
+const container = document.getElementById('pagesContainer');
+container.addEventListener('touchstart', e => {
+    if (container.scrollTop <= 0) touchStartY = e.touches[0].clientY;
+});
+container.addEventListener('touchmove', e => {
+    if (container.scrollTop <= 0 && touchStartY) {
+        const diff = e.touches[0].clientY - touchStartY;
+        if (diff > 70) document.getElementById('pullRefresh').classList.add('active');
+    }
+});
+container.addEventListener('touchend', () => {
+    if (document.getElementById('pullRefresh').classList.contains('active')) {
+        setTimeout(() => {
+            document.getElementById('pullRefresh').classList.remove('active');
+            if (document.getElementById('pageRecords').classList.contains('active')) loadRecords();
+        }, 800);
+    }
+    touchStartY = 0;
+});
+
+// ========== Supabase 初始化 ==========
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let currentProfile = null;
 let selectedImages = [];
 
+// ========== 认证功能 ==========
 function showRegister() {
     document.getElementById('loginForm').classList.add('hidden');
     document.getElementById('registerForm').classList.remove('hidden');
@@ -367,16 +801,14 @@ function showLogin() {
 
 function showMainPage() {
     document.getElementById('authPage').classList.add('hidden');
-    document.getElementById('mainPage').classList.remove('hidden');
-    document.getElementById('userEmail').textContent = currentUser.email;
-    document.getElementById('userAvatar').textContent = currentUser.email.charAt(0).toUpperCase();
+    document.getElementById('mainApp').classList.add('active');
+    switchPage('home');
     loadProfile();
-    loadRecords();
     generateQRCode();
 }
 
 function showAuthPage() {
-    document.getElementById('mainPage').classList.add('hidden');
+    document.getElementById('mainApp').classList.remove('active');
     document.getElementById('authPage').classList.remove('hidden');
     currentUser = null;
 }
@@ -418,6 +850,7 @@ async function checkAuth() {
     if (session) { currentUser = session.user; showMainPage(); }
 }
 
+// ========== 个人档案 ==========
 async function loadProfile() {
     const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
     if (data) {
@@ -426,7 +859,8 @@ async function loadProfile() {
         document.getElementById('pGender').textContent = data.gender || '未填写';
         document.getElementById('pAge').textContent = data.age ? data.age + '岁' : '未填写';
         document.getElementById('pBlood').textContent = data.blood_type || '未填写';
-        if (data.blood_type) document.getElementById('pBlood').className = 'blood-type';
+        if (data.blood_type) document.getElementById('pBlood').className = 'blood-tag';
+        else document.getElementById('pBlood').className = '';
         document.getElementById('pHeight').textContent = data.height ? data.height + 'cm' : '未填写';
         document.getElementById('pWeight').textContent = data.weight ? data.weight + 'kg' : '未填写';
         document.getElementById('pAllergy').textContent = data.allergy || '未填写';
@@ -467,18 +901,30 @@ async function saveProfile() {
     if (error) { msgDiv.innerHTML = `<p class="error-msg">保存失败：${error.message}</p>`; }
     else {
         msgDiv.innerHTML = '<p class="success-msg">保存成功！</p>';
-        setTimeout(() => { closeModal('profileModal'); loadProfile(); }, 1000);
+        setTimeout(() => { closeModal('profileModal'); loadProfile(); }, 800);
     }
 }
 
+// ========== 二维码与分享 ==========
 function generateQRCode() {
-    const shareUrl = `https://ganxiaosong.github.io/kangluka-health/doctor-view.html?patient=${currentUser.id}`;
+    const shareUrl = `https://ganxiaosong.github.io/kangluka-health/?view=${currentUser.id}`;
     document.getElementById('shareLink').textContent = shareUrl;
     const qrContainer = document.getElementById('qrcode');
     qrContainer.innerHTML = '';
-    new QRCode(qrContainer, { text: shareUrl, width: 180, height: 180, colorDark: '#667eea', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+    new QRCode(qrContainer, { text: shareUrl, width: 160, height: 160, colorDark: '#667eea', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
 }
 
+function copyLink() {
+    const link = document.getElementById('shareLink').textContent;
+    navigator.clipboard.writeText(link).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        const old = btn.textContent;
+        btn.textContent = '已复制！';
+        setTimeout(() => btn.textContent = old, 1500);
+    }).catch(() => alert('链接：' + link));
+}
+
+// ========== 图片处理 ==========
 function handleImageSelect(event) {
     const files = Array.from(event.target.files);
     files.forEach(file => {
@@ -536,6 +982,7 @@ async function uploadImages() {
     return urls;
 }
 
+// ========== 就诊记录 ==========
 document.getElementById('recordDate').valueAsDate = new Date();
 
 function openRecordModal() {
@@ -591,7 +1038,7 @@ async function saveRecord() {
     else {
         msgDiv.innerHTML = `<p class="success-msg">${editId ? '更新' : '保存'}成功！</p>`;
         selectedImages = [];
-        setTimeout(() => { closeModal('recordModal'); loadRecords(); }, 1000);
+        setTimeout(() => { closeModal('recordModal'); loadRecords(); }, 800);
     }
 }
 
@@ -599,9 +1046,9 @@ async function loadRecords() {
     const container = document.getElementById('recordsContainer');
     const { data, error } = await supabase.from('records').select('*').eq('user_id', currentUser.id).order('date', { ascending: false });
     
-    if (error) { container.innerHTML = `<div class="error-msg">加载失败：${error.message}</div>`; return; }
+    if (error) { container.innerHTML = `<div class="error-msg" style="text-align:center;padding:20px;">加载失败：${error.message}</div>`; return; }
     if (!data || data.length === 0) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><p>暂无就诊记录</p><p style="font-size:13px; margin-top:10px;">点击上方按钮添加第一条记录</p></div>`;
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><p>暂无就诊记录</p><p style="font-size:13px; margin-top:8px;">点击右下角按钮添加</p></div>`;
         return;
     }
     
@@ -613,7 +1060,7 @@ async function loadRecords() {
             try {
                 const imageUrls = JSON.parse(record.images);
                 imagesHtml = '<div class="record-images">' + imageUrls.map((url, i) => 
-                    `<img src="${url}" class="record-image-thumb" onclick="viewImage('${url}')" alt="检查图片${i+1}">`
+                    `<img src="${url}" class="record-image-thumb" onclick="viewImage('${url}')" alt="图片${i+1}">`
                 ).join('') + '</div>';
             } catch (e) {}
         }
@@ -632,7 +1079,7 @@ async function loadRecords() {
                 <button onclick="editRecord('${record.id}')">编辑</button>
                 <button class="delete" onclick="deleteRecord('${record.id}')">删除</button>
             </div>
-        </div>`;
+         </div>`;
     }).join('') + '</div>';
 }
 
@@ -660,6 +1107,7 @@ async function deleteRecord(id) {
     if (!error) loadRecords();
 }
 
+// ========== 图片查看 ==========
 function viewImage(url) {
     document.getElementById('viewerImage').src = url;
     document.getElementById('imageViewer').classList.add('active');
@@ -669,29 +1117,39 @@ function closeImageViewer() {
     document.getElementById('imageViewer').classList.remove('active');
 }
 
+// ========== 弹窗控制 ==========
 function openModal(id) { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-    overlay.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
-});
+function closeModal(id) {
+    document.getElementById(id).classList.remove('active');
+    const msg = document.getElementById(id).querySelector('#profileMessage, #recordMessage');
+    if (msg) msg.innerHTML = '';
+}
+function closeModalOnBg(event, id) { if (event.target === document.getElementById(id)) closeModal(id); }
 
 function escapeHtml(text) {
     if (!text) return '';
-    const div = document.createElement('div'); div.textContent = text; return div.innerHTML;
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
+// ========== 医生查看模式 ==========
 const urlParams = new URLSearchParams(window.location.search);
 const viewId = urlParams.get('view');
 if (viewId) {
     document.getElementById('authPage').classList.add('hidden');
-    document.getElementById('mainPage').classList.remove('hidden');
-    document.querySelector('.add-record-btn').style.display = 'none';
+    document.getElementById('mainApp').classList.add('active');
+    document.getElementById('fabBtn').style.display = 'none';
+    document.getElementById('bottomNav').style.display = 'none';
+    document.getElementById('pageHeader').textContent = '患者档案查看';
     document.querySelectorAll('.edit-btn').forEach(btn => btn.style.display = 'none');
     document.querySelectorAll('.timeline-actions').forEach(btn => btn.style.display = 'none');
+    
     currentUser = { id: viewId };
     loadProfile();
     loadRecords();
+    document.getElementById('pageHome').classList.add('active');
+    document.getElementById('pageRecords').classList.remove('active');
 } else {
     checkAuth();
 }
