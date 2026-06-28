@@ -1595,7 +1595,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('recordDate').valueAsDate = new Date();
     document.getElementById('dailyRecordDate').valueAsDate = new Date();
     document.getElementById('med-startDate').valueAsDate = new Date();
-    setTimeout(() => { checkAuth(); }, 100);
+
+    // Check if doctor view mode first
+    if (!initDoctorView()) {
+        // Normal user mode - check auth after a short delay
+        setTimeout(() => { checkAuth(); }, 100);
+    }
 });
 
 // ==================== PWA ====================
@@ -2605,10 +2610,12 @@ function medShowToast(msg, type = 'success') {
 }
 
 // ==================== DOCTOR VIEW ====================
-const urlParams = new URLSearchParams(window.location.search);
-const viewId = urlParams.get('view');
+function initDoctorView() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewId = urlParams.get('view');
+    if (!viewId) return false;
 
-if (viewId) {
+    // Hide auth, show main app in doctor mode
     document.getElementById('authPage').classList.add('hidden');
     document.getElementById('mainApp').classList.add('active');
     document.getElementById('fabBtn').style.display = 'none';
@@ -2617,86 +2624,266 @@ if (viewId) {
     document.querySelectorAll('.edit-btn').forEach(btn => btn.style.display = 'none');
     currentUser = { id: viewId };
 
-    (async () => {
-        try {
-            const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', viewId).single();
-            if (profile) {
-                document.getElementById('pName').textContent = profile.name || '未填写';
-                document.getElementById('pGender').textContent = profile.gender || '未填写';
-                document.getElementById('pAge').textContent = profile.age ? profile.age + '岁' : '未填写';
-                document.getElementById('pBlood').textContent = profile.blood_type || '未填写';
-                document.getElementById('pHeight').textContent = profile.height ? profile.height + 'cm' : '未填写';
-                document.getElementById('pWeight').textContent = profile.weight ? profile.weight + 'kg' : '未填写';
-                document.getElementById('pAllergy').textContent = profile.allergy || '未填写';
-                document.getElementById('pHistory').textContent = profile.medical_history || '未填写';
-            }
-
-            const { data: records } = await supabaseClient.from('records').select('*').eq('user_id', viewId).order('date', { ascending: false });
-            const { data: daily } = await supabaseClient.from('health_records').select('*').eq('user_id', viewId).order('record_date', { ascending: false });
-            let medRecords = [];
-            try { const { data: meds } = await supabaseClient.from('medications').select('*').eq('user_id', viewId).order('start_date', { ascending: false }); if (meds) medRecords = meds; }
-            catch (e) { console.warn('Medications table may not exist:', e); }
-
-            const totalRecords = (records || []).length + (daily || []).length + medRecords.length;
-            const statsCard = document.createElement('div');
-            statsCard.className = 'card';
-            statsCard.innerHTML = `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; text-align:center;"><div style="padding:12px 4px; background:linear-gradient(135deg,#667eea15,#764ba215); border-radius:12px;"><div style="font-size:20px; font-weight:700; color:#667eea;">${totalRecords}</div><div style="font-size:11px; color:#888; margin-top:2px;">总记录</div></div><div style="padding:12px 4px; background:linear-gradient(135deg,#e3f2fd,#bbdefb); border-radius:12px;"><div style="font-size:20px; font-weight:700; color:#1976d2;">${(records||[]).length}</div><div style="font-size:11px; color:#888; margin-top:2px;">就诊</div></div><div style="padding:12px 4px; background:linear-gradient(135deg,#e8f5e9,#c8e6c9); border-radius:12px;"><div style="font-size:20px; font-weight:700; color:#388e3c;">${(daily||[]).length}</div><div style="font-size:11px; color:#888; margin-top:2px;">日常</div></div><div style="padding:12px 4px; background:linear-gradient(135deg,#fff3e0,#ffe0b2); border-radius:12px;"><div style="font-size:20px; font-weight:700; color:#f39c12;">${medRecords.length}</div><div style="font-size:11px; color:#888; margin-top:2px;">用药</div></div></div>`;
-            document.getElementById('pageHome').insertBefore(statsCard, document.getElementById('pageHome').children[1]);
-
-            const typeClass = { '门诊': 'type-outpatient', '住院': 'type-inpatient', '体检': 'type-checkup' };
-            if (records && records.length > 0) {
-                const recordsHtml = '<div class="timeline">' + records.map(record => {
-                    let imagesHtml = '';
-                    if (record.images) { try { const imageUrls = JSON.parse(record.images); imagesHtml = '<div class="record-images">' + imageUrls.map((url, i) => `<img src="${url}" class="record-image-thumb" onclick="viewImage('${url}')" alt="图片${i+1}">`).join('') + '</div>'; } catch (e) {} }
-                    return `<div class="timeline-item"><div class="timeline-date">${record.date}</div><div class="timeline-title">${escapeHtml(record.hospital)} · ${escapeHtml(record.department)}</div><span class="timeline-type ${typeClass[record.type] || 'type-outpatient'}">${record.type || '门诊'}</span><div class="timeline-content">${record.diagnosis ? `<p><strong>诊断：</strong>${escapeHtml(record.diagnosis)}</p>` : ''}${record.medication ? `<p><strong>用药：</strong>${escapeHtml(record.medication)}</p>` : ''}</div>${imagesHtml}</div>`;
-                }).join('') + '</div>';
-                const recordsCard = document.createElement('div'); recordsCard.className = 'card'; recordsCard.innerHTML = '<div class="card-title">🏥 就诊记录（' + records.length + '条）</div>' + recordsHtml;
-                document.getElementById('pageHome').appendChild(recordsCard);
-            }
-
-            if (daily && daily.length > 0) {
-                const dailyCard = document.createElement('div'); dailyCard.className = 'card';
-                dailyCard.innerHTML = '<div class="card-title">📝 日常健康记录（' + daily.length + '条）</div>' + daily.map(r => {
-                    const t = {diet: {name:'🍱 饮食', color:'#f39c12', bg:'#fef3c7'}, habit: {name:'🏃 生活习惯', color:'#9b59b6', bg:'#f3e8ff'}, symptom: {name:'😷 症状', color:'#3498db', bg:'#dbeafe'}, medicine: {name:'💊 用药', color:'#1abc9c', bg:'#d1fae5'}}[r.record_type] || {name: r.record_type, color: '#999', bg: '#f0f0f0'};
-                    return `<div style="padding:14px; margin-bottom:10px; background:#fafafa; border-radius:12px; border-left:4px solid ${t.color};"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><span style="font-size:12px; padding:3px 12px; border-radius:10px; background:${t.bg}; color:${t.color}; font-weight:600;">${t.name}</span><span style="font-size:12px; color:#999; font-weight:500;">${r.record_date}</span></div><div style="font-size:14px; color:#444; line-height:1.6;">${escapeHtml(r.content)}</div></div>`;
-                }).join('');
-                document.getElementById('pageHome').appendChild(dailyCard);
-            }
-
-            if (medRecords.length > 0) {
-                const freqMap = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
-                const medCard = document.createElement('div'); medCard.className = 'card';
-                medCard.innerHTML = '<div class="card-title">💊 用药记录（' + medRecords.length + '条）</div>' + medRecords.map(m => {
-                    const isActive = !m.end_date || new Date(m.end_date) >= new Date();
-                    return `<div style="padding:14px; margin-bottom:10px; background:#fafafa; border-radius:12px; border-left:4px solid ${isActive ? '#667eea' : '#999'};"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><span style="font-weight:700; font-size:15px;">${escapeHtml(m.medication_name || m.medication_name)}</span><span style="font-size:11px; padding:3px 10px; border-radius:20px; background:${isActive ? '#e8f5e9' : '#f0f0f0'}; color:${isActive ? '#27ae60' : '#999'}; font-weight:600;">${isActive ? '服用中' : '已结束'}</span></div><div style="font-size:13px; color:#666; line-height:1.6;"><div>👤 ${escapeHtml(m.patient_name || '未知')} · ${m.patient_gender || ''} · ${m.patient_age || ''}岁</div><div>📋 ${freqMap[m.frequency] || m.frequency} · ${escapeHtml(m.dosage || '')}/次 · ${m.route || '口服'}</div><div>📅 ${m.start_date || ''} ${m.take_time && m.take_time.length ? '· ' + m.take_time.join('、') : ''}</div>${m.notes ? `<div style="margin-top:4px; color:#888;">💡 ${escapeHtml(m.notes)}</div>` : ''}</div></div>`;
-                }).join('');
-                document.getElementById('pageHome').appendChild(medCard);
-            }
-
-            const aiCard = document.createElement('div'); aiCard.className = 'card';
-            aiCard.innerHTML = '<div class="card-title">🤖 AI 智能健康总结</div><div id="doctorAISummary"><div style="text-align:center; padding:20px;"><div class="ai-avatar-pulse" style="margin-bottom:12px;">🤖</div><p style="color:#999; font-size:13px;">AI正在分析患者数据...</p></div></div>';
-            document.getElementById('pageHome').appendChild(aiCard);
-
-            let analysisText = '';
-            if (profile) { analysisText += `患者基础信息：${profile.name || '未知'}，${profile.gender || '未知'}，${profile.age ? profile.age + '岁' : '年龄未知'}，身高${profile.height || '未知'}cm，体重${profile.weight || '未知'}kg。过敏史：${profile.allergy || '无'}。既往病史：${profile.medical_history || '无'}。`; }
-            if (records && records.length > 0) { analysisText += '\n\n就诊记录：'; records.slice(0, 10).forEach(r => { analysisText += `${r.date}在${r.hospital}${r.department}，诊断：${r.diagnosis || '无'}，用药：${r.medication || '无'}。`; }); }
-            if (daily && daily.length > 0) { analysisText += '\n\n日常记录：'; daily.slice(0, 15).forEach(r => { const tname = {diet:'饮食',habit:'生活习惯',symptom:'症状',medicine:'用药'}[r.record_type] || r.record_type; analysisText += `${r.record_date}【${tname}】${r.content}。`; }); }
-            if (medRecords.length > 0) { analysisText += '\n\n用药记录：'; medRecords.slice(0, 10).forEach(m => { analysisText += `${m.medication_name}（${m.drug_category}），${m.frequency}，${m.dosage}/次，${m.route}。`; }); }
-
-            try {
-                const aiData = await callSiliconFlowAI(analysisText, false);
-                let summaryHtml = `<div style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border:1.5px solid #667eea30; border-radius:16px; padding:16px;">`;
-                summaryHtml += `<div style="margin-bottom:12px; padding:12px; background:white; border-radius:10px;"><div style="font-size:14px; font-weight:700; color:#764ba2; margin-bottom:6px;">🧠 整体评估</div><div style="font-size:13px; color:#666; line-height:1.6;">${escapeHtml(aiData.summary || '基于记录分析')}</div>${aiData.overall_status ? `<div style="margin-top:8px; display:inline-block; padding:3px 12px; background:${aiData.overall_status === '健康' ? '#e8f5e9' : aiData.overall_status === '建议就医' ? '#ffebee' : '#fff3e0'}; border-radius:20px; font-size:12px; font-weight:600; color:${aiData.overall_status === '健康' ? '#27ae60' : aiData.overall_status === '建议就医' ? '#e74c3c' : '#f39c12'};">${aiData.overall_status}</div>` : ''}</div>`;
-                if (aiData.comprehensive && aiData.comprehensive.length > 0) { summaryHtml += `<div style="margin-bottom:12px; padding:12px; background:white; border-radius:10px;"><div style="font-size:14px; font-weight:700; color:#555; margin-bottom:6px;">🏃 生活习惯与风险分析</div><div style="font-size:13px; color:#666; line-height:1.6;">${aiData.comprehensive.map(c => `<p style="margin:4px 0;">• ${escapeHtml(c)}</p>`).join('')}</div></div>`; }
-                if (aiData.warning) { summaryHtml += `<div style="padding:12px; background:#ffebee; border-radius:10px; border-left:3px solid #e74c3c;"><div style="font-size:13px; color:#c62828; font-weight:600;">⚠️ ${escapeHtml(aiData.warning)}</div></div>`; }
-                summaryHtml += `</div>`;
-                document.getElementById('doctorAISummary').innerHTML = summaryHtml;
-            } catch (e) { document.getElementById('doctorAISummary').innerHTML = `<div style="text-align:center; color:#999; padding:20px; font-size:13px;">AI总结生成失败，但医生仍可查看上方详细记录</div>`; }
-        } catch (e) { console.error('Doctor view error:', e); }
-    })();
+    // Show home page
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('pageHome').classList.add('active');
-} else {
-    document.addEventListener('DOMContentLoaded', () => { setTimeout(checkAuth, 200); });
+
+    // Load data and generate AI report
+    loadDoctorData(viewId);
+    return true;
+}
+
+async function loadDoctorData(viewId) {
+    try {
+        // 1. Load Profile
+        const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', viewId).single();
+        if (profile) {
+            document.getElementById('pName').textContent = profile.name || '未填写';
+            document.getElementById('pGender').textContent = profile.gender || '未填写';
+            document.getElementById('pAge').textContent = profile.age ? profile.age + '岁' : '未填写';
+            document.getElementById('pBlood').textContent = profile.blood_type || '未填写';
+            document.getElementById('pHeight').textContent = profile.height ? profile.height + 'cm' : '未填写';
+            document.getElementById('pWeight').textContent = profile.weight ? profile.weight + 'kg' : '未填写';
+            document.getElementById('pAllergy').textContent = profile.allergy || '未填写';
+            document.getElementById('pHistory').textContent = profile.medical_history || '未填写';
+        }
+
+        // 2. Load Medical Records
+        const { data: records } = await supabaseClient.from('records').select('*').eq('user_id', viewId).order('date', { ascending: false });
+
+        // 3. Load Daily Records
+        const { data: daily } = await supabaseClient.from('health_records').select('*').eq('user_id', viewId).order('record_date', { ascending: false });
+
+        // 4. Load Medication Records
+        let medRecords = [];
+        try { 
+            const { data: meds } = await supabaseClient.from('medications').select('*').eq('user_id', viewId).order('start_date', { ascending: false }); 
+            if (meds) medRecords = meds; 
+        } catch (e) { console.warn('Medications table may not exist:', e); }
+
+        // 5. Build Statistics Card
+        const totalRecords = (records || []).length + (daily || []).length + medRecords.length;
+        const statsCard = document.createElement('div');
+        statsCard.className = 'card';
+        statsCard.innerHTML = `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; text-align:center;">
+            <div style="padding:12px 4px; background:linear-gradient(135deg,#667eea15,#764ba215); border-radius:12px;">
+                <div style="font-size:20px; font-weight:700; color:#667eea;">${totalRecords}</div>
+                <div style="font-size:11px; color:#888; margin-top:2px;">总记录</div>
+            </div>
+            <div style="padding:12px 4px; background:linear-gradient(135deg,#e3f2fd,#bbdefb); border-radius:12px;">
+                <div style="font-size:20px; font-weight:700; color:#1976d2;">${(records||[]).length}</div>
+                <div style="font-size:11px; color:#888; margin-top:2px;">就诊</div>
+            </div>
+            <div style="padding:12px 4px; background:linear-gradient(135deg,#e8f5e9,#c8e6c9); border-radius:12px;">
+                <div style="font-size:20px; font-weight:700; color:#388e3c;">${(daily||[]).length}</div>
+                <div style="font-size:11px; color:#888; margin-top:2px;">日常</div>
+            </div>
+            <div style="padding:12px 4px; background:linear-gradient(135deg,#fff3e0,#ffe0b2); border-radius:12px;">
+                <div style="font-size:20px; font-weight:700; color:#f39c12;">${medRecords.length}</div>
+                <div style="font-size:11px; color:#888; margin-top:2px;">用药</div>
+            </div>
+        </div>`;
+        document.getElementById('pageHome').insertBefore(statsCard, document.getElementById('pageHome').children[1]);
+
+        // 6. Build Medical Records Section
+        const typeClass = { '门诊': 'type-outpatient', '住院': 'type-inpatient', '体检': 'type-checkup' };
+        if (records && records.length > 0) {
+            const recordsHtml = '<div class="timeline">' + records.map(record => {
+                let imagesHtml = '';
+                if (record.images) {
+                    try { const imageUrls = JSON.parse(record.images); imagesHtml = '<div class="record-images">' + imageUrls.map((url, i) => `<img src="${url}" class="record-image-thumb" onclick="viewImage('${url}')" alt="图片${i+1}">`).join('') + '</div>'; } catch (e) {}
+                }
+                return `<div class="timeline-item"><div class="timeline-date">${record.date}</div><div class="timeline-title">${escapeHtml(record.hospital)} · ${escapeHtml(record.department)}</div><span class="timeline-type ${typeClass[record.type] || 'type-outpatient'}">${record.type || '门诊'}</span><div class="timeline-content">${record.diagnosis ? `<p><strong>诊断：</strong>${escapeHtml(record.diagnosis)}</p>` : ''}${record.medication ? `<p><strong>用药：</strong>${escapeHtml(record.medication)}</p>` : ''}</div>${imagesHtml}</div>`;
+            }).join('') + '</div>';
+            const recordsCard = document.createElement('div'); recordsCard.className = 'card'; recordsCard.innerHTML = '<div class="card-title">🏥 就诊记录（' + records.length + '条）</div>' + recordsHtml;
+            document.getElementById('pageHome').appendChild(recordsCard);
+        }
+
+        // 7. Build Daily Records Section
+        if (daily && daily.length > 0) {
+            const dailyCard = document.createElement('div'); dailyCard.className = 'card';
+            dailyCard.innerHTML = '<div class="card-title">📝 日常健康记录（' + daily.length + '条）</div>' + daily.map(r => {
+                const t = {diet: {name:'🍱 饮食', color:'#f39c12', bg:'#fef3c7'}, habit: {name:'🏃 生活习惯', color:'#9b59b6', bg:'#f3e8ff'}, symptom: {name:'😷 症状', color:'#3498db', bg:'#dbeafe'}, medicine: {name:'💊 用药', color:'#1abc9c', bg:'#d1fae5'}}[r.record_type] || {name: r.record_type, color: '#999', bg: '#f0f0f0'};
+                return `<div style="padding:14px; margin-bottom:10px; background:#fafafa; border-radius:12px; border-left:4px solid ${t.color};"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><span style="font-size:12px; padding:3px 12px; border-radius:10px; background:${t.bg}; color:${t.color}; font-weight:600;">${t.name}</span><span style="font-size:12px; color:#999; font-weight:500;">${r.record_date}</span></div><div style="font-size:14px; color:#444; line-height:1.6;">${escapeHtml(r.content)}</div></div>`;
+            }).join('');
+            document.getElementById('pageHome').appendChild(dailyCard);
+        }
+
+        // 8. Build Medication Records Section
+        if (medRecords.length > 0) {
+            const freqMap = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
+            const medCard = document.createElement('div'); medCard.className = 'card';
+            medCard.innerHTML = '<div class="card-title">💊 用药记录（' + medRecords.length + '条）</div>' + medRecords.map(m => {
+                const isActive = !m.end_date || new Date(m.end_date) >= new Date();
+                return `<div style="padding:14px; margin-bottom:10px; background:#fafafa; border-radius:12px; border-left:4px solid ${isActive ? '#667eea' : '#999'};"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;"><span style="font-weight:700; font-size:15px;">${escapeHtml(m.medication_name || m.medication_name)}</span><span style="font-size:11px; padding:3px 10px; border-radius:20px; background:${isActive ? '#e8f5e9' : '#f0f0f0'}; color:${isActive ? '#27ae60' : '#999'}; font-weight:600;">${isActive ? '服用中' : '已结束'}</span></div><div style="font-size:13px; color:#666; line-height:1.6;"><div>👤 ${escapeHtml(m.patient_name || '未知')} · ${m.patient_gender || ''} · ${m.patient_age || ''}岁</div><div>📋 ${freqMap[m.frequency] || m.frequency} · ${escapeHtml(m.dosage || '')}/次 · ${m.route || '口服'}</div><div>📅 ${m.start_date || ''} ${m.take_time && m.take_time.length ? '· ' + m.take_time.join('、') : ''}</div>${m.notes ? `<div style="margin-top:4px; color:#888;">💡 ${escapeHtml(m.notes)}</div>` : ''}</div></div>`;
+            }).join('');
+            document.getElementById('pageHome').appendChild(medCard);
+        }
+
+        // 9. AI COMPREHENSIVE ANALYSIS FOR DOCTOR
+        const aiCard = document.createElement('div');
+        aiCard.className = 'card';
+        aiCard.style.cssText = 'background: linear-gradient(135deg, #667eea08 0%, #764ba208 100%); border: 1.5px solid #667eea30;';
+        aiCard.innerHTML = '<div class="card-title">🤖 AI 智能综合健康报告</div><div id="doctorAIReport"><div style="text-align:center; padding:30px 20px;"><div class="ai-avatar-pulse" style="margin-bottom:16px;">🤖</div><div class="ai-status-text" style="margin-bottom:8px;">AI正在综合分析患者数据...</div><div class="ai-status-sub">正在读取档案、就诊记录、日常记录和用药信息</div><div class="ai-progress-track" style="margin-top:16px;"><div class="ai-progress-fill" style="width:30%;"></div></div></div></div>';
+        document.getElementById('pageHome').appendChild(aiCard);
+
+        // Build comprehensive analysis text
+        let analysisText = '请作为资深全科医生，基于以下患者完整健康数据生成一份综合健康分析报告。报告需要包含：1.患者整体健康状态评估；2.基于就诊记录的疾病风险分析；3.基于日常记录的生活习惯评估；4.基于用药记录的药物相互作用和依从性分析；5.具体的健康建议和复查建议。\n\n';
+
+        if (profile) {
+            analysisText += `【患者基础信息】\n姓名：${profile.name || '未知'}，性别：${profile.gender || '未知'}，年龄：${profile.age || '未知'}岁，身高：${profile.height || '未知'}cm，体重：${profile.weight || '未知'}kg，血型：${profile.blood_type || '未知'}。\n`;
+            analysisText += `过敏史：${profile.allergy || '无'}。\n既往病史：${profile.medical_history || '无'}。\n\n`;
+        }
+
+        if (records && records.length > 0) {
+            analysisText += `【就诊记录】（共${records.length}条）\n`;
+            records.slice(0, 15).forEach((r, i) => {
+                analysisText += `${i+1}. ${r.date} | ${r.hospital} ${r.department} | 类型：${r.type || '门诊'} | 诊断：${r.diagnosis || '无'} | 用药：${r.medication || '无'}\n`;
+            });
+            analysisText += '\n';
+        }
+
+        if (daily && daily.length > 0) {
+            analysisText += `【日常健康记录】（共${daily.length}条）\n`;
+            daily.slice(0, 20).forEach((r, i) => {
+                const tname = {diet:'饮食',habit:'生活习惯',symptom:'症状',medicine:'用药'}[r.record_type] || r.record_type;
+                analysisText += `${i+1}. ${r.record_date} [${tname}] ${r.content}\n`;
+            });
+            analysisText += '\n';
+        }
+
+        if (medRecords.length > 0) {
+            analysisText += `【用药记录】（共${medRecords.length}条）\n`;
+            medRecords.slice(0, 15).forEach((m, i) => {
+                analysisText += `${i+1}. ${m.medication_name}（${m.drug_category}）| ${m.frequency} | ${m.dosage}/次 | ${m.route} | 开始：${m.start_date} | 服用时间：${m.take_time ? m.take_time.join('、') : '未指定'}\n`;
+            });
+            analysisText += '\n';
+        }
+
+        analysisText += `\n请严格按照以下JSON格式返回（只返回JSON，不要任何其他文字）：\n{
+  "summary": "一句话整体健康判断（30字以内）",
+  "overall_status": "健康/亚健康/需关注/建议就医",
+  "health_score": "健康评分（1-100的数字）",
+  "sections": [
+    {
+      "title": "章节标题",
+      "icon": "emoji图标",
+      "content": ["要点1", "要点2"]
+    }
+  ],
+  "risks": [
+    {
+      "level": "high/medium/low",
+      "title": "风险标题",
+      "description": "风险描述"
+    }
+  ],
+  "medication_analysis": ["用药分析要点1", "用药分析要点2"],
+  "lifestyle_suggestions": ["生活建议1", "生活建议2"],
+  "review_plan": "复查建议",
+  "warning": "如有严重异常需立即就医的提醒，无则留空"
+}`;
+
+        try {
+            document.getElementById('doctorAIReport').innerHTML = '<div style="text-align:center; padding:30px 20px;"><div class="ai-avatar-pulse" style="margin-bottom:16px;">🤖</div><div class="ai-status-text" style="margin-bottom:8px;">AI正在深度分析...</div><div class="ai-status-sub">预计15-30秒完成综合分析</div><div class="ai-progress-track" style="margin-top:16px;"><div class="ai-progress-fill" style="width:60%;"></div></div></div>';
+
+            const aiData = await callSiliconFlowAI(analysisText, false);
+
+            // Render AI report
+            let reportHtml = '';
+
+            // Header with health score
+            const score = parseInt(aiData.health_score) || 0;
+            const scoreColor = score >= 80 ? '#27ae60' : (score >= 60 ? '#f39c12' : '#e74c3c');
+            const scoreBg = score >= 80 ? '#e8f5e9' : (score >= 60 ? '#fff3e0' : '#ffebee');
+
+            reportHtml += `<div style="background: white; border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.05);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <div>
+                        <div style="font-size:13px; color:#888; margin-bottom:4px;">AI综合评估</div>
+                        <div style="font-size:18px; font-weight:700; color:#222;">${escapeHtml(aiData.summary || '')}</div>
+                    </div>
+                    <div style="text-align:center; padding:12px 20px; background:${scoreBg}; border-radius:16px;">
+                        <div style="font-size:28px; font-weight:700; color:${scoreColor};">${score}</div>
+                        <div style="font-size:11px; color:${scoreColor}; font-weight:600;">健康分</div>
+                    </div>
+                </div>
+                <div style="display:inline-block; padding:4px 14px; border-radius:20px; font-size:13px; font-weight:700; background:${aiData.overall_status === '健康' ? '#e8f5e9' : aiData.overall_status === '建议就医' ? '#ffebee' : '#fff3e0'}; color:${aiData.overall_status === '健康' ? '#27ae60' : aiData.overall_status === '建议就医' ? '#e74c3c' : '#f39c12'};">${aiData.overall_status || '评估中'}</div>
+            </div>`;
+
+            // Risk alerts
+            if (aiData.risks && aiData.risks.length > 0) {
+                const highRisks = aiData.risks.filter(r => r.level === 'high');
+                const mediumRisks = aiData.risks.filter(r => r.level === 'medium');
+                if (highRisks.length > 0) {
+                    reportHtml += `<div style="background: #ffebee; border-radius: 14px; padding: 16px; margin-bottom: 14px; border-left: 4px solid #e74c3c;">
+                        <div style="font-size:15px; font-weight:700; color:#c62828; margin-bottom:10px;">🚨 高风险提醒</div>
+                        ${highRisks.map(r => `<div style="margin-bottom:10px; padding:10px; background:white; border-radius:10px;"><div style="font-weight:600; color:#333; margin-bottom:4px;">${escapeHtml(r.title)}</div><div style="font-size:13px; color:#666; line-height:1.5;">${escapeHtml(r.description)}</div></div>`).join('')}
+                    </div>`;
+                }
+                if (mediumRisks.length > 0) {
+                    reportHtml += `<div style="background: #fff3e0; border-radius: 14px; padding: 16px; margin-bottom: 14px; border-left: 4px solid #f39c12;">
+                        <div style="font-size:15px; font-weight:700; color:#d97706; margin-bottom:10px;">⚠️ 中风险关注</div>
+                        ${mediumRisks.map(r => `<div style="margin-bottom:10px; padding:10px; background:white; border-radius:10px;"><div style="font-weight:600; color:#333; margin-bottom:4px;">${escapeHtml(r.title)}</div><div style="font-size:13px; color:#666; line-height:1.5;">${escapeHtml(r.description)}</div></div>`).join('')}
+                    </div>`;
+                }
+            }
+
+            // Sections
+            if (aiData.sections && aiData.sections.length > 0) {
+                aiData.sections.forEach((sec, idx) => {
+                    reportHtml += `<div style="background: white; border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); border-left: 4px solid ${['#667eea','#27ae60','#3498db','#9b59b6','#e67e22'][idx % 5]};">
+                        <div style="font-size:16px; font-weight:700; color:#222; margin-bottom:12px;">${sec.icon || '📋'} ${escapeHtml(sec.title)}</div>
+                        <div style="font-size:13px; color:#555; line-height:1.8;">${sec.content.map(c => `<p style="margin:6px 0; padding-left:16px; position:relative;"><span style="position:absolute; left:0; color:#667eea;">•</span>${escapeHtml(c)}</p>`).join('')}</div>
+                    </div>`;
+                });
+            }
+
+            // Medication analysis
+            if (aiData.medication_analysis && aiData.medication_analysis.length > 0) {
+                reportHtml += `<div style="background: white; border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); border-left: 4px solid #1abc9c;">
+                    <div style="font-size:16px; font-weight:700; color:#222; margin-bottom:12px;">💊 用药分析</div>
+                    <div style="font-size:13px; color:#555; line-height:1.8;">${aiData.medication_analysis.map(c => `<p style="margin:6px 0; padding-left:16px; position:relative;"><span style="position:absolute; left:0; color:#1abc9c;">•</span>${escapeHtml(c)}</p>`).join('')}</div>
+                </div>`;
+            }
+
+            // Lifestyle suggestions
+            if (aiData.lifestyle_suggestions && aiData.lifestyle_suggestions.length > 0) {
+                reportHtml += `<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 14px; padding: 18px; margin-bottom: 14px; color: white;">
+                    <div style="font-size:16px; font-weight:700; margin-bottom:12px;">🎯 健康建议方案</div>
+                    <div style="font-size:13px; line-height:1.8; color: rgba(255,255,255,0.92);">${aiData.lifestyle_suggestions.map(c => `<p style="margin:6px 0; padding-left:16px; position:relative;"><span style="position:absolute; left:0; color:#ffd700;">•</span>${escapeHtml(c)}</p>`).join('')}</div>
+                </div>`;
+            }
+
+            // Review plan
+            if (aiData.review) {
+                reportHtml += `<div style="background: #e3f2fd; border-radius: 14px; padding: 16px; margin-bottom: 14px; border-left: 4px solid #2196f3;">
+                    <div style="font-size:14px; font-weight:700; color:#1565c0; margin-bottom:6px;">📅 复查计划</div>
+                    <div style="font-size:13px; color:#1565c0; line-height:1.6;">${escapeHtml(aiData.review)}</div>
+                </div>`;
+            }
+
+            // Warning
+            if (aiData.warning) {
+                reportHtml += `<div style="background: #ffebee; border-radius: 14px; padding: 16px; border-left: 4px solid #e74c3c;">
+                    <div style="font-size:14px; font-weight:700; color:#c62828;">⚠️ 重要提醒</div>
+                    <div style="font-size:13px; color:#c62828; line-height:1.6; margin-top:6px;">${escapeHtml(aiData.warning)}</div>
+                </div>`;
+            }
+
+            document.getElementById('doctorAIReport').innerHTML = reportHtml;
+        } catch (e) {
+            console.error('AI analysis failed:', e);
+            document.getElementById('doctorAIReport').innerHTML = `<div style="text-align:center; padding:30px 20px; color:#999;">
+                <div style="font-size:36px; margin-bottom:12px;">😅</div>
+                <div style="font-size:15px; font-weight:700; color:#333; margin-bottom:8px;">AI分析暂时不可用</div>
+                <div style="font-size:13px; color:#888; margin-bottom:16px;">${escapeHtml(e.message)}</div>
+                <div style="font-size:13px; color:#667eea; padding:12px; background:#f5f7fa; border-radius:10px;">💡 医生仍可查看上方详细的患者档案、就诊记录、日常记录和用药信息</div>
+            </div>`;
+        }
+    } catch (e) {
+        console.error('Doctor view error:', e);
+    }
 }
 </script>
 </body>
