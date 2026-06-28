@@ -871,7 +871,713 @@
             color: #667eea;
             font-size: 13px;
         }
-    </style>
+    
+
+/* ========== MEDICATION PAGE CSS ========== */
+:root {
+  --med-primary: #4f6ef7;
+  --med-primary-light: #7b93fa;
+  --med-primary-dark: #3451d9;
+  --med-accent: #f59e0b;
+  --med-danger: #ef4444;
+  --med-success: #10b981;
+  --med-info: #3b82f6;
+  --med-warning: #f59e0b;
+  --med-bg: #f0f2f5;
+  --med-card: #ffffff;
+  --med-text: #1e293b;
+  --med-text-secondary: #64748b;
+  --med-border: #e2e8f0;
+  --med-sidebar-bg: #1e293b;
+  --med-sidebar-text: #cbd5e1;
+  --med-sidebar-active: #4f6ef7;
+  --med-radius: 12px;
+  --med-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --med-shadow-lg: 0 10px 25px rgba(0,0,0,.08);
+  --med-transition: 0.2s cubic-bezier(.4,0,.2,1);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--med-bg);
+  color: var(--med-text);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ========== SIDEBAR ========== */
+.med-sidebar {
+  width: 250px;
+  min-width: 250px;
+  background: var(--med-sidebar-bg);
+  color: var(--med-sidebar-text);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: transform var(--med-transition);
+}
+
+.med-sidebar-brand {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.med-sidebar-brand .logo {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--med-primary), var(--med-primary-light));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #fff;
+}
+
+.med-sidebar-brand h2 {
+  font-size: 1.1rem;
+  color: #fff;
+  font-weight: 700;
+}
+
+.med-sidebar-brand span {
+  font-size: .75rem;
+  color: var(--med-sidebar-text);
+  display: block;
+}
+
+.med-sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+
+.med-sidebar-nav .med-nav-section {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.35);
+  padding: 16px 12px 6px;
+}
+
+.med-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  margin-bottom: 2px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--med-sidebar-text);
+  font-size: .9rem;
+  font-weight: 500;
+  transition: all var(--med-transition);
+  text-decoration: none;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+}
+
+.med-nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+.med-nav-item.med-active { background: var(--med-sidebar-active); color: #fff; }
+
+.med-nav-item .med-nav-icon { font-size: 1.15rem; width: 22px; text-align: center; }
+
+.med-sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,.1);
+  font-size: .75rem;
+  color: rgba(255,255,255,.4);
+  text-align: center;
+}
+
+/* ========== MAIN CONTENT ========== */
+.med-main {
+  margin-left: 250px;
+  flex: 1;
+  padding: 24px 28px;
+  min-height: 100vh;
+}
+
+.med-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.med-page-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.med-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .9rem;
+  color: var(--med-text-secondary);
+}
+
+.med-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--med-primary), var(--med-primary-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ========== CARDS ========== */
+.med-card {
+  background: var(--med-card);
+  border-radius: var(--med-radius);
+  padding: 24px;
+  box-shadow: var(--med-shadow);
+  margin-bottom: 20px;
+  border: 1px solid var(--med-border);
+}
+
+.med-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--med-border);
+}
+
+.med-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.med-card-title .icon { font-size: 1.3rem; }
+
+/* ========== STATS GRID ========== */
+.med-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.med-stat-card {
+  background: var(--med-card);
+  border-radius: var(--med-radius);
+  padding: 20px;
+  box-shadow: var(--med-shadow);
+  border: 1px solid var(--med-border);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform var(--med-transition), box-shadow var(--med-transition);
+  cursor: pointer;
+}
+
+.med-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--med-shadow-lg);
+}
+
+.med-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+}
+
+.med-stat-icon.blue { background: #eff6ff; color: #3b82f6; }
+.med-stat-icon.green { background: #ecfdf5; color: #10b981; }
+.med-stat-icon.orange { background: #fffbeb; color: #f59e0b; }
+.med-stat-icon.red { background: #fef2f2; color: #ef4444; }
+
+.med-stat-info h3 { font-size: 1.6rem; font-weight: 700; }
+.med-stat-info p { font-size: .8rem; color: var(--med-text-secondary); margin-top: 2px; }
+
+/* ========== CHARTS SECTION ========== */
+.med-charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.med-chart-box {
+  background: var(--med-card);
+  border-radius: var(--med-radius);
+  padding: 20px;
+  box-shadow: var(--med-shadow);
+  border: 1px solid var(--med-border);
+}
+
+.med-chart-box h4 {
+  font-size: .95rem;
+  margin-bottom: 16px;
+  color: var(--med-text-secondary);
+}
+
+canvas { width: 100%; max-height: 260px; }
+
+/* ========== FORM WIZARD ========== */
+.med-wizard-steps {
+  display: flex;
+  margin-bottom: 28px;
+  position: relative;
+}
+
+.med-wizard-steps::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--med-border);
+  z-index: 0;
+}
+
+.med-wizard-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.med-step-circle {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--med-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: .9rem;
+  margin-bottom: 8px;
+  transition: all var(--med-transition);
+  color: var(--med-text-secondary);
+}
+
+.med-wizard-step.med-active .med-step-circle {
+  background: var(--med-primary);
+  border-color: var(--med-primary);
+  color: #fff;
+}
+
+.med-wizard-step.med-done .med-step-circle {
+  background: var(--med-success);
+  border-color: var(--med-success);
+  color: #fff;
+}
+
+.med-wizard-step .med-step-label {
+  font-size: .8rem;
+  color: var(--med-text-secondary);
+  font-weight: 500;
+}
+
+.med-wizard-step.med-active .med-step-label { color: var(--med-primary); font-weight: 700; }
+.med-wizard-step.med-done .med-step-label { color: var(--med-success); }
+
+.med-wizard-page { display: none; }
+.med-wizard-page.med-active { display: block; }
+
+/* ========== FORMS ========== */
+.med-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.med-form-grid.col-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.med-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.med-form-group.med-full { grid-column: 1 / -1; }
+
+.med-form-group label {
+  font-size: .85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--med-text);
+}
+
+.med-form-group label .med-required {
+  color: var(--med-danger);
+  margin-left: 2px;
+}
+
+.form-group input,
+.form-group select,
+.med-form-group textarea {
+  padding: 10px 14px;
+  border: 1.5px solid var(--med-border);
+  border-radius: 8px;
+  font-size: .9rem;
+  font-family: inherit;
+  transition: all var(--med-transition);
+  background: #fafbfc;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.med-form-group textarea:focus {
+  outline: none;
+  border-color: var(--med-primary);
+  box-shadow: 0 0 0 3px rgba(79,110,247,.15);
+  background: #fff;
+}
+
+.form-group input.error,
+.form-group select.error,
+.med-form-group textarea.med-error {
+  border-color: var(--med-danger);
+  background: #fef2f2;
+}
+
+.med-error-msg {
+  color: var(--med-danger);
+  font-size: .78rem;
+  margin-top: 4px;
+  display: none;
+}
+
+.med-checkbox-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.med-checkbox-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #f8fafc;
+  border: 1.5px solid var(--med-border);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: .85rem;
+  transition: all var(--med-transition);
+  user-select: none;
+}
+
+.med-checkbox-pill:hover { border-color: var(--med-primary); }
+.med-checkbox-pill:has(input:checked) {
+  background: #eff6ff;
+  border-color: var(--med-primary);
+  color: var(--med-primary);
+  font-weight: 600;
+}
+
+.med-checkbox-pill input { display: none; }
+
+/* ========== BUTTONS ========== */
+.med-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 8px;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--med-transition);
+  font-family: inherit;
+}
+
+.med-btn-primary { background: var(--med-primary); color: #fff; }
+.med-btn-primary:hover { background: var(--med-primary-dark); box-shadow: 0 4px 12px rgba(79,110,247,.35); }
+.med-btn-secondary { background: #f1f5f9; color: var(--med-text); }
+.med-btn-secondary:hover { background: #e2e8f0; }
+.med-btn-danger { background: var(--med-danger); color: #fff; }
+.med-btn-danger:hover { background: #dc2626; }
+.med-btn-success { background: var(--med-success); color: #fff; }
+.med-btn-outline { background: transparent; border: 1.5px solid var(--med-border); color: var(--med-text); }
+.med-btn-outline:hover { border-color: var(--med-primary); color: var(--med-primary); }
+.med-btn-sm { padding: 6px 14px; font-size: .8rem; }
+.med-btn-group { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+/* ========== TAG / BADGE ========== */
+.med-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: .75rem;
+  font-weight: 600;
+}
+
+.med-tag-success { background: #ecfdf5; color: #059669; }
+.med-tag-warning { background: #fffbeb; color: #d97706; }
+.med-tag-danger { background: #fef2f2; color: #dc2626; }
+.med-tag-info { background: #eff6ff; color: #2563eb; }
+.med-tag-gray { background: #f1f5f9; color: #475569; }
+
+/* ========== TABLE ========== */
+.med-table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: 12px 14px;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--med-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  border-bottom: 2px solid var(--med-border);
+  background: #f8fafc;
+}
+
+td {
+  padding: 12px 14px;
+  font-size: .88rem;
+  border-bottom: 1px solid var(--med-border);
+}
+
+tr:hover td { background: #f8fafc; }
+
+/* ========== TOAST ========== */
+.med-toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.med-toast {
+  padding: 14px 20px;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 600;
+  font-size: .9rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,.15);
+  animation: slideIn .3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 380px;
+}
+
+.med-toast-success { background: var(--med-success); }
+.med-toast-error { background: var(--med-danger); }
+.med-toast-info { background: var(--med-info); }
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ========== MODAL ========== */
+.med-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.med-modal-overlay.med-show { display: flex; }
+
+.med-modal {
+  background: #fff;
+  border-radius: var(--med-radius);
+  padding: 28px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+
+.med-modal h3 { margin-bottom: 16px; }
+
+/* ========== INTERVIEW SCORING ========== */
+.med-risk-meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.med-risk-meter.low { background: #ecfdf5; color: #059669; }
+.med-risk-meter.medium { background: #fffbeb; color: #d97706; }
+.med-risk-meter.high { background: #fef2f2; color: #dc2626; }
+
+.med-risk-bar {
+  flex: 1;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.med-risk-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width .6s ease;
+}
+
+/* ========== TIMELINE ========== */
+.med-timeline {
+  position: relative;
+  padding-left: 24px;
+}
+
+.med-timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: var(--med-border);
+}
+
+.med-timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+  padding-left: 20px;
+}
+
+.med-timeline-dot {
+  position: absolute;
+  left: -20px;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--med-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px var(--med-primary);
+}
+
+.med-timeline-time {
+  font-size: .78rem;
+  color: var(--med-text-secondary);
+  margin-bottom: 4px;
+}
+
+.med-timeline-content {
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--med-border);
+}
+
+/* ========== INTERACTION CHECKER ========== */
+.med-interaction-result {
+  padding: 14px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.med-interaction-result.safe { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.med-interaction-result.caution { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+.med-interaction-result.danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+/* ========== PAGINATION ========== */
+.med-pagination {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.med-page-btn {
+  width: 34px; height: 34px;
+  border-radius: 6px;
+  border: 1px solid var(--med-border);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: .85rem;
+  transition: all var(--med-transition);
+}
+
+.med-page-btn:hover { background: #f1f5f9; }
+.med-page-btn.med-active { background: var(--med-primary); border-color: var(--med-primary); color: #fff; }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1024px) {
+  .med-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .med-charts-row { grid-template-columns: 1fr; }
+  .med-form-grid, .med-form-grid.col-3 { grid-template-columns: 1fr; }
+  .med-sidebar { transform: translateX(-100%); }
+  .med-sidebar.open { transform: translateX(0); }
+  .med-main { margin-left: 0; }
+  .med-mobile-menu-btn { display: flex !important; }
+}
+
+.med-mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 200;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--med-sidebar-bg);
+  color: #fff;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ========== PRINT ========== */
+@media print {
+  .med-sidebar, .med-btn-group, .med-wizard-steps, .med-mobile-menu-btn, .med-toast-container { display: none !important; }
+  .med-main { margin-left: 0 !important; padding: 0 !important; }
+  .med-card { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+}
+
+/* ========== EMPTY STATE ========== */
+.med-empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--med-text-secondary);
+}
+
+.med-empty-state .med-empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+</style>
 <base target="_blank">
 </head>
 <body>
@@ -1093,6 +1799,10 @@
                     <span>✏️ 编辑个人档案</span>
                     <span class="arrow">›</span>
                 </div>
+                <div class="menu-item" onclick="window.location.href='medication.html'">
+                    <span>💊 用药管理系统</span>
+                    <span class="arrow">›</span>
+                </div>
                 <div class="menu-item" onclick="switchPage('records')">
                     <span>📋 查看就诊记录</span>
                     <span class="arrow">›</span>
@@ -1109,7 +1819,1342 @@
                 <p>康录卡 v2.0</p>
                 <p style="margin-top:4px;">跨院慢病病史整合 · AI智能分析</p>
             </div>
+        
+        <div class="page" id="pageMedication">
+            <main class="med-main">
+<div class="med-page-header">
+  <h1 id="med-pageTitle">数据看板</h1>
+  <div class="med-user-info">
+    <span id="med-currentDate"></span>
+    <div class="med-user-avatar">K</div>
+  </div>
+</div>
+
+<!-- ====== DASHBOARD PAGE ====== -->
+<div class="med-page-content" id="med-page-dashboard">
+  <div class="med-stats-row">
+    <div class="med-stat-card" onclick="navigateTo('records')">
+      <div class="med-stat-icon med-blue">💊</div>
+      <div class="med-stat-info"><h3 id="med-statTotalMeds">0</h3><p>药品记录总数</p></div>
+    </div>
+    <div class="med-stat-card" onclick="navigateTo('records')">
+      <div class="med-stat-icon med-green">✅</div>
+      <div class="med-stat-info"><h3 id="med-statActiveMeds">0</h3><p>正在服用中</p></div>
+    </div>
+    <div class="med-stat-card" onclick="navigateTo('interview')">
+      <div class="med-stat-icon med-orange">💬</div>
+      <div class="med-stat-info"><h3 id="med-statInterviews">0</h3><p>访谈记录</p></div>
+    </div>
+    <div class="med-stat-card" onclick="navigateTo('records')">
+      <div class="med-stat-icon med-red">📅</div>
+      <div class="med-stat-info"><h3 id="med-statToday">0</h3><p>今日录入</p></div>
+    </div>
+  </div>
+
+  <div class="med-charts-row">
+    <div class="med-chart-box">
+      <h4>用药频次分布</h4>
+      <canvas id="med-chartFrequency"></canvas>
+    </div>
+    <div class="med-chart-box">
+      <h4>近7天录入趋势</h4>
+      <canvas id="med-chartTrend"></canvas>
+    </div>
+  </div>
+
+  <div class="med-card">
+    <div class="med-card-header">
+      <span class="med-card-title"><span class="med-icon">⏰</span>待办提醒</span>
+    </div>
+    <div id="med-reminderList">
+      <div class="med-empty-state"><div class="med-empty-icon">📭</div><p>暂无提醒</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== MEDICATION PAGE (WIZARD) ====== -->
+<div class="med-page-content" id="med-page-medication" style="display:none;">
+  <div class="med-card">
+    <div class="med-wizard-steps" id="med-wizardSteps">
+      <div class="med-wizard-step med-active" data-step="1">
+        <div class="med-step-circle">1</div>
+        <div class="med-step-label">患者信息</div>
+      </div>
+      <div class="med-wizard-step" data-step="2">
+        <div class="med-step-circle">2</div>
+        <div class="med-step-label">药品信息</div>
+      </div>
+      <div class="med-wizard-step" data-step="3">
+        <div class="med-step-circle">3</div>
+        <div class="med-step-label">服用方案</div>
+      </div>
+      <div class="med-wizard-step" data-step="4">
+        <div class="med-step-circle">4</div>
+        <div class="med-step-label">确认提交</div>
+      </div>
+    </div>
+
+    <form id="med-medicationForm" novalidate>
+      <!-- Step 1: 患者信息 -->
+      <div class="med-wizard-page med-active" data-step="1">
+        <div class="med-form-grid">
+          <div class="med-form-group">
+            <label>患者姓名 <span class="med-required">*</span></label>
+            <input type="text" id="med-patientName" placeholder="请输入姓名" required>
+            <div class="med-error-msg" id="med-patientNameError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>性别 <span class="med-required">*</span></label>
+            <select id="med-patientGender" required>
+              <option value="">请选择</option>
+              <option value="男">男</option>
+              <option value="女">女</option>
+            </select>
+            <div class="med-error-msg" id="med-patientGenderError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>年龄 <span class="med-required">*</span></label>
+            <input type="number" id="med-patientAge" placeholder="0-150" min="0" max="150" required>
+            <div class="med-error-msg" id="med-patientAgeError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>联系电话 <span class="med-required">*</span></label>
+            <input type="tel" id="med-phone" placeholder="11位手机号" required>
+            <div class="med-error-msg" id="med-phoneError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>身份证号</label>
+            <input type="text" id="med-idCard" placeholder="选填">
+            <div class="med-error-msg" id="med-idCardError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>联系地址</label>
+            <input type="text" id="med-address" placeholder="选填">
+          </div>
+          <div class="med-form-group med-full">
+            <label>过敏史</label>
+            <textarea id="med-allergyHistory" rows="2" placeholder="如：青霉素过敏、磺胺类药物过敏等"></textarea>
+          </div>
+          <div class="med-form-group med-full">
+            <label>既往病史</label>
+            <textarea id="med-medicalHistory" rows="2" placeholder="如：高血压、糖尿病、冠心病等"></textarea>
+          </div>
         </div>
+        <div class="med-btn-group">
+          <button type="button" class="med-btn med-btn-primary" onclick="wizardNext()">下一步 →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: 药品信息 -->
+      <div class="med-wizard-page" data-step="2">
+        <div class="med-form-grid">
+          <div class="med-form-group">
+            <label>药品名称 <span class="med-required">*</span></label>
+            <input type="text" id="med-medicationName" placeholder="输入药品通用名或商品名" required list="drugSuggestions">
+            <datalist id="med-drugSuggestions">
+              <option value="阿司匹林肠溶片">
+              <option value="硝苯地平控释片">
+              <option value="二甲双胍片">
+              <option value="阿托伐他汀钙片">
+              <option value="厄贝沙坦片">
+              <option value="头孢克肟胶囊">
+              <option value="奥美拉唑肠溶胶囊">
+              <option value="氯雷他定片">
+              <option value="布洛芬缓释胶囊">
+              <option value="对乙酰氨基酚片">
+            </datalist>
+            <div class="med-error-msg" id="med-medicationNameError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>药品分类 <span class="med-required">*</span></label>
+            <select id="med-drugCategory" required>
+              <option value="">请选择</option>
+              <option value="降压药">降压药</option>
+              <option value="降糖药">降糖药</option>
+              <option value="降脂药">降脂药</option>
+              <option value="抗凝药">抗凝/抗血小板</option>
+              <option value="抗生素">抗生素</option>
+              <option value="消化系统">消化系统用药</option>
+              <option value="解热镇痛">解热镇痛药</option>
+              <option value="抗过敏">抗过敏药</option>
+              <option value="心血管">心血管用药</option>
+              <option value="神经系统">神经系统用药</option>
+              <option value="中药">中成药</option>
+              <option value="其他">其他</option>
+            </select>
+            <div class="med-error-msg" id="med-drugCategoryError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>规格 <span class="med-required">*</span></label>
+            <input type="text" id="med-specification" placeholder="如：10mg/片" required>
+            <div class="med-error-msg" id="med-specificationError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>数量/盒数 <span class="med-required">*</span></label>
+            <input type="number" id="med-quantity" placeholder="请输入数量" min="1" required>
+            <div class="med-error-msg" id="med-quantityError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>处方来源</label>
+            <select id="med-prescriptionSource">
+              <option value="">请选择</option>
+              <option value="三甲医院">三甲医院</option>
+              <option value="社区医院">社区医院</option>
+              <option value="线上问诊">线上问诊</option>
+              <option value="自行购买">自行购买</option>
+              <option value="其他">其他</option>
+            </select>
+          </div>
+          <div class="med-form-group">
+            <label>处方医师</label>
+            <input type="text" id="med-prescribingDoctor" placeholder="选填">
+          </div>
+        </div>
+        <div class="med-btn-group">
+          <button type="button" class="med-btn med-btn-secondary" onclick="wizardPrev()">← 上一步</button>
+          <button type="button" class="med-btn med-btn-primary" onclick="wizardNext()">下一步 →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: 服用方案 -->
+      <div class="med-wizard-page" data-step="3">
+        <div class="med-form-grid">
+          <div class="med-form-group">
+            <label>服用频次 <span class="med-required">*</span></label>
+            <select id="med-frequency" required>
+              <option value="">请选择</option>
+              <option value="qd">每日一次 (QD)</option>
+              <option value="bid">每日两次 (BID)</option>
+              <option value="tid">每日三次 (TID)</option>
+              <option value="qid">每日四次 (QID)</option>
+              <option value="prn">必要时 (PRN)</option>
+              <option value="qw">每周一次 (QW)</option>
+              <option value="other">其他</option>
+            </select>
+            <div class="med-error-msg" id="med-frequencyError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>每次剂量 <span class="med-required">*</span></label>
+            <input type="text" id="med-dosage" placeholder="如：1片、10ml" required>
+            <div class="med-error-msg" id="med-dosageError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>给药途径 <span class="med-required">*</span></label>
+            <select id="med-route" required>
+              <option value="">请选择</option>
+              <option value="口服">口服</option>
+              <option value="舌下含服">舌下含服</option>
+              <option value="外用">外用</option>
+              <option value="吸入">吸入</option>
+              <option value="注射">注射</option>
+            </select>
+            <div class="med-error-msg" id="med-routeError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>服用时间</label>
+            <div class="med-checkbox-row" id="med-takeTimeGroup">
+              <label class="med-checkbox-pill"><input type="checkbox" name="takeTime" value="空腹"> 空腹</label>
+              <label class="med-checkbox-pill"><input type="checkbox" name="takeTime" value="早餐前"> 早餐前</label>
+              <label class="med-checkbox-pill"><input type="checkbox" name="takeTime" value="早餐后"> 早餐后</label>
+              <label class="med-checkbox-pill"><input type="checkbox" name="takeTime" value="午餐后"> 午餐后</label>
+              <label class="med-checkbox-pill"><input type="checkbox" name="takeTime" value="晚餐后"> 晚餐后</label>
+              <label class="med-checkbox-pill"><input type="checkbox" name="takeTime" value="睡前"> 睡前</label>
+            </div>
+          </div>
+          <div class="med-form-group">
+            <label>开始日期 <span class="med-required">*</span></label>
+            <input type="date" id="med-startDate" required>
+            <div class="med-error-msg" id="med-startDateError"></div>
+          </div>
+          <div class="med-form-group">
+            <label>预计结束日期</label>
+            <input type="date" id="med-endDate">
+          </div>
+          <div class="med-form-group med-full">
+            <label>用药提醒</label>
+            <div class="med-checkbox-row">
+              <label class="med-checkbox-pill"><input type="checkbox" id="med-enableReminder"> 开启服药提醒</label>
+            </div>
+          </div>
+          <div class="med-form-group med-full">
+            <label>注意事项</label>
+            <textarea id="med-notes" rows="3" placeholder="如：饭后服用、避免饮酒、与XX药物间隔2小时等"></textarea>
+          </div>
+        </div>
+        <div class="med-btn-group">
+          <button type="button" class="med-btn med-btn-secondary" onclick="wizardPrev()">← 上一步</button>
+          <button type="button" class="med-btn med-btn-primary" onclick="wizardNext()">下一步 →</button>
+        </div>
+      </div>
+
+      <!-- Step 4: 确认 -->
+      <div class="med-wizard-page" data-step="4">
+        <div class="med-card" style="box-shadow:none;border:1px dashed var(--border);background:#fafbfc;">
+          <h4 style="margin-bottom:16px;">📝 请确认以下信息</h4>
+          <div id="med-confirmContent"></div>
+        </div>
+        <div class="med-btn-group">
+          <button type="button" class="med-btn med-btn-secondary" onclick="wizardPrev()">← 上一步</button>
+          <button type="submit" class="med-btn med-btn-success">✅ 确认保存</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ====== INTERVIEW PAGE ====== -->
+<div class="med-page-content" id="med-page-interview" style="display:none;">
+  <div class="med-card">
+    <div class="med-card-header">
+      <span class="med-card-title"><span class="med-icon">💬</span>陪诊子女访谈记录</span>
+    </div>
+    <form id="med-interviewForm" novalidate>
+      <div class="med-form-grid">
+        <div class="med-form-group">
+          <label>受访者姓名 <span class="med-required">*</span></label>
+          <input type="text" id="med-intervieweeName" required>
+          <div class="med-error-msg" id="med-intervieweeNameError"></div>
+        </div>
+        <div class="med-form-group">
+          <label>与患者关系 <span class="med-required">*</span></label>
+          <select id="med-relationship" required>
+            <option value="">请选择</option>
+            <option value="子女">子女</option>
+            <option value="配偶">配偶</option>
+            <option value="父母">父母</option>
+            <option value="兄弟姐妹">兄弟姐妹</option>
+            <option value="护工">护工</option>
+            <option value="其他">其他</option>
+          </select>
+          <div class="med-error-msg" id="med-relationshipError"></div>
+        </div>
+        <div class="med-form-group">
+          <label>联系电话 <span class="med-required">*</span></label>
+          <input type="tel" id="med-intervieweePhone" required>
+          <div class="med-error-msg" id="med-intervieweePhoneError"></div>
+        </div>
+        <div class="med-form-group">
+          <label>访谈日期 <span class="med-required">*</span></label>
+          <input type="date" id="med-interviewDate" required>
+          <div class="med-error-msg" id="med-interviewDateError"></div>
+        </div>
+      </div>
+
+      <h4 style="margin:24px 0 16px;color:var(--text);">📋 访谈评估问卷</h4>
+
+      <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:14px;">
+        <h4 style="margin-bottom:6px;">1. 患者日常服药情况</h4>
+        <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:10px;">患者是否能够自行按时服药？是否存在漏服情况？</p>
+        <textarea id="med-iq1" rows="3" placeholder="请详细描述..."></textarea>
+      </div>
+
+      <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:14px;">
+        <h4 style="margin-bottom:6px;">2. 药物储存与管理</h4>
+        <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:10px;">家中药物如何储存？温湿度是否适宜？是否有专人管理？</p>
+        <textarea id="med-iq2" rows="3" placeholder="请描述..."></textarea>
+      </div>
+
+      <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:14px;">
+        <h4 style="margin-bottom:6px;">3. 不良反应观察</h4>
+        <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:10px;">患者服药后是否出现过不良反应？出现频率和严重程度？</p>
+        <div class="med-checkbox-row" style="margin-bottom:10px;">
+          <label class="med-checkbox-pill"><input type="checkbox" name="adverseReaction" value="none"> 无</label>
+          <label class="med-checkbox-pill"><input type="checkbox" name="adverseReaction" value="nausea"> 恶心呕吐</label>
+          <label class="med-checkbox-pill"><input type="checkbox" name="adverseReaction" value="dizziness"> 头晕</label>
+          <label class="med-checkbox-pill"><input type="checkbox" name="adverseReaction" value="rash"> 皮疹</label>
+          <label class="med-checkbox-pill"><input type="checkbox" name="adverseReaction" value="diarrhea"> 腹泻</label>
+          <label class="med-checkbox-pill"><input type="checkbox" name="adverseReaction" value="edema"> 水肿</label>
+          <label class="med-checkbox-pill"><input type="checkbox" name="adverseReaction" value="other"> 其他</label>
+        </div>
+        <textarea id="med-iq3" rows="2" placeholder="详细描述不良反应..."></textarea>
+      </div>
+
+      <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:14px;">
+        <h4 style="margin-bottom:6px;">4. 服药依从性评估</h4>
+        <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:10px;">患者对服药的态度如何？是否需要提醒督促？</p>
+        <select id="med-compliance" style="width:100%;">
+          <option value="">请选择依从性等级</option>
+          <option value="excellent">优秀 - 完全自主配合，从不漏服</option>
+          <option value="good">良好 - 基本配合，偶尔需提醒</option>
+          <option value="fair">一般 - 经常需要提醒督促</option>
+          <option value="poor">较差 - 频繁漏服/拒服</option>
+        </select>
+      </div>
+
+      <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:14px;">
+        <h4 style="margin-bottom:6px;">5. 健康教育需求</h4>
+        <p style="font-size:.85rem;color:var(--text-secondary);margin-bottom:10px;">家属希望了解哪些用药知识？（可多选）</p>
+        <div class="med-checkbox-row">
+          <label class="med-checkbox-pill"><input type="checkbox" name="educationNeeds" value="usage"> 用法用量</label>
+          <label class="med-checkbox-pill"><input type="checkbox" name="educationNeeds" value="interaction"> 药物相互作用</label>
+          <label class="med-checkbox-pill"><input type="checkbox" name="educationNeeds" value="storage"> 储存方法</label>
+          <label class="med-checkbox-pill"><input type="checkbox" name="educationNeeds" value="sideEffect"> 副作用识别</label>
+          <label class="med-checkbox-pill"><input type="checkbox" name="educationNeeds" value="diet"> 饮食禁忌</label>
+          <label class="med-checkbox-pill"><input type="checkbox" name="educationNeeds" value="lifestyle"> 生活方式</label>
+        </div>
+      </div>
+
+      <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:14px;">
+        <h4 style="margin-bottom:6px;">6. 风险评估</h4>
+        <div class="med-form-grid">
+          <div class="med-form-group">
+            <label>是否独居？</label>
+            <select id="med-riskLiving">
+              <option value="">请选择</option>
+              <option value="yes">是</option>
+              <option value="no">否</option>
+            </select>
+          </div>
+          <div class="med-form-group">
+            <label>是否同时服用≥5种药物？</label>
+            <select id="med-riskPolypharmacy">
+              <option value="">请选择</option>
+              <option value="yes">是</option>
+              <option value="no">否</option>
+            </select>
+          </div>
+          <div class="med-form-group">
+            <label>是否有认知障碍？</label>
+            <select id="med-riskCognitive">
+              <option value="">请选择</option>
+              <option value="yes">是</option>
+              <option value="no">否</option>
+            </select>
+          </div>
+          <div class="med-form-group">
+            <label>是否自行调整用药？</label>
+            <select id="med-riskSelfAdjust">
+              <option value="">请选择</option>
+              <option value="yes">是</option>
+              <option value="no">否</option>
+            </select>
+          </div>
+        </div>
+        <div class="med-risk-meter" id="med-riskMeter" style="display:none;">
+          <strong>风险等级：</strong>
+          <span id="med-riskLevel"></span>
+          <div class="med-risk-bar"><div class="med-risk-fill" id="med-riskFill"></div></div>
+        </div>
+      </div>
+
+      <div style="background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:14px;">
+        <h4 style="margin-bottom:6px;">7. 其他补充说明</h4>
+        <textarea id="med-iq7" rows="3" placeholder="其他需要记录的信息..."></textarea>
+      </div>
+
+      <div class="med-btn-group">
+        <button type="button" class="med-btn med-btn-secondary" onclick="document.getElementById('interviewForm').reset()">重置</button>
+        <button type="submit" class="med-btn med-btn-primary">保存访谈记录</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ====== INTERACTION CHECKER PAGE ====== -->
+<div class="med-page-content" id="med-page-interaction" style="display:none;">
+  <div class="med-card">
+    <div class="med-card-header">
+      <span class="med-card-title"><span class="med-icon">🔬</span>药物相互作用检查</span>
+    </div>
+    <p style="color:var(--text-secondary);margin-bottom:16px;font-size:.9rem;">
+      选择两种药物检查是否存在相互作用风险。本检查基于常见药物相互作用数据库，仅供参考。
+    </p>
+    <div class="med-form-grid">
+      <div class="med-form-group">
+        <label>药物A <span class="med-required">*</span></label>
+        <select id="med-drugA" required>
+          <option value="">请选择</option>
+          <option value="阿司匹林">阿司匹林</option>
+          <option value="华法林">华法林</option>
+          <option value="二甲双胍">二甲双胍</option>
+          <option value="硝苯地平">硝苯地平</option>
+          <option value="阿托伐他汀">阿托伐他汀</option>
+          <option value="厄贝沙坦">厄贝沙坦</option>
+          <option value="头孢克肟">头孢克肟</option>
+          <option value="奥美拉唑">奥美拉唑</option>
+          <option value="布洛芬">布洛芬</option>
+          <option value="氯雷他定">氯雷他定</option>
+        </select>
+      </div>
+      <div class="med-form-group">
+        <label>药物B <span class="med-required">*</span></label>
+        <select id="med-drugB" required>
+          <option value="">请选择</option>
+          <option value="阿司匹林">阿司匹林</option>
+          <option value="华法林">华法林</option>
+          <option value="二甲双胍">二甲双胍</option>
+          <option value="硝苯地平">硝苯地平</option>
+          <option value="阿托伐他汀">阿托伐他汀</option>
+          <option value="厄贝沙坦">厄贝沙坦</option>
+          <option value="头孢克肟">头孢克肟</option>
+          <option value="奥美拉唑">奥美拉唑</option>
+          <option value="布洛芬">布洛芬</option>
+          <option value="氯雷他定">氯雷他定</option>
+        </select>
+      </div>
+    </div>
+    <div class="med-btn-group" style="justify-content:flex-start;">
+      <button type="button" class="med-btn med-btn-primary" onclick="checkInteraction()">检查相互作用</button>
+    </div>
+    <div id="med-interactionResult"></div>
+  </div>
+
+  <div class="med-card">
+    <div class="med-card-header">
+      <span class="med-card-title"><span class="med-icon">📚</span>当前患者用药汇总</span>
+    </div>
+    <div id="med-currentMedsSummary">
+      <div class="med-empty-state"><div class="med-empty-icon">📭</div><p>暂无用药记录</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== TIMELINE PAGE ====== -->
+<div class="med-page-content" id="med-page-timeline" style="display:none;">
+  <div class="med-card">
+    <div class="med-card-header">
+      <span class="med-card-title"><span class="med-icon">🕐</span>服药时间线</span>
+      <div>
+        <button class="med-btn med-btn-sm med-btn-outline" onclick="printTimeline()">🖨️ 打印</button>
+      </div>
+    </div>
+    <div class="med-form-grid" style="margin-bottom:20px;">
+      <div class="med-form-group">
+        <label>筛选患者</label>
+        <select id="med-timelinePatient" onchange="renderTimeline()">
+          <option value="all">全部患者</option>
+        </select>
+      </div>
+      <div class="med-form-group">
+        <label>日期范围</label>
+        <input type="date" id="med-timelineDate" onchange="renderTimeline()">
+      </div>
+    </div>
+    <div class="med-timeline" id="med-timelineContainer">
+      <div class="med-empty-state"><div class="med-empty-icon">📭</div><p>暂无服药记录</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== RECORDS PAGE ====== -->
+<div class="med-page-content" id="med-page-records" style="display:none;">
+  <div class="med-card">
+    <div class="med-card-header">
+      <span class="med-card-title"><span class="med-icon">📁</span>记录管理</span>
+      <div>
+        <button class="med-btn med-btn-sm med-btn-outline" onclick="exportData()">📥 导出</button>
+        <button class="med-btn med-btn-sm med-btn-outline" onclick="document.getElementById('importFile').click()">📤 导入</button>
+        <button class="med-btn med-btn-sm med-btn-danger" onclick="clearAllData()">🗑️ 清空</button>
+      </div>
+    </div>
+    <input type="file" id="med-importFile" accept=".json" style="display:none;" onchange="handleImport(event)">
+
+    <div class="med-form-grid" style="margin-bottom:16px;">
+      <div class="med-form-group">
+        <label>搜索</label>
+        <input type="text" id="med-searchInput" placeholder="患者姓名 / 药品名称..." oninput="renderRecords()">
+      </div>
+      <div class="med-form-group">
+        <label>类型</label>
+        <select id="med-recordTypeFilter" onchange="renderRecords()">
+          <option value="all">全部</option>
+          <option value="medication">用药记录</option>
+          <option value="interview">访谈记录</option>
+        </select>
+      </div>
+      <div class="med-form-group">
+        <label>状态</label>
+        <select id="med-recordStatusFilter" onchange="renderRecords()">
+          <option value="all">全部</option>
+          <option value="active">服用中</option>
+          <option value="ended">已结束</option>
+        </select>
+      </div>
+      <div class="med-form-group">
+        <label>日期</label>
+        <input type="date" id="med-filterDate" onchange="renderRecords()">
+      </div>
+    </div>
+
+    <div class="med-table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>类型</th>
+            <th>患者</th>
+            <th>内容</th>
+            <th>日期</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="med-recordsTableBody">
+        </tbody>
+      </table>
+    </div>
+    <div id="med-recordsPagination" class="med-pagination"></div>
+  </div>
+</div>
+
+</main>
+
+<!-- TOAST CONTAINER -->
+<div class="med-toast-container" id="med-toastContainer"></div>
+
+<!-- DETAIL MODAL -->
+<div class="med-modal-overlay" id="med-detailModal">
+  <div class="med-modal" id="med-detailModalContent"></div>
+</div>
+
+<script>
+// ==================== TOAST ====================
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  toast.innerHTML = `${icons[type] || ''} ${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.remove(); }, 3000);
+}
+
+// ==================== SIDEBAR NAVIGATION ====================
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+    const page = this.dataset.page;
+    navigateTo(page);
+    if (window.innerWidth < 1024) {
+      document.getElementById('sidebar').classList.remove('open');
+    }
+  });
+});
+
+const pageTitles = {
+  dashboard: '数据看板', medication: '用药信息录入', interview: '陪诊子女访谈',
+  interaction: '药物相互作用检查', timeline: '服药时间线', records: '记录管理'
+};
+
+function navigateTo(page) {
+  document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
+  const target = document.getElementById('page-' + page);
+  if (target) target.style.display = 'block';
+  document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  const navItem = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if (navItem) navItem.classList.add('active');
+
+  if (page === 'dashboard') refreshDashboard();
+  if (page === 'records') renderRecords();
+  if (page === 'timeline') renderTimeline();
+  if (page === 'interaction') refreshCurrentMedsSummary();
+  if (page === 'medication') resetWizard();
+}
+
+// ==================== STORAGE ====================
+const Storage = {
+  get(key) {
+    try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : []; }
+    catch (e) { return []; }
+  },
+  set(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+  },
+  getMedications() { return this.get('medications'); },
+  setMedications(data) { this.set('medications', data); },
+  getInterviews() { return this.get('interviews'); },
+  setInterviews(data) { this.set('interviews', data); },
+  getAllRecords() {
+    const meds = this.getMedications().map(m => ({ ...m, recordType: 'medication' }));
+    const ints = this.getInterviews().map(i => ({ ...i, recordType: 'interview' }));
+    return [...meds, ...ints].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  },
+  saveMedication(data) {
+    const meds = this.getMedications();
+    data.id = Date.now();
+    data.recordType = 'medication';
+    data.createdAt = new Date().toISOString();
+    meds.push(data);
+    this.setMedications(meds);
+    return data.id;
+  },
+  saveInterview(data) {
+    const ints = this.getInterviews();
+    data.id = Date.now();
+    data.recordType = 'interview';
+    data.createdAt = new Date().toISOString();
+    ints.push(data);
+    this.setInterviews(ints);
+    return data.id;
+  },
+  deleteRecord(id, type) {
+    if (type === 'medication') {
+      this.setMedications(this.getMedications().filter(m => m.id !== id));
+    } else {
+      this.setInterviews(this.getInterviews().filter(i => i.id !== id));
+    }
+  },
+  getStats() {
+    const meds = this.getMedications();
+    const ints = this.getInterviews();
+    const today = new Date().toDateString();
+    const activeMeds = meds.filter(m => !m.endDate || new Date(m.endDate) >= new Date());
+    const todayRecords = [...meds, ...ints].filter(r => new Date(r.createdAt).toDateString() === today).length;
+    return { totalMeds: meds.length, activeMeds: activeMeds.length, totalInts: ints.length, todayRecords };
+  }
+};
+
+// ==================== VALIDATION ====================
+const Valid = {
+  phone(v) { return /^1[3-9]\d{9}$/.test(v); },
+  idCard(v) { if (!v) return true; return /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(v); },
+  age(v) { const n = parseInt(v); return !isNaN(n) && n >= 0 && n <= 150; },
+  required(v) { return v !== null && v !== undefined && v.toString().trim() !== ''; },
+  showError(id, msg) {
+    const el = document.getElementById(id);
+    const err = document.getElementById(id + 'Error');
+    if (el) el.classList.add('error');
+    if (err) { err.textContent = msg; err.style.display = 'block'; }
+  },
+  clearAll() {
+    document.querySelectorAll('.error').forEach(e => e.classList.remove('error'));
+    document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+  }
+};
+
+// ==================== WIZARD ====================
+let currentStep = 1;
+const totalSteps = 4;
+
+function setWizardStep(step) {
+  currentStep = step;
+  document.querySelectorAll('.wizard-step').forEach((el, i) => {
+    el.classList.remove('active', 'done');
+    if (i + 1 < step) el.classList.add('done');
+    if (i + 1 === step) el.classList.add('active');
+  });
+  document.querySelectorAll('.wizard-page').forEach(p => p.classList.remove('active'));
+  const page = document.querySelector(`.wizard-page[data-step="${step}"]`);
+  if (page) page.classList.add('active');
+  if (step === 4) buildConfirmPage();
+}
+
+function wizardNext() {
+  Valid.clearAll();
+  if (!validateStep(currentStep)) return;
+  if (currentStep < totalSteps) setWizardStep(currentStep + 1);
+}
+
+function wizardPrev() {
+  if (currentStep > 1) setWizardStep(currentStep - 1);
+}
+
+function resetWizard() {
+  setWizardStep(1);
+  document.getElementById('medicationForm').reset();
+  Valid.clearAll();
+}
+
+function validateStep(step) {
+  let valid = true;
+  if (step === 1) {
+    if (!Valid.required(getVal('patientName'))) { Valid.showError('patientName', '请输入患者姓名'); valid = false; }
+    if (!getVal('patientGender')) { Valid.showError('patientGender', '请选择性别'); valid = false; }
+    if (!Valid.age(getVal('patientAge'))) { Valid.showError('patientAge', '请输入有效年龄(0-150)'); valid = false; }
+    if (!Valid.phone(getVal('phone'))) { Valid.showError('phone', '请输入有效手机号'); valid = false; }
+    if (!Valid.idCard(getVal('idCard'))) { Valid.showError('idCard', '身份证号格式不正确'); valid = false; }
+  } else if (step === 2) {
+    if (!Valid.required(getVal('medicationName'))) { Valid.showError('medicationName', '请输入药品名称'); valid = false; }
+    if (!getVal('drugCategory')) { Valid.showError('drugCategory', '请选择药品分类'); valid = false; }
+    if (!Valid.required(getVal('specification'))) { Valid.showError('specification', '请输入规格'); valid = false; }
+    if (!getVal('quantity') || parseInt(getVal('quantity')) < 1) { Valid.showError('quantity', '请输入有效数量'); valid = false; }
+  } else if (step === 3) {
+    if (!getVal('frequency')) { Valid.showError('frequency', '请选择服用频次'); valid = false; }
+    if (!Valid.required(getVal('dosage'))) { Valid.showError('dosage', '请输入每次剂量'); valid = false; }
+    if (!getVal('route')) { Valid.showError('route', '请选择给药途径'); valid = false; }
+    if (!getVal('startDate')) { Valid.showError('startDate', '请选择开始日期'); valid = false; }
+  }
+  return valid;
+}
+
+function getVal(id) { return document.getElementById(id)?.value || ''; }
+
+function buildConfirmPage() {
+  const freqMap = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
+  const times = Array.from(document.querySelectorAll('input[name="takeTime"]:checked')).map(c => c.value).join('、') || '未指定';
+  const html = `
+    <table style="width:100%;font-size:.88rem;">
+      <tr><td style="width:120px;font-weight:600;padding:6px 0;">患者姓名</td><td>${getVal('patientName')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">性别 / 年龄</td><td>${getVal('patientGender')} / ${getVal('patientAge')}岁</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">联系电话</td><td>${getVal('phone')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">药品名称</td><td>${getVal('medicationName')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">分类 / 规格</td><td>${getVal('drugCategory')} / ${getVal('specification')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">数量</td><td>${getVal('quantity')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">频次 / 剂量</td><td>${freqMap[getVal('frequency')] || getVal('frequency')} / ${getVal('dosage')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">给药途径</td><td>${getVal('route')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">服用时间</td><td>${times}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">日期</td><td>${getVal('startDate')} ~ ${getVal('endDate') || '未指定'}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">提醒</td><td>${document.getElementById('enableReminder').checked ? '已开启' : '未开启'}</td></tr>
+    </table>
+  `;
+  document.getElementById('confirmContent').innerHTML = html;
+}
+
+// ==================== MEDICATION FORM SUBMIT ====================
+document.getElementById('medicationForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  if (!validateStep(3)) return;
+
+  const data = {
+    patientName: getVal('patientName'), patientGender: getVal('patientGender'),
+    patientAge: getVal('patientAge'), phone: getVal('phone'), idCard: getVal('idCard'),
+    address: getVal('address'), allergyHistory: getVal('allergyHistory'), medicalHistory: getVal('medicalHistory'),
+    medicationName: getVal('medicationName'), drugCategory: getVal('drugCategory'),
+    specification: getVal('specification'), quantity: getVal('quantity'),
+    prescriptionSource: getVal('prescriptionSource'), prescribingDoctor: getVal('prescribingDoctor'),
+    frequency: getVal('frequency'), dosage: getVal('dosage'), route: getVal('route'),
+    takeTime: Array.from(document.querySelectorAll('input[name="takeTime"]:checked')).map(c => c.value),
+    startDate: getVal('startDate'), endDate: getVal('endDate'),
+    enableReminder: document.getElementById('enableReminder').checked,
+    notes: getVal('notes')
+  };
+
+  Storage.saveMedication(data);
+  showToast('用药信息保存成功！');
+  resetWizard();
+  refreshDashboard();
+});
+
+// ==================== INTERVIEW FORM SUBMIT ====================
+document.getElementById('interviewForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  Valid.clearAll();
+  let valid = true;
+  if (!Valid.required(getVal('intervieweeName'))) { Valid.showError('intervieweeName', '必填'); valid = false; }
+  if (!getVal('relationship')) { Valid.showError('relationship', '必填'); valid = false; }
+  if (!Valid.phone(getVal('intervieweePhone'))) { Valid.showError('intervieweePhone', '手机号格式不正确'); valid = false; }
+  if (!getVal('interviewDate')) { Valid.showError('interviewDate', '必填'); valid = false; }
+  if (!valid) { showToast('请完善必填信息', 'error'); return; }
+
+  // Calculate risk score
+  const riskFactors = [
+    getVal('riskLiving') === 'yes', getVal('riskPolypharmacy') === 'yes',
+    getVal('riskCognitive') === 'yes', getVal('riskSelfAdjust') === 'yes'
+  ];
+  const riskScore = riskFactors.filter(Boolean).length;
+  let riskLevel = 'low', riskLabel = '低风险';
+  if (riskScore >= 3) { riskLevel = 'high'; riskLabel = '高风险 - 建议重点关注'; }
+  else if (riskScore >= 1) { riskLevel = 'medium'; riskLabel = '中等风险 - 建议定期随访'; }
+
+  const data = {
+    intervieweeName: getVal('intervieweeName'), relationship: getVal('relationship'),
+    intervieweePhone: getVal('intervieweePhone'), interviewDate: getVal('interviewDate'),
+    q1: getVal('iq1'), q2: getVal('iq2'), q3: getVal('iq3'), q7: getVal('iq7'),
+    adverseReactions: Array.from(document.querySelectorAll('input[name="adverseReaction"]:checked')).map(c => c.value),
+    compliance: getVal('compliance'), complianceText: document.getElementById('compliance').selectedOptions[0]?.text || '',
+    educationNeeds: Array.from(document.querySelectorAll('input[name="educationNeeds"]:checked')).map(c => c.value),
+    riskLiving: getVal('riskLiving'), riskPolypharmacy: getVal('riskPolypharmacy'),
+    riskCognitive: getVal('riskCognitive'), riskSelfAdjust: getVal('riskSelfAdjust'),
+    riskScore, riskLevel, riskLabel
+  };
+
+  Storage.saveInterview(data);
+  showToast('访谈记录保存成功！');
+  document.getElementById('interviewForm').reset();
+  document.getElementById('riskMeter').style.display = 'none';
+  refreshDashboard();
+});
+
+// Real-time risk meter update
+['riskLiving', 'riskPolypharmacy', 'riskCognitive', 'riskSelfAdjust'].forEach(id => {
+  document.getElementById(id).addEventListener('change', updateRiskMeter);
+});
+
+function updateRiskMeter() {
+  const factors = [
+    getVal('riskLiving') === 'yes', getVal('riskPolypharmacy') === 'yes',
+    getVal('riskCognitive') === 'yes', getVal('riskSelfAdjust') === 'yes'
+  ];
+  const score = factors.filter(Boolean).length;
+  const meter = document.getElementById('riskMeter');
+  if (score === 0) { meter.style.display = 'none'; return; }
+  meter.style.display = 'flex';
+  meter.className = 'risk-meter';
+  let level = 'low', label = '低风险', pct = '25%';
+  if (score >= 3) { level = 'high'; label = '高风险 - 建议重点关注'; pct = '100%'; meter.classList.add('high'); }
+  else if (score >= 1) { level = 'medium'; label = '中等风险 - 建议定期随访'; pct = '60%'; meter.classList.add('medium'); }
+  else { meter.classList.add('low'); }
+  document.getElementById('riskLevel').textContent = label;
+  const fill = document.getElementById('riskFill');
+  fill.style.width = pct;
+  fill.style.background = score >= 3 ? '#dc2626' : score >= 1 ? '#d97706' : '#059669';
+}
+
+// ==================== DASHBOARD ====================
+function refreshDashboard() {
+  const stats = Storage.getStats();
+  document.getElementById('statTotalMeds').textContent = stats.totalMeds;
+  document.getElementById('statActiveMeds').textContent = stats.activeMeds;
+  document.getElementById('statInterviews').textContent = stats.totalInts;
+  document.getElementById('statToday').textContent = stats.todayRecords;
+  renderReminders();
+  renderCharts();
+}
+
+function renderReminders() {
+  const meds = Storage.getMedications();
+  const active = meds.filter(m => m.enableReminder && (!m.endDate || new Date(m.endDate) >= new Date()));
+  const container = document.getElementById('reminderList');
+  if (active.length === 0) {
+    container.innerHTML = '<div class="med-empty-state"><div class="med-empty-icon">📭</div><p>暂无提醒</p></div>';
+    return;
+  }
+  const freqMap = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
+  container.innerHTML = active.map(m => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <strong>${m.patientName}</strong> - ${m.medicationName}
+        <span style="color:var(--text-secondary);font-size:.85rem;margin-left:8px;">${freqMap[m.frequency] || m.frequency} ${m.dosage}/次</span>
+      </div>
+      <span class="med-tag med-tag-info">提醒中</span>
+    </div>
+  `).join('');
+}
+
+function renderCharts() {
+  renderFrequencyChart();
+  renderTrendChart();
+}
+
+function renderFrequencyChart() {
+  const canvas = document.getElementById('chartFrequency');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 260 * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = '260px';
+  ctx.scale(dpr, dpr);
+  const w = rect.width, h = 260;
+
+  const meds = Storage.getMedications();
+  const freqCount = {};
+  meds.forEach(m => { const f = m.frequency || 'other'; freqCount[f] = (freqCount[f] || 0) + 1; });
+  const labels = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
+  const colors = ['#4f6ef7','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#64748b'];
+  const entries = Object.entries(freqCount);
+  if (entries.length === 0) {
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('暂无数据', w/2, h/2);
+    return;
+  }
+
+  const barW = Math.min(50, (w - 80) / entries.length - 10);
+  const maxVal = Math.max(...entries.map(([,v]) => v), 1);
+  const chartH = h - 50;
+
+  ctx.clearRect(0, 0, w, h);
+  entries.forEach(([key, val], i) => {
+    const x = 60 + i * ((w - 80) / entries.length);
+    const barH = (val / maxVal) * (chartH - 30);
+    const y = chartH - barH;
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.beginPath();
+    ctx.roundRect(x, y, barW, barH, [4, 4, 0, 0]);
+    ctx.fill();
+    ctx.fillStyle = '#1e293b';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(val, x + barW/2, y - 6);
+    ctx.fillText(labels[key] || key, x + barW/2, chartH + 18);
+  });
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.beginPath();
+  ctx.moveTo(40, 0); ctx.lineTo(40, chartH); ctx.lineTo(w - 20, chartH);
+  ctx.stroke();
+}
+
+function renderTrendChart() {
+  const canvas = document.getElementById('chartTrend');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 260 * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = '260px';
+  ctx.scale(dpr, dpr);
+  const w = rect.width, h = 260;
+
+  const records = Storage.getAllRecords();
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+  const dayLabels = days.map(d => {
+    const date = new Date(d);
+    return `${date.getMonth()+1}/${date.getDate()}`;
+  });
+  const counts = days.map(day => records.filter(r => r.createdAt.startsWith(day)).length);
+  const maxCount = Math.max(...counts, 1);
+
+  const chartW = w - 60, chartH = h - 50;
+  const stepX = chartW / (days.length - 1);
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.beginPath();
+  ctx.moveTo(40, 0); ctx.lineTo(40, chartH); ctx.lineTo(w - 20, chartH);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.strokeStyle = '#4f6ef7';
+  ctx.lineWidth = 2.5;
+  counts.forEach((val, i) => {
+    const x = 40 + i * stepX;
+    const y = chartH - (val / maxCount) * (chartH - 30);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  counts.forEach((val, i) => {
+    const x = 40 + i * stepX;
+    const y = chartH - (val / maxCount) * (chartH - 30);
+    ctx.fillStyle = '#4f6ef7';
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1e293b';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(val, x, y - 12);
+    ctx.fillText(dayLabels[i], x, chartH + 18);
+  });
+}
+
+// ==================== INTERACTION CHECKER ====================
+const interactionDB = {
+  '阿司匹林-华法林': { level: 'danger', text: '⚠️ 高风险：两者均有抗凝作用，合用会显著增加出血风险，需严密监测INR值。' },
+  '阿司匹林-布洛芬': { level: 'caution', text: '⚠️ 注意：两者合用会降低阿司匹林的心血管保护作用，并增加胃肠道出血风险。建议间隔服用。' },
+  '阿司匹林-二甲双胍': { level: 'safe', text: '✅ 一般无显著相互作用，可常规联用。' },
+  '华法林-阿司匹林': { level: 'danger', text: '⚠️ 高风险：两者均有抗凝作用，合用会显著增加出血风险，需严密监测INR值。' },
+  '华法林-头孢克肟': { level: 'caution', text: '⚠️ 注意：头孢类抗生素可能增强华法林抗凝效果，需监测INR。' },
+  '华法林-奥美拉唑': { level: 'caution', text: '⚠️ 注意：奥美拉唑可能增强华法林抗凝作用，建议监测INR。' },
+  '二甲双胍-硝苯地平': { level: 'safe', text: '✅ 一般无显著相互作用，可常规联用。' },
+  '硝苯地平-阿托伐他汀': { level: 'safe', text: '✅ 一般无显著相互作用，可常规联用。' },
+  '阿托伐他汀-奥美拉唑': { level: 'caution', text: '⚠️ 注意：奥美拉唑可能轻度升高阿托伐他汀血药浓度，注意监测肝功能。' },
+  '厄贝沙坦-布洛芬': { level: 'caution', text: '⚠️ 注意：NSAIDs可能减弱降压药效果，并增加肾损伤风险。' },
+  '氯雷他定-布洛芬': { level: 'safe', text: '✅ 一般无显著相互作用，可常规联用。' },
+  '头孢克肟-布洛芬': { level: 'safe', text: '✅ 一般无显著相互作用，可常规联用。' },
+  '奥美拉唑-布洛芬': { level: 'safe', text: '✅ 奥美拉唑可保护胃黏膜，与布洛芬联用有助于减少胃肠道不良反应。' },
+};
+
+function checkInteraction() {
+  const drugA = document.getElementById('drugA').value;
+  const drugB = document.getElementById('drugB').value;
+  const resultDiv = document.getElementById('interactionResult');
+  if (!drugA || !drugB) { showToast('请选择两种药物', 'error'); return; }
+  if (drugA === drugB) { resultDiv.innerHTML = '<div class="med-interaction-result med-safe">✅ 同一种药物，无需检查相互作用。</div>'; return; }
+  const key1 = `${drugA}-${drugB}`;
+  const key2 = `${drugB}-${drugA}`;
+  const result = interactionDB[key1] || interactionDB[key2];
+  if (result) {
+    resultDiv.innerHTML = `<div class="med-interaction-result med-${result.level}">${result.text}</div>`;
+  } else {
+    resultDiv.innerHTML = '<div class="med-interaction-result med-safe">✅ 未发现已知相互作用，但仍建议在医生指导下用药。</div>';
+  }
+}
+
+function refreshCurrentMedsSummary() {
+  const container = document.getElementById('currentMedsSummary');
+  const meds = Storage.getMedications();
+  if (meds.length === 0) {
+    container.innerHTML = '<div class="med-empty-state"><div class="med-empty-icon">📭</div><p>暂无用药记录</p></div>';
+    return;
+  }
+  const grouped = {};
+  meds.forEach(m => {
+    const key = m.patientName;
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(m);
+  });
+  container.innerHTML = Object.entries(grouped).map(([name, drugs]) => `
+    <div style="margin-bottom:12px;">
+      <strong>👤 ${name}</strong>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+        ${drugs.map(d => `<span class="med-tag med-tag-info">${d.medicationName}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ==================== TIMELINE ====================
+function renderTimeline() {
+  const container = document.getElementById('timelineContainer');
+  const patientFilter = document.getElementById('timelinePatient').value;
+  const dateFilter = document.getElementById('timelineDate').value;
+  let meds = Storage.getMedications();
+  if (patientFilter !== 'all') meds = meds.filter(m => m.patientName === patientFilter);
+  if (dateFilter) meds = meds.filter(m => m.startDate === dateFilter);
+  meds.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+
+  const patientSelect = document.getElementById('timelinePatient');
+  const patients = [...new Set(Storage.getMedications().map(m => m.patientName))];
+  patientSelect.innerHTML = '<option value="all">全部患者</option>' + patients.map(p => `<option value="${p}">${p}</option>`).join('');
+  if (patientFilter !== 'all') patientSelect.value = patientFilter;
+
+  if (meds.length === 0) {
+    container.innerHTML = '<div class="med-empty-state"><div class="med-empty-icon">📭</div><p>暂无服药记录</p></div>';
+    return;
+  }
+  const freqMap = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
+  container.innerHTML = meds.map(m => {
+    const isActive = !m.endDate || new Date(m.endDate) >= new Date();
+    return `
+      <div class="med-timeline-item">
+        <div class="med-timeline-dot" style="background:${isActive ? '#10b981' : '#94a3b8'};box-shadow:0 0 0 2px ${isActive ? '#10b981' : '#94a3b8'};"></div>
+        <div class="med-timeline-time">${m.startDate} ${m.endDate ? '~ ' + m.endDate : '(长期)'}</div>
+        <div class="med-timeline-content">
+          <strong>${m.patientName}</strong> - ${m.medicationName}
+          <span class="med-tag med-${isActive med-? med-'tag-success' med-: med-'tag-gray'}" style="margin-left:8px;">${isActive ? '服用中' : '已结束'}</span>
+          <div style="margin-top:4px;font-size:.85rem;color:var(--text-secondary);">
+            ${freqMap[m.frequency] || m.frequency} | ${m.dosage}/次 | ${m.route || '口服'}
+            ${m.takeTime && m.takeTime.length ? ' | ' + m.takeTime.join('、') : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function printTimeline() {
+  window.print();
+}
+
+// ==================== RECORDS ====================
+const PAGE_SIZE = 10;
+let recordsPage = 1;
+
+function renderRecords() {
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  const type = document.getElementById('recordTypeFilter').value;
+  const status = document.getElementById('recordStatusFilter').value;
+  const date = document.getElementById('filterDate').value;
+
+  let records = Storage.getAllRecords();
+  if (type !== 'all') records = records.filter(r => r.recordType === type);
+  if (status === 'active') records = records.filter(r => !r.endDate || new Date(r.endDate) >= new Date());
+  if (status === 'ended') records = records.filter(r => r.endDate && new Date(r.endDate) < new Date());
+  if (date) records = records.filter(r => r.createdAt.startsWith(date));
+  if (search) {
+    records = records.filter(r => {
+      if (r.recordType === 'medication') return (r.patientName || '').toLowerCase().includes(search) || (r.medicationName || '').toLowerCase().includes(search);
+      return (r.intervieweeName || '').toLowerCase().includes(search);
+    });
+  }
+
+  const totalPages = Math.ceil(records.length / PAGE_SIZE) || 1;
+  if (recordsPage > totalPages) recordsPage = totalPages;
+  const pageRecords = records.slice((recordsPage - 1) * PAGE_SIZE, recordsPage * PAGE_SIZE);
+
+  const tbody = document.getElementById('recordsTableBody');
+  if (pageRecords.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-secondary);">暂无匹配记录</td></tr>';
+  } else {
+    tbody.innerHTML = pageRecords.map(r => {
+      const date = new Date(r.createdAt).toLocaleString('zh-CN');
+      if (r.recordType === 'medication') {
+        const isActive = !r.endDate || new Date(r.endDate) >= new Date();
+        return `<tr>
+          <td><span class="med-tag med-tag-info">💊 用药</span></td>
+          <td>${r.patientName}</td>
+          <td>${r.medicationName} ${r.specification || ''}</td>
+          <td>${date}</td>
+          <td><span class="med-tag med-${isActive med-? med-'tag-success' med-: med-'tag-gray'}">${isActive ? '服用中' : '已结束'}</span></td>
+          <td>
+            <button class="med-btn med-btn-sm med-btn-outline" onclick="viewDetail(${r.id}, 'medication')">查看</button>
+            <button class="med-btn med-btn-sm med-btn-danger" onclick="deleteRecord(${r.id}, 'medication')">删除</button>
+          </td>
+        </tr>`;
+      } else {
+        return `<tr>
+          <td><span class="med-tag med-tag-warning">💬 访谈</span></td>
+          <td>${r.intervieweeName}</td>
+          <td>${r.relationship} | 风险：${r.riskLabel || '未评估'}</td>
+          <td>${date}</td>
+          <td><span class="med-tag med-tag-${r.riskLevel med-=== med-'high' med-? med-'danger' med-: med-r.riskLevel med-=== med-'medium' med-? med-'warning' med-: med-'success'}">${r.riskLabel || '未评估'}</span></td>
+          <td>
+            <button class="med-btn med-btn-sm med-btn-outline" onclick="viewDetail(${r.id}, 'interview')">查看</button>
+            <button class="med-btn med-btn-sm med-btn-danger" onclick="deleteRecord(${r.id}, 'interview')">删除</button>
+          </td>
+        </tr>`;
+      }
+    }).join('');
+  }
+
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const container = document.getElementById('recordsPagination');
+  if (totalPages <= 1) { container.innerHTML = ''; return; }
+  let html = '';
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="med-page-btn med-${i med-=== med-recordsPage med-? med-'active' med-: med-''}" onclick="recordsPage=${i};renderRecords();">${i}</button>`;
+  }
+  container.innerHTML = html;
+}
+
+function viewDetail(id, type) {
+  let record;
+  if (type === 'medication') {
+    record = Storage.getMedications().find(m => m.id === id);
+  } else {
+    record = Storage.getInterviews().find(i => i.id === id);
+  }
+  if (!record) return;
+  const modal = document.getElementById('detailModal');
+  const content = document.getElementById('detailModalContent');
+  if (type === 'medication') {
+    const freqMap = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
+    content.innerHTML = `
+      <h3>📋 用药详情</h3>
+      <table style="width:100%;font-size:.88rem;">
+        <tr><td style="width:100px;font-weight:600;padding:6px 0;">患者</td><td>${record.patientName} (${record.patientGender || ''} / ${record.patientAge}岁)</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">电话</td><td>${record.phone}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">药品</td><td>${record.medicationName} [${record.drugCategory || ''}]</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">规格/数量</td><td>${record.specification} / ${record.quantity}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">频次/剂量</td><td>${freqMap[record.frequency] || record.frequency} / ${record.dosage}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">给药途径</td><td>${record.route || '口服'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">服用时间</td><td>${(record.takeTime || []).join('、') || '未指定'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">日期</td><td>${record.startDate} ~ ${record.endDate || '长期'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">过敏史</td><td>${record.allergyHistory || '无'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">注意事项</td><td>${record.notes || '无'}</td></tr>
+      </table>
+      <div class="med-btn-group"><button class="med-btn med-btn-secondary" onclick="closeModal()">关闭</button></div>
+    `;
+  } else {
+    content.innerHTML = `
+      <h3>💬 访谈详情</h3>
+      <table style="width:100%;font-size:.88rem;">
+        <tr><td style="width:100px;font-weight:600;padding:6px 0;">受访者</td><td>${record.intervieweeName} (${record.relationship})</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">电话</td><td>${record.intervieweePhone}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">日期</td><td>${record.interviewDate}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">服药依从性</td><td>${record.complianceText || '未评估'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">风险等级</td><td><span class="med-tag med-tag-${record.riskLevel med-=== med-'high' med-? med-'danger' med-: med-record.riskLevel med-=== med-'medium' med-? med-'warning' med-: med-'success'}">${record.riskLabel || '未评估'}</span></td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">不良反应</td><td>${(record.adverseReactions || []).join('、') || '无'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">教育需求</td><td>${(record.educationNeeds || []).join('、') || '无'}</td></tr>
+      </table>
+      <div class="med-btn-group"><button class="med-btn med-btn-secondary" onclick="closeModal()">关闭</button></div>
+    `;
+  }
+  modal.classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('detailModal').classList.remove('show');
+}
+
+document.getElementById('detailModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function deleteRecord(id, type) {
+  if (!confirm('确定要删除这条记录吗？此操作不可恢复。')) return;
+  Storage.deleteRecord(id, type);
+  showToast('记录已删除', 'info');
+  renderRecords();
+  refreshDashboard();
+}
+
+// ==================== DATA EXPORT/IMPORT ====================
+function exportData() {
+  const data = Storage.exportAllData ? Storage.exportAllData() : {
+    medications: Storage.getMedications(),
+    interviews: Storage.getInterviews(),
+    exportDate: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `medication_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('数据导出成功');
+}
+
+function handleImport(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (confirm('导入将覆盖现有数据，确定继续吗？')) {
+        if (data.medications) Storage.setMedications(data.medications);
+        if (data.interviews) Storage.setInterviews(data.interviews);
+        showToast('数据导入成功');
+        renderRecords();
+        refreshDashboard();
+      }
+    } catch (err) { showToast('文件格式错误', 'error'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function clearAllData() {
+  if (!confirm('确定要清空所有数据吗？')) return;
+  if (!confirm('再次确认：此操作将删除所有用药记录和访谈记录，不可恢复！')) return;
+  Storage.setMedications([]);
+  Storage.setInterviews([]);
+  showToast('所有数据已清空', 'info');
+  renderRecords();
+  refreshDashboard();
+}
+
+// ==================== INIT ====================
+document.getElementById('startDate').valueAsDate = new Date();
+document.getElementById('interviewDate').valueAsDate = new Date();
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+refreshDashboard();
+
+// Keyboard shortcut to close modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+// roundRect polyfill
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+    const r = radii[0] || 0;
+    this.moveTo(x + r, y);
+    this.lineTo(x + w - r, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r);
+    this.lineTo(x + w, y + h - r);
+    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    this.lineTo(x + r, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r);
+    this.lineTo(x, y + r);
+    this.quadraticCurveTo(x, y, x + r, y);
+  };
+}
+</script>
+        </div>
+</div>
     </div>
     <button class="fab" id="fabBtn" onclick="openRecordModal()">+</button>
     <div class="bottom-nav" id="bottomNav">
@@ -1124,6 +3169,10 @@
         <div class="nav-item" onclick="switchPage('ai')">
             <span class="icon">🔬</span>
             <span>AI分析</span>
+        </div>
+        <div class="nav-item" onclick="switchPage('medication')">
+            <span class="icon">💊</span>
+            <span>用药</span>
         </div>
         <div class="nav-item" onclick="switchPage('reminders')">
             <span class="icon">⏰</span>
@@ -1248,7 +3297,7 @@ function showInstallHint() {
 function switchPage(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('fabBtn').style.display = 'none';
+    document.getElementById('fabBtn').style.display = (page === 'records' || page === 'medication') ? 'flex' : 'none';
     
     if (page === 'home') {
         document.getElementById('pageHome').classList.add('active');
@@ -1270,9 +3319,19 @@ function switchPage(page) {
         document.querySelectorAll('.nav-item')[3].classList.add('active');
         document.getElementById('pageHeader').textContent = '吃药提醒';
         renderReminders();
+    } else if (page === 'medication') {
+        document.getElementById('pageMedication').classList.add('active');
+        document.querySelectorAll('.nav-item')[3].classList.add('active');
+        document.getElementById('pageHeader').textContent = '用药管理';
+        medRefreshDashboard();
+    } else if (page === 'reminders') {
+        document.getElementById('pageReminders').classList.add('active');
+        document.querySelectorAll('.nav-item')[4].classList.add('active');
+        document.getElementById('pageHeader').textContent = '吃药提醒';
+        medRenderReminders();
     } else if (page === 'me') {
         document.getElementById('pageMe').classList.add('active');
-        document.querySelectorAll('.nav-item')[4].classList.add('active');
+        document.querySelectorAll('.nav-item')[5].classList.add('active');
         document.getElementById('pageHeader').textContent = '我的';
         document.getElementById('meEmail').textContent = currentUser?.email || '';
         document.getElementById('meAvatar').textContent = (currentUser?.email?.charAt(0) || '👤').toUpperCase();
@@ -2351,7 +4410,756 @@ if (viewId) {
     document.getElementById('pageRecords').classList.remove('active');
 } else {
     checkAuth();
-}</script>
+}
+
+/* ========== MEDICATION PAGE JS ========== */
+// ==================== TOAST ====================
+function medShowToast(msg, type = 'success') {
+  const medContainer = document.getElementById('toastContainer');
+  const medToast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  toast.innerHTML = `${icons[type] || ''} ${msg}`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.remove(); }, 3000);
+}
+
+// ==================== SIDEBAR NAVIGATION ====================
+function medToggleSidebar() {
+  document.getElementById('med-sidebar').classList.toggle('open');
+}
+
+document.querySelectorAll('.med-nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.med-nav-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+    const medPage = this.dataset.page;
+    medNavigateTo(page);
+    if (window.innerWidth < 1024) {
+      document.getElementById('med-sidebar').classList.remove('open');
+    }
+  });
+});
+
+const medPageTitles = {
+  dashboard: '数据看板', medication: '用药信息录入', interview: '陪诊子女访谈',
+  interaction: '药物相互作用检查', timeline: '服药时间线', records: '记录管理'
+};
+
+function medNavigateTo(page) {
+  document.querySelectorAll('.med-page-content').forEach(p => p.style.display = 'none');
+  const medTarget = document.getElementById('page-' + page);
+  if (target) target.style.display = 'block';
+  document.getElementById('pageTitle').textContent = pageTitles[page] || page;
+  document.querySelectorAll('.med-nav-item').forEach(i => i.classList.remove('active'));
+  const navItem = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if (navItem) navItem.classList.add('active');
+
+  if (page === 'dashboard') medRefreshDashboard();
+  if (page === 'records') medRenderRecords();
+  if (page === 'timeline') medRenderTimeline();
+  if (page === 'interaction') medRefreshCurrentMedsSummary();
+  if (page === 'medication') medResetWizard();
+}
+
+// ==================== STORAGE ====================
+const medStorage = {
+  get(key) {
+    try { const d = localStorage.getItem(key); return d ? JSON.parse(d) : []; }
+    catch (e) { return []; }
+  },
+  set(key, data) {
+    localStorage.setItem(key, JSON.stringify(data));
+  },
+  getMedications() { return this.get('medications'); },
+  setMedications(data) { this.set('medications', data); },
+  getInterviews() { return this.get('interviews'); },
+  setInterviews(data) { this.set('interviews', data); },
+  getAllRecords() {
+    const medMeds = this.getMedications().map(m => ({ ...m, recordType: 'medication' }));
+    const medInts = this.getInterviews().map(i => ({ ...i, recordType: 'interview' }));
+    return [...meds, ...ints].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  },
+  saveMedication(data) {
+    const medMeds = this.getMedications();
+    data.id = Date.now();
+    data.recordType = 'medication';
+    data.createdAt = new Date().toISOString();
+    meds.push(data);
+    this.setMedications(meds);
+    return data.id;
+  },
+  saveInterview(data) {
+    const medInts = this.getInterviews();
+    data.id = Date.now();
+    data.recordType = 'interview';
+    data.createdAt = new Date().toISOString();
+    ints.push(data);
+    this.setInterviews(ints);
+    return data.id;
+  },
+  medDeleteRecord(id, type) {
+    if (type === 'medication') {
+      this.setMedications(this.getMedications().filter(m => m.id !== id));
+    } else {
+      this.setInterviews(this.getInterviews().filter(i => i.id !== id));
+    }
+  },
+  getStats() {
+    const medMeds = this.getMedications();
+    const medInts = this.getInterviews();
+    const medToday = new Date().toDateString();
+    const medActiveMeds = meds.filter(m => !m.endDate || new Date(m.endDate) >= new Date());
+    const medTodayRecords = [...meds, ...ints].filter(r => new Date(r.createdAt).toDateString() === today).length;
+    return { totalMeds: meds.length, activeMeds: activeMeds.length, totalInts: ints.length, todayRecords };
+  }
+};
+
+// ==================== VALIDATION ====================
+const medValid = {
+  phone(v) { return /^1[3-9]\d{9}$/.test(v); },
+  idCard(v) { if (!v) return true; return /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/.test(v); },
+  age(v) { const n = parseInt(v); return !isNaN(n) && n >= 0 && n <= 150; },
+  required(v) { return v !== null && v !== undefined && v.toString().trim() !== ''; },
+  showError(id, msg) {
+    const medEl = document.getElementById(id);
+    const err = document.getElementById(id + 'Error');
+    if (el) el.classList.add('error');
+    if (err) { err.textContent = msg; err.style.display = 'block'; }
+  },
+  clearAll() {
+    document.querySelectorAll('.med-error').forEach(e => e.classList.remove('error'));
+    document.querySelectorAll('.med-error-msg').forEach(e => e.style.display = 'none');
+  }
+};
+
+// ==================== WIZARD ====================
+let medCurrentStep = 1;
+const medTotalSteps = 4;
+
+function setWizardStep(step) {
+  currentStep = step;
+  document.querySelectorAll('.med-wizard-step').forEach((el, i) => {
+    el.classList.remove('active', 'done');
+    if (i + 1 < step) el.classList.add('done');
+    if (i + 1 === step) el.classList.add('active');
+  });
+  document.querySelectorAll('.med-wizard-page').forEach(p => p.classList.remove('active'));
+  const medPage = document.querySelector(`.wizard-page[data-step="${step}"]`);
+  if (page) page.classList.add('active');
+  if (step === 4) medBuildConfirmPage();
+}
+
+function medWizardNext() {
+  Valid.clearAll();
+  if (!medValidateStep(currentStep)) return;
+  if (currentStep < totalSteps) setWizardStep(currentStep + 1);
+}
+
+function medWizardPrev() {
+  if (currentStep > 1) setWizardStep(currentStep - 1);
+}
+
+function medResetWizard() {
+  setWizardStep(1);
+  document.getElementById('medicationForm').reset();
+  Valid.clearAll();
+}
+
+function medValidateStep(step) {
+  let valid = true;
+  if (step === 1) {
+    if (!Valid.required(medGetVal('patientName'))) { Valid.showError('patientName', '请输入患者姓名'); valid = false; }
+    if (!medGetVal('patientGender')) { Valid.showError('patientGender', '请选择性别'); valid = false; }
+    if (!Valid.age(medGetVal('patientAge'))) { Valid.showError('patientAge', '请输入有效年龄(0-150)'); valid = false; }
+    if (!Valid.phone(medGetVal('phone'))) { Valid.showError('phone', '请输入有效手机号'); valid = false; }
+    if (!Valid.idCard(medGetVal('idCard'))) { Valid.showError('idCard', '身份证号格式不正确'); valid = false; }
+  } else if (step === 2) {
+    if (!Valid.required(medGetVal('medicationName'))) { Valid.showError('medicationName', '请输入药品名称'); valid = false; }
+    if (!medGetVal('drugCategory')) { Valid.showError('drugCategory', '请选择药品分类'); valid = false; }
+    if (!Valid.required(medGetVal('specification'))) { Valid.showError('specification', '请输入规格'); valid = false; }
+    if (!medGetVal('quantity') || parseInt(medGetVal('quantity')) < 1) { Valid.showError('quantity', '请输入有效数量'); valid = false; }
+  } else if (step === 3) {
+    if (!medGetVal('frequency')) { Valid.showError('frequency', '请选择服用频次'); valid = false; }
+    if (!Valid.required(medGetVal('dosage'))) { Valid.showError('dosage', '请输入每次剂量'); valid = false; }
+    if (!medGetVal('route')) { Valid.showError('route', '请选择给药途径'); valid = false; }
+    if (!medGetVal('startDate')) { Valid.showError('startDate', '请选择开始日期'); valid = false; }
+  }
+  return valid;
+}
+
+function medGetVal(id) { return document.getElementById(id)?.value || ''; }
+
+function medBuildConfirmPage() {
+  const medFreqMap = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
+  const medTimes = Array.from(document.querySelectorAll('input[name="takeTime"]:checked')).map(c => c.value).join('、') || '未指定';
+  const medHtml = `
+    <table style="width:100%;font-size:.88rem;">
+      <tr><td style="width:120px;font-weight:600;padding:6px 0;">患者姓名</td><td>${medGetVal('patientName')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">性别 / 年龄</td><td>${medGetVal('patientGender')} / ${medGetVal('patientAge')}岁</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">联系电话</td><td>${medGetVal('phone')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">药品名称</td><td>${medGetVal('medicationName')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">分类 / 规格</td><td>${medGetVal('drugCategory')} / ${medGetVal('specification')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">数量</td><td>${medGetVal('quantity')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">频次 / 剂量</td><td>${freqMap[medGetVal('frequency')] || medGetVal('frequency')} / ${medGetVal('dosage')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">给药途径</td><td>${medGetVal('route')}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">服用时间</td><td>${times}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">日期</td><td>${medGetVal('startDate')} ~ ${medGetVal('endDate') || '未指定'}</td></tr>
+      <tr><td style="font-weight:600;padding:6px 0;">提醒</td><td>${document.getElementById('enableReminder').checked ? '已开启' : '未开启'}</td></tr>
+    </table>
+  `;
+  document.getElementById('confirmContent').innerHTML = html;
+}
+
+// ==================== MEDICATION FORM SUBMIT ====================
+document.getElementById('medicationForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  if (!medValidateStep(3)) return;
+
+  const medData = {
+    patientName: medGetVal('patientName'), patientGender: medGetVal('patientGender'),
+    patientAge: medGetVal('patientAge'), phone: medGetVal('phone'), idCard: medGetVal('idCard'),
+    address: medGetVal('address'), allergyHistory: medGetVal('allergyHistory'), medicalHistory: medGetVal('medicalHistory'),
+    medicationName: medGetVal('medicationName'), drugCategory: medGetVal('drugCategory'),
+    specification: medGetVal('specification'), quantity: medGetVal('quantity'),
+    prescriptionSource: medGetVal('prescriptionSource'), prescribingDoctor: medGetVal('prescribingDoctor'),
+    frequency: medGetVal('frequency'), dosage: medGetVal('dosage'), route: medGetVal('route'),
+    takeTime: Array.from(document.querySelectorAll('input[name="takeTime"]:checked')).map(c => c.value),
+    startDate: medGetVal('startDate'), endDate: medGetVal('endDate'),
+    enableReminder: document.getElementById('enableReminder').checked,
+    notes: medGetVal('notes')
+  };
+
+  Storage.saveMedication(data);
+  medShowToast('用药信息保存成功！');
+  medResetWizard();
+  medRefreshDashboard();
+});
+
+// ==================== INTERVIEW FORM SUBMIT ====================
+document.getElementById('interviewForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  Valid.clearAll();
+  let valid = true;
+  if (!Valid.required(medGetVal('intervieweeName'))) { Valid.showError('intervieweeName', '必填'); valid = false; }
+  if (!medGetVal('relationship')) { Valid.showError('relationship', '必填'); valid = false; }
+  if (!Valid.phone(medGetVal('intervieweePhone'))) { Valid.showError('intervieweePhone', '手机号格式不正确'); valid = false; }
+  if (!medGetVal('interviewDate')) { Valid.showError('interviewDate', '必填'); valid = false; }
+  if (!valid) { medShowToast('请完善必填信息', 'error'); return; }
+
+  // Calculate risk score
+  const riskFactors = [
+    medGetVal('riskLiving') === 'yes', medGetVal('riskPolypharmacy') === 'yes',
+    medGetVal('riskCognitive') === 'yes', medGetVal('riskSelfAdjust') === 'yes'
+  ];
+  const riskScore = riskFactors.filter(Boolean).length;
+  let riskLevel = 'low', riskLabel = '低风险';
+  if (riskScore >= 3) { riskLevel = 'high'; riskLabel = '高风险 - 建议重点关注'; }
+  else if (riskScore >= 1) { riskLevel = 'medium'; riskLabel = '中等风险 - 建议定期随访'; }
+
+  const medData = {
+    intervieweeName: medGetVal('intervieweeName'), relationship: medGetVal('relationship'),
+    intervieweePhone: medGetVal('intervieweePhone'), interviewDate: medGetVal('interviewDate'),
+    q1: medGetVal('iq1'), q2: medGetVal('iq2'), q3: medGetVal('iq3'), q7: medGetVal('iq7'),
+    adverseReactions: Array.from(document.querySelectorAll('input[name="adverseReaction"]:checked')).map(c => c.value),
+    compliance: medGetVal('compliance'), complianceText: document.getElementById('compliance').selectedOptions[0]?.text || '',
+    educationNeeds: Array.from(document.querySelectorAll('input[name="educationNeeds"]:checked')).map(c => c.value),
+    riskLiving: medGetVal('riskLiving'), riskPolypharmacy: medGetVal('riskPolypharmacy'),
+    riskCognitive: medGetVal('riskCognitive'), riskSelfAdjust: medGetVal('riskSelfAdjust'),
+    riskScore, riskLevel, riskLabel
+  };
+
+  Storage.saveInterview(data);
+  medShowToast('访谈记录保存成功！');
+  document.getElementById('interviewForm').reset();
+  document.getElementById('riskMeter').style.display = 'none';
+  medRefreshDashboard();
+});
+
+// Real-time risk meter update
+['riskLiving', 'riskPolypharmacy', 'riskCognitive', 'riskSelfAdjust'].forEach(id => {
+  document.getElementById(id).addEventListener('change', updateRiskMeter);
+});
+
+function medUpdateRiskMeter() {
+  const factors = [
+    medGetVal('riskLiving') === 'yes', medGetVal('riskPolypharmacy') === 'yes',
+    medGetVal('riskCognitive') === 'yes', medGetVal('riskSelfAdjust') === 'yes'
+  ];
+  const score = factors.filter(Boolean).length;
+  const meter = document.getElementById('riskMeter');
+  if (score === 0) { meter.style.display = 'none'; return; }
+  meter.style.display = 'flex';
+  meter.className = 'risk-meter';
+  let level = 'low', label = '低风险', pct = '25%';
+  if (score >= 3) { level = 'high'; label = '高风险 - 建议重点关注'; pct = '100%'; meter.classList.add('high'); }
+  else if (score >= 1) { level = 'medium'; label = '中等风险 - 建议定期随访'; pct = '60%'; meter.classList.add('medium'); }
+  else { meter.classList.add('low'); }
+  document.getElementById('riskLevel').textContent = label;
+  const fill = document.getElementById('riskFill');
+  fill.style.width = pct;
+  fill.style.background = score >= 3 ? '#dc2626' : score >= 1 ? '#d97706' : '#059669';
+}
+
+// ==================== DASHBOARD ====================
+function medRefreshDashboard() {
+  const stats = Storage.getStats();
+  document.getElementById('statTotalMeds').textContent = stats.totalMeds;
+  document.getElementById('statActiveMeds').textContent = stats.activeMeds;
+  document.getElementById('statInterviews').textContent = stats.totalInts;
+  document.getElementById('statToday').textContent = stats.todayRecords;
+  medRenderReminders();
+  medRenderCharts();
+}
+
+function medRenderReminders() {
+  const medMeds = Storage.getMedications();
+  const medActive = meds.filter(m => m.enableReminder && (!m.endDate || new Date(m.endDate) >= new Date()));
+  const medContainer = document.getElementById('med-reminderList');
+  if (active.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无提醒</p></div>';
+    return;
+  }
+  const medFreqMap = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
+  container.innerHTML = active.map(m => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <strong>${m.patientName}</strong> - ${m.medicationName}
+        <span style="color:var(--text-secondary);font-size:.85rem;margin-left:8px;">${freqMap[m.frequency] || m.frequency} ${m.dosage}/次</span>
+      </div>
+      <span class="tag tag-info">提醒中</span>
+    </div>
+  `).join('');
+}
+
+function medRenderCharts() {
+  medRenderFrequencyChart();
+  medRenderTrendChart();
+}
+
+function medRenderFrequencyChart() {
+  const medCanvas = document.getElementById('chartFrequency');
+  if (!canvas) return;
+  const medCtx = canvas.getContext('2d');
+  const medDpr = window.devicePixelRatio || 1;
+  const medRect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 260 * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = '260px';
+  ctx.scale(dpr, dpr);
+  const medW = rect.width, h = 260;
+
+  const medMeds = Storage.getMedications();
+  const medFreqCount = {};
+  meds.forEach(m => { const f = m.frequency || 'other'; freqCount[f] = (freqCount[f] || 0) + 1; });
+  const labels = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
+  const colors = ['#4f6ef7','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#64748b'];
+  const entries = Object.entries(freqCount);
+  if (entries.length === 0) {
+    ctx.fillStyle = '#64748b';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('暂无数据', w/2, h/2);
+    return;
+  }
+
+  const barW = Math.min(50, (w - 80) / entries.length - 10);
+  const maxVal = Math.max(...entries.map(([,v]) => v), 1);
+  const chartH = h - 50;
+
+  ctx.clearRect(0, 0, w, h);
+  entries.forEach(([key, val], i) => {
+    const x = 60 + i * ((w - 80) / entries.length);
+    const barH = (val / maxVal) * (chartH - 30);
+    const y = chartH - barH;
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.beginPath();
+    ctx.roundRect(x, y, barW, barH, [4, 4, 0, 0]);
+    ctx.fill();
+    ctx.fillStyle = '#1e293b';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(val, x + barW/2, y - 6);
+    ctx.fillText(labels[key] || key, x + barW/2, chartH + 18);
+  });
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.beginPath();
+  ctx.moveTo(40, 0); ctx.lineTo(40, chartH); ctx.lineTo(w - 20, chartH);
+  ctx.stroke();
+}
+
+function medRenderTrendChart() {
+  const medCanvas = document.getElementById('chartTrend');
+  if (!canvas) return;
+  const medCtx = canvas.getContext('2d');
+  const medDpr = window.devicePixelRatio || 1;
+  const medRect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 260 * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = '260px';
+  ctx.scale(dpr, dpr);
+  const medW = rect.width, h = 260;
+
+  const medRecords = Storage.getAllRecords();
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+  const dayLabels = days.map(d => {
+    const date = new Date(d);
+    return `${date.getMonth()+1}/${date.getDate()}`;
+  });
+  const counts = days.map(day => records.filter(r => r.createdAt.startsWith(day)).length);
+  const maxCount = Math.max(...counts, 1);
+
+  const chartW = w - 60, chartH = h - 50;
+  const stepX = chartW / (days.length - 1);
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.beginPath();
+  ctx.moveTo(40, 0); ctx.lineTo(40, chartH); ctx.lineTo(w - 20, chartH);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.strokeStyle = '#4f6ef7';
+  ctx.lineWidth = 2.5;
+  counts.forEach((val, i) => {
+    const x = 40 + i * stepX;
+    const y = chartH - (val / maxCount) * (chartH - 30);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  counts.forEach((val, i) => {
+    const x = 40 + i * stepX;
+    const y = chartH - (val / maxCount) * (chartH - 30);
+    ctx.fillStyle = '#4f6ef7';
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#1e293b';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(val, x, y - 12);
+    ctx.fillText(dayLabels[i], x, chartH + 18);
+  });
+}
+
+// ==================== INTERACTION CHECKER ====================
+const medInteractionDB = {
+  '阿司匹林-华法林': { level: 'danger', text: '⚠️ 高风险：两者均有抗凝作用，合用会显著增加出血风险，需严密监测INR值。' },
+  '阿司匹林-布洛芬': { level: 'caution', text: '⚠️ 注意：两者合用会降低阿司匹林的心血管保护作用，并增加胃肠道出血风险。建议间隔服用。' },
+  '阿司匹林-二甲双胍': { level: 'safe', text: '✅ 一般无显著相互作用，可常规联用。' },
+  '华法林-阿司匹林': { level: 'danger', text: '⚠️ 高风险：两者均有抗凝作用，合用会显著增加出血风险，需严密监测INR值。' },
+  '华法林-头孢克肟': { level: 'caution', text: '⚠️ 注意：头孢类抗生素可能增强华法林抗凝效果，需监测INR。' },
+  '华法林-奥美拉唑': { level: 'caution', text: '⚠️ 注意：奥美拉唑可能增强华法林抗凝作用，建议监测INR。' },
+  '二甲双胍-硝苯地平': { level: 'safe', text: '✅ 一般无显著相互作用，可常规联用。' },
+  '硝苯地平-阿托伐他汀': { level: 'safe', text: '✅ 一般无显著相互作用，可常规联用。' },
+  '阿托伐他汀-奥美拉唑': { level: 'caution', text: '⚠️ 注意：奥美拉唑可能轻度升高阿托伐他汀血药浓度，注意监测肝功能。' },
+  '厄贝沙坦-布洛芬': { level: 'caution', text: '⚠️ 注意：NSAIDs可能减弱降压药效果，并增加肾损伤风险。' },
+  '氯雷他定-布洛芬': { level: 'safe', text: '✅ 一般无显著相互作用，可常规联用。' },
+  '头孢克肟-布洛芬': { level: 'safe', text: '✅ 一般无显著相互作用，可常规联用。' },
+  '奥美拉唑-布洛芬': { level: 'safe', text: '✅ 奥美拉唑可保护胃黏膜，与布洛芬联用有助于减少胃肠道不良反应。' },
+};
+
+function medCheckInteraction() {
+  const drugA = document.getElementById('drugA').value;
+  const drugB = document.getElementById('drugB').value;
+  const medResultDiv = document.getElementById('interactionResult');
+  if (!drugA || !drugB) { medShowToast('请选择两种药物', 'error'); return; }
+  if (drugA === drugB) { resultDiv.innerHTML = '<div class="interaction-result safe">✅ 同一种药物，无需检查相互作用。</div>'; return; }
+  const key1 = `${drugA}-${drugB}`;
+  const key2 = `${drugB}-${drugA}`;
+  const medResult = interactionDB[key1] || interactionDB[key2];
+  if (result) {
+    resultDiv.innerHTML = `<div class="interaction-result ${result.level}">${result.text}</div>`;
+  } else {
+    resultDiv.innerHTML = '<div class="interaction-result safe">✅ 未发现已知相互作用，但仍建议在医生指导下用药。</div>';
+  }
+}
+
+function medRefreshCurrentMedsSummary() {
+  const medContainer = document.getElementById('currentMedsSummary');
+  const medMeds = Storage.getMedications();
+  if (meds.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无用药记录</p></div>';
+    return;
+  }
+  const grouped = {};
+  meds.forEach(m => {
+    const key = m.patientName;
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(m);
+  });
+  container.innerHTML = Object.entries(grouped).map(([name, drugs]) => `
+    <div style="margin-bottom:12px;">
+      <strong>👤 ${name}</strong>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+        ${drugs.map(d => `<span class="tag tag-info">${d.medicationName}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ==================== TIMELINE ====================
+function medRenderTimeline() {
+  const medContainer = document.getElementById('timelineContainer');
+  const medPatientFilter = document.getElementById('timelinePatient').value;
+  const dateFilter = document.getElementById('timelineDate').value;
+  let meds = Storage.getMedications();
+  if (patientFilter !== 'all') meds = meds.filter(m => m.patientName === patientFilter);
+  if (dateFilter) meds = meds.filter(m => m.startDate === dateFilter);
+  meds.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+
+  const medPatientSelect = document.getElementById('timelinePatient');
+  const medPatients = [...new Set(Storage.getMedications().map(m => m.patientName))];
+  patientSelect.innerHTML = '<option value="all">全部患者</option>' + patients.map(p => `<option value="${p}">${p}</option>`).join('');
+  if (patientFilter !== 'all') patientSelect.value = patientFilter;
+
+  if (meds.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>暂无服药记录</p></div>';
+    return;
+  }
+  const medFreqMap = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
+  container.innerHTML = meds.map(m => {
+    const isActive = !m.endDate || new Date(m.endDate) >= new Date();
+    return `
+      <div class="timeline-item">
+        <div class="timeline-dot" style="background:${isActive ? '#10b981' : '#94a3b8'};box-shadow:0 0 0 2px ${isActive ? '#10b981' : '#94a3b8'};"></div>
+        <div class="timeline-time">${m.startDate} ${m.endDate ? '~ ' + m.endDate : '(长期)'}</div>
+        <div class="timeline-content">
+          <strong>${m.patientName}</strong> - ${m.medicationName}
+          <span class="tag ${isActive ? 'tag-success' : 'tag-gray'}" style="margin-left:8px;">${isActive ? '服用中' : '已结束'}</span>
+          <div style="margin-top:4px;font-size:.85rem;color:var(--text-secondary);">
+            ${freqMap[m.frequency] || m.frequency} | ${m.dosage}/次 | ${m.route || '口服'}
+            ${m.takeTime && m.takeTime.length ? ' | ' + m.takeTime.join('、') : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function medPrintTimeline() {
+  window.print();
+}
+
+// ==================== RECORDS ====================
+const medPAGE_SIZE = 10;
+let medRecordsPage = 1;
+
+function medRenderRecords() {
+  const search = (document.getElementById('searchInput').value || '').toLowerCase();
+  const medType = document.getElementById('recordTypeFilter').value;
+  const status = document.getElementById('recordStatusFilter').value;
+  const date = document.getElementById('filterDate').value;
+
+  let records = Storage.getAllRecords();
+  if (type !== 'all') records = records.filter(r => r.recordType === type);
+  if (status === 'active') records = records.filter(r => !r.endDate || new Date(r.endDate) >= new Date());
+  if (status === 'ended') records = records.filter(r => r.endDate && new Date(r.endDate) < new Date());
+  if (date) records = records.filter(r => r.createdAt.startsWith(date));
+  if (search) {
+    records = records.filter(r => {
+      if (r.recordType === 'medication') return (r.patientName || '').toLowerCase().includes(search) || (r.medicationName || '').toLowerCase().includes(search);
+      return (r.intervieweeName || '').toLowerCase().includes(search);
+    });
+  }
+
+  const medTotalPages = Math.ceil(records.length / PAGE_SIZE) || 1;
+  if (recordsPage > totalPages) recordsPage = totalPages;
+  const medPageRecords = records.slice((recordsPage - 1) * PAGE_SIZE, recordsPage * PAGE_SIZE);
+
+  const medTbody = document.getElementById('recordsTableBody');
+  if (pageRecords.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-secondary);">暂无匹配记录</td></tr>';
+  } else {
+    tbody.innerHTML = pageRecords.map(r => {
+      const date = new Date(r.createdAt).toLocaleString('zh-CN');
+      if (r.recordType === 'medication') {
+        const isActive = !r.endDate || new Date(r.endDate) >= new Date();
+        return `<tr>
+          <td><span class="tag tag-info">💊 用药</span></td>
+          <td>${r.patientName}</td>
+          <td>${r.medicationName} ${r.specification || ''}</td>
+          <td>${date}</td>
+          <td><span class="tag ${isActive ? 'tag-success' : 'tag-gray'}">${isActive ? '服用中' : '已结束'}</span></td>
+          <td>
+            <button class="btn btn-sm btn-outline" onclick="medViewDetail(${r.id}, 'medication')">查看</button>
+            <button class="btn btn-sm btn-danger" onclick="medDeleteRecord(${r.id}, 'medication')">删除</button>
+          </td>
+        </tr>`;
+      } else {
+        return `<tr>
+          <td><span class="tag tag-warning">💬 访谈</span></td>
+          <td>${r.intervieweeName}</td>
+          <td>${r.relationship} | 风险：${r.riskLabel || '未评估'}</td>
+          <td>${date}</td>
+          <td><span class="tag tag-${r.riskLevel === 'high' ? 'danger' : r.riskLevel === 'medium' ? 'warning' : 'success'}">${r.riskLabel || '未评估'}</span></td>
+          <td>
+            <button class="btn btn-sm btn-outline" onclick="medViewDetail(${r.id}, 'interview')">查看</button>
+            <button class="btn btn-sm btn-danger" onclick="medDeleteRecord(${r.id}, 'interview')">删除</button>
+          </td>
+        </tr>`;
+      }
+    }).join('');
+  }
+
+  medRenderPagination(totalPages);
+}
+
+function medRenderPagination(totalPages) {
+  const medContainer = document.getElementById('recordsPagination');
+  if (totalPages <= 1) { container.innerHTML = ''; return; }
+  let html = '';
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="page-btn ${i === recordsPage ? 'active' : ''}" onclick="recordsPage=${i};medRenderRecords();">${i}</button>`;
+  }
+  container.innerHTML = html;
+}
+
+function medViewDetail(id, type) {
+  let record;
+  if (type === 'medication') {
+    record = Storage.getMedications().find(m => m.id === id);
+  } else {
+    record = Storage.getInterviews().find(i => i.id === id);
+  }
+  if (!record) return;
+  const modal = document.getElementById('detailModal');
+  const medContent = document.getElementById('detailModalContent');
+  if (type === 'medication') {
+    const medFreqMap = { qd: '每日一次', bid: '每日两次', tid: '每日三次', qid: '每日四次', prn: '必要时', qw: '每周一次', other: '其他' };
+    content.innerHTML = `
+      <h3>📋 用药详情</h3>
+      <table style="width:100%;font-size:.88rem;">
+        <tr><td style="width:100px;font-weight:600;padding:6px 0;">患者</td><td>${record.patientName} (${record.patientGender || ''} / ${record.patientAge}岁)</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">电话</td><td>${record.phone}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">药品</td><td>${record.medicationName} [${record.drugCategory || ''}]</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">规格/数量</td><td>${record.specification} / ${record.quantity}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">频次/剂量</td><td>${freqMap[record.frequency] || record.frequency} / ${record.dosage}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">给药途径</td><td>${record.route || '口服'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">服用时间</td><td>${(record.takeTime || []).join('、') || '未指定'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">日期</td><td>${record.startDate} ~ ${record.endDate || '长期'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">过敏史</td><td>${record.allergyHistory || '无'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">注意事项</td><td>${record.notes || '无'}</td></tr>
+      </table>
+      <div class="btn-group"><button class="btn btn-secondary" onclick="medCloseModal()">关闭</button></div>
+    `;
+  } else {
+    content.innerHTML = `
+      <h3>💬 访谈详情</h3>
+      <table style="width:100%;font-size:.88rem;">
+        <tr><td style="width:100px;font-weight:600;padding:6px 0;">受访者</td><td>${record.intervieweeName} (${record.relationship})</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">电话</td><td>${record.intervieweePhone}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">日期</td><td>${record.interviewDate}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">服药依从性</td><td>${record.complianceText || '未评估'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">风险等级</td><td><span class="tag tag-${record.riskLevel === 'high' ? 'danger' : record.riskLevel === 'medium' ? 'warning' : 'success'}">${record.riskLabel || '未评估'}</span></td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">不良反应</td><td>${(record.adverseReactions || []).join('、') || '无'}</td></tr>
+        <tr><td style="font-weight:600;padding:6px 0;">教育需求</td><td>${(record.educationNeeds || []).join('、') || '无'}</td></tr>
+      </table>
+      <div class="btn-group"><button class="btn btn-secondary" onclick="medCloseModal()">关闭</button></div>
+    `;
+  }
+  modal.classList.add('show');
+}
+
+function medCloseModal() {
+  document.getElementById('detailModal').classList.remove('show');
+}
+
+document.getElementById('detailModal').addEventListener('click', function(e) {
+  if (e.target === this) medCloseModal();
+});
+
+function medDeleteRecord(id, type) {
+  if (!confirm('确定要删除这条记录吗？此操作不可恢复。')) return;
+  Storage.medDeleteRecord(id, type);
+  medShowToast('记录已删除', 'info');
+  medRenderRecords();
+  medRefreshDashboard();
+}
+
+// ==================== DATA EXPORT/IMPORT ====================
+function medExportData() {
+  const medData = Storage.exportAllData ? Storage.exportAllData() : {
+    medications: Storage.getMedications(),
+    interviews: Storage.getInterviews(),
+    exportDate: new Date().toISOString()
+  };
+  const medBlob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const medUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `medication_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  medShowToast('数据导出成功');
+}
+
+function medHandleImport(event) {
+  const medFile = event.target.files[0];
+  if (!file) return;
+  const medReader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const medData = JSON.parse(e.target.result);
+      if (confirm('导入将覆盖现有数据，确定继续吗？')) {
+        if (data.medications) Storage.setMedications(data.medications);
+        if (data.interviews) Storage.setInterviews(data.interviews);
+        medShowToast('数据导入成功');
+        medRenderRecords();
+        medRefreshDashboard();
+      }
+    } catch (err) { medShowToast('文件格式错误', 'error'); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function medClearAllData() {
+  if (!confirm('确定要清空所有数据吗？')) return;
+  if (!confirm('再次确认：此操作将删除所有用药记录和访谈记录，不可恢复！')) return;
+  Storage.setMedications([]);
+  Storage.setInterviews([]);
+  medShowToast('所有数据已清空', 'info');
+  medRenderRecords();
+  medRefreshDashboard();
+}
+
+// ==================== INIT ====================
+document.getElementById('startDate').valueAsDate = new Date();
+document.getElementById('interviewDate').valueAsDate = new Date();
+document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
+medRefreshDashboard();
+
+// Keyboard shortcut to close modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') medCloseModal();
+});
+
+// roundRect polyfill
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+    const r = radii[0] || 0;
+    this.moveTo(x + r, y);
+    this.lineTo(x + w - r, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + r);
+    this.lineTo(x + w, y + h - r);
+    this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    this.lineTo(x + r, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - r);
+    this.lineTo(x, y + r);
+    this.quadraticCurveTo(x, y, x + r, y);
+  };
+}
+
+</script>
 
 </body>
 </html>
