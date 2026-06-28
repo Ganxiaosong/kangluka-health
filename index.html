@@ -24,9 +24,9 @@
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="康录卡">
+    <meta name="apple-mobile-web-app-title" content="健康智析">
     <link rel="manifest" href="manifest.json">
-    <title>康录卡</title>
+    <title>健康智析</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
@@ -1283,6 +1283,7 @@ var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let currentProfile = null;
 let selectedImages = [];
+let aiCurrentImage = null;
 
 function showRegister() {
     document.getElementById('loginForm').classList.add('hidden');
@@ -1450,6 +1451,47 @@ function refreshImagePreview() {
         const reader = new FileReader();
         reader.onload = (e) => addImagePreview(e.target.result, i);
         reader.readAsDataURL(file);
+    });
+}
+
+function handleAIImageSelect(event) {
+    const file = event.target.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        aiCurrentImage = e.target.result;
+        const preview = document.getElementById('aiImagePreview');
+        preview.innerHTML = `
+            <div style="position:relative; border-radius:14px; overflow:hidden; margin-top:10px;">
+                <img src="${aiCurrentImage}" style="width:100%; max-height:400px; object-fit:contain; border-radius:14px; border:2px solid #667eea;">
+                <button onclick="clearAIImage()" style="position:absolute; top:8px; right:8px; background:rgba(255,107,107,0.9); color:white; border:none; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer;">✕ 重新选择</button>
+            </div>
+        `;
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearAIImage() {
+    aiCurrentImage = null;
+    document.getElementById('aiImagePreview').innerHTML = '';
+    document.getElementById('aiImageInput').value = '';
+}
+
+function updateAIProgress(percent) {
+    const bar = document.getElementById('aiProgressBar');
+    if (bar) bar.style.width = percent + '%';
+}
+
+function setStepActive(index) {
+    const steps = document.querySelectorAll('.analysis-steps .step');
+    steps.forEach((step, i) => {
+        step.classList.remove('active', 'done');
+        if (index > i) {
+            step.classList.add('done');
+        } else if (index === i) {
+            step.classList.add('active');
+        }
     });
 }
 
@@ -1979,12 +2021,29 @@ async function startAIAnalysis() {
         document.getElementById('aiThinkingText').textContent = 'AI视觉模型正在逐字阅读报告单...';
 
         setStepActive(1);
-        const aiData = await callSiliconFlowAI(compressedImage, true);
+        let aiData;
+        let ocrText = '';
+        
+        try {
+            aiData = await callSiliconFlowAI(compressedImage, true);
+        } catch (visualError) {
+            console.warn('视觉模型分析失败，尝试OCR文字识别:', visualError);
+            document.getElementById('aiThinkingText').textContent = '视觉模型分析失败，正在使用OCR文字识别...';
+            ocrText = await performOCR(compressedImage);
+            
+            if (ocrText && ocrText.length > 5) {
+                document.getElementById('aiThinkingText').textContent = 'OCR识别成功，正在分析提取的文字...';
+                aiData = await callSiliconFlowAI(ocrText, false);
+            } else {
+                throw new Error('OCR识别也未能提取有效文字，请尝试手动输入模式');
+            }
+        }
+        
         updateAIProgress(90);
         await new Promise(r => setTimeout(r, 400));
 
         setStepActive(2);
-        const reportHtml = renderAIResult(aiData, '');
+        const reportHtml = renderAIResult(aiData, ocrText);
         document.getElementById('aiResult').innerHTML = reportHtml;
         saveAIHistory('图片化验单分析', reportHtml);
 
@@ -2008,6 +2067,28 @@ async function startAIAnalysis() {
             updateAIProgress(0);
             setStepActive(-1);
         }, 600);
+    }
+}
+
+async function performOCR(imageBase64) {
+    try {
+        if (!window.Tesseract) {
+            throw new Error('Tesseract OCR库未加载');
+        }
+        
+        const result = await Tesseract.recognize(
+            imageBase64,
+            'chi_sim',
+            {
+                logger: m => console.log('OCR进度:', m),
+                tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK
+            }
+        );
+        
+        return result.data.text || '';
+    } catch (e) {
+        console.error('OCR识别失败:', e);
+        return '';
     }
 }
 
