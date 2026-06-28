@@ -24,9 +24,9 @@
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="健康智析">
+    <meta name="apple-mobile-web-app-title" content="康录卡">
     <link rel="manifest" href="manifest.json">
-    <title>健康智析</title>
+    <title>康录卡</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
@@ -1283,7 +1283,6 @@ var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = null;
 let currentProfile = null;
 let selectedImages = [];
-let aiCurrentImage = null;
 
 function showRegister() {
     document.getElementById('loginForm').classList.add('hidden');
@@ -1451,47 +1450,6 @@ function refreshImagePreview() {
         const reader = new FileReader();
         reader.onload = (e) => addImagePreview(e.target.result, i);
         reader.readAsDataURL(file);
-    });
-}
-
-function handleAIImageSelect(event) {
-    const file = event.target.files[0];
-    if (!file || !file.type.startsWith('image/')) return;
-    
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        aiCurrentImage = e.target.result;
-        const preview = document.getElementById('aiImagePreview');
-        preview.innerHTML = `
-            <div style="position:relative; border-radius:14px; overflow:hidden; margin-top:10px;">
-                <img src="${aiCurrentImage}" style="width:100%; max-height:400px; object-fit:contain; border-radius:14px; border:2px solid #667eea;">
-                <button onclick="clearAIImage()" style="position:absolute; top:8px; right:8px; background:rgba(255,107,107,0.9); color:white; border:none; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer;">✕ 重新选择</button>
-            </div>
-        `;
-    };
-    reader.readAsDataURL(file);
-}
-
-function clearAIImage() {
-    aiCurrentImage = null;
-    document.getElementById('aiImagePreview').innerHTML = '';
-    document.getElementById('aiImageInput').value = '';
-}
-
-function updateAIProgress(percent) {
-    const bar = document.getElementById('aiProgressBar');
-    if (bar) bar.style.width = percent + '%';
-}
-
-function setStepActive(index) {
-    const steps = document.querySelectorAll('.analysis-steps .step');
-    steps.forEach((step, i) => {
-        step.classList.remove('active', 'done');
-        if (index > i) {
-            step.classList.add('done');
-        } else if (index === i) {
-            step.classList.add('active');
-        }
     });
 }
 
@@ -2021,29 +1979,12 @@ async function startAIAnalysis() {
         document.getElementById('aiThinkingText').textContent = 'AI视觉模型正在逐字阅读报告单...';
 
         setStepActive(1);
-        let aiData;
-        let ocrText = '';
-        
-        try {
-            aiData = await callSiliconFlowAI(compressedImage, true);
-        } catch (visualError) {
-            console.warn('视觉模型分析失败，尝试OCR文字识别:', visualError);
-            document.getElementById('aiThinkingText').textContent = '视觉模型分析失败，正在使用OCR文字识别...';
-            ocrText = await performOCR(compressedImage);
-            
-            if (ocrText && ocrText.length > 5) {
-                document.getElementById('aiThinkingText').textContent = 'OCR识别成功，正在分析提取的文字...';
-                aiData = await callSiliconFlowAI(ocrText, false);
-            } else {
-                throw new Error('OCR识别也未能提取有效文字，请尝试手动输入模式');
-            }
-        }
-        
+        const aiData = await callSiliconFlowAI(compressedImage, true);
         updateAIProgress(90);
         await new Promise(r => setTimeout(r, 400));
 
         setStepActive(2);
-        const reportHtml = renderAIResult(aiData, ocrText);
+        const reportHtml = renderAIResult(aiData, '');
         document.getElementById('aiResult').innerHTML = reportHtml;
         saveAIHistory('图片化验单分析', reportHtml);
 
@@ -2067,28 +2008,6 @@ async function startAIAnalysis() {
             updateAIProgress(0);
             setStepActive(-1);
         }, 600);
-    }
-}
-
-async function performOCR(imageBase64) {
-    try {
-        if (!window.Tesseract) {
-            throw new Error('Tesseract OCR库未加载');
-        }
-        
-        const result = await Tesseract.recognize(
-            imageBase64,
-            'chi_sim',
-            {
-                logger: m => console.log('OCR进度:', m),
-                tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK
-            }
-        );
-        
-        return result.data.text || '';
-    } catch (e) {
-        console.error('OCR识别失败:', e);
-        return '';
     }
 }
 
@@ -2279,19 +2198,160 @@ if (viewId) {
     document.getElementById('mainApp').classList.add('active');
     document.getElementById('fabBtn').style.display = 'none';
     document.getElementById('bottomNav').style.display = 'none';
-    document.getElementById('pageHeader').textContent = '患者档案查看';
+    document.getElementById('pageHeader').textContent = '👨‍⚕️ 患者档案查看';
     document.querySelectorAll('.edit-btn').forEach(btn => btn.style.display = 'none');
-    document.querySelectorAll('.timeline-actions').forEach(btn => btn.style.display = 'none');
-    
+
     currentUser = { id: viewId };
-    loadProfile();
-    loadRecords();
+
+    // 医生视图：加载所有患者数据
+    (async () => {
+        // 1. 加载基础信息
+        const { data: profile } = await supabase.from('profiles').select('*').eq('id', viewId).single();
+        if (profile) {
+            document.getElementById('pName').textContent = profile.name || '未填写';
+            document.getElementById('pGender').textContent = profile.gender || '未填写';
+            document.getElementById('pAge').textContent = profile.age ? profile.age + '岁' : '未填写';
+            document.getElementById('pBlood').textContent = profile.blood_type || '未填写';
+            document.getElementById('pHeight').textContent = profile.height ? profile.height + 'cm' : '未填写';
+            document.getElementById('pWeight').textContent = profile.weight ? profile.weight + 'kg' : '未填写';
+            document.getElementById('pAllergy').textContent = profile.allergy || '未填写';
+            document.getElementById('pHistory').textContent = profile.medical_history || '未填写';
+        }
+
+        // 2. 加载就诊记录（时间线）
+        const { data: records } = await supabase.from('records').select('*').eq('user_id', viewId).order('date', { ascending: false });
+        const typeClass = { '门诊': 'type-outpatient', '住院': 'type-inpatient', '体检': 'type-checkup' };
+
+        if (records && records.length > 0) {
+            const recordsHtml = '<div class="timeline">' + records.map(record => {
+                let imagesHtml = '';
+                if (record.images) {
+                    try {
+                        const imageUrls = JSON.parse(record.images);
+                        imagesHtml = '<div class="record-images">' + imageUrls.map((url, i) => 
+                            `<img src="${url}" class="record-image-thumb" onclick="viewImage('${url}')" alt="图片${i+1}">`
+                        ).join('') + '</div>';
+                    } catch (e) {}
+                }
+                return `<div class="timeline-item">
+                    <div class="timeline-date">${record.date}</div>
+                    <div class="timeline-title">${escapeHtml(record.hospital)} · ${escapeHtml(record.department)}</div>
+                    <span class="timeline-type ${typeClass[record.type] || 'type-outpatient'}">${record.type || '门诊'}</span>
+                    <div class="timeline-content">
+                        ${record.diagnosis ? `<p><strong>诊断：</strong>${escapeHtml(record.diagnosis)}</p>` : ''}
+                        ${record.medication ? `<p><strong>用药：</strong>${escapeHtml(record.medication)}</p>` : ''}
+                    </div>
+                    ${imagesHtml}
+                </div>`;
+            }).join('') + '</div>';
+
+            const recordsCard = document.createElement('div');
+            recordsCard.className = 'card';
+            recordsCard.innerHTML = '<div class="card-title">🏥 就诊记录（' + records.length + '条）</div>' + recordsHtml;
+            document.getElementById('pageHome').appendChild(recordsCard);
+        }
+
+        // 3. 加载日常记录
+        const { data: daily } = await supabase.from('health_records').select('*').eq('user_id', viewId).order('record_date', { ascending: false });
+
+        if (daily && daily.length > 0) {
+            const dailyCard = document.createElement('div');
+            dailyCard.className = 'card';
+            dailyCard.innerHTML = '<div class="card-title">📝 日常健康记录（' + daily.length + '条）</div>' + 
+                daily.map(r => {
+                    const t = {diet: {name:'🍱 饮食', color:'#f39c12', bg:'#fef3c7'}, habit: {name:'🏃 生活习惯', color:'#9b59b6', bg:'#f3e8ff'}, symptom: {name:'😷 症状', color:'#3498db', bg:'#dbeafe'}, medicine: {name:'💊 用药', color:'#1abc9c', bg:'#d1fae5'}}[r.record_type] || {name: r.record_type, color: '#999', bg: '#f0f0f0'};
+                    return `<div style="padding:14px; margin-bottom:10px; background:#fafafa; border-radius:12px; border-left:4px solid ${t.color};">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span style="font-size:12px; padding:3px 12px; border-radius:10px; background:${t.bg}; color:${t.color}; font-weight:600;">${t.name}</span>
+                            <span style="font-size:12px; color:#999; font-weight:500;">${r.record_date}</span>
+                        </div>
+                        <div style="font-size:14px; color:#444; line-height:1.6;">${escapeHtml(r.content)}</div>
+                    </div>`;
+                }).join('');
+            document.getElementById('pageHome').appendChild(dailyCard);
+        }
+
+        // 4. 统计卡片
+        const statsCard = document.createElement('div');
+        statsCard.className = 'card';
+        statsCard.innerHTML = `<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; text-align:center;">
+            <div style="padding:16px 8px; background:linear-gradient(135deg, #667eea15, #764ba215); border-radius:14px;">
+                <div style="font-size:24px; font-weight:700; color:#667eea;">${(records||[]).length + (daily||[]).length}</div>
+                <div style="font-size:12px; color:#888; margin-top:4px; font-weight:500;">总记录</div>
+            </div>
+            <div style="padding:16px 8px; background:linear-gradient(135deg, #fef3c7, #fff3e0); border-radius:14px;">
+                <div style="font-size:24px; font-weight:700; color:#f39c12;">${(daily||[]).filter(r=>r.record_type==='diet').length}</div>
+                <div style="font-size:12px; color:#888; margin-top:4px; font-weight:500;">饮食记录</div>
+            </div>
+            <div style="padding:16px 8px; background:linear-gradient(135deg, #ffebee, #ffcdd2); border-radius:14px;">
+                <div style="font-size:24px; font-weight:700; color:#e74c3c;">${(records||[]).length}</div>
+                <div style="font-size:12px; color:#888; margin-top:4px; font-weight:500;">就诊记录</div>
+            </div>
+        </div>`;
+        document.getElementById('pageHome').insertBefore(statsCard, document.getElementById('pageHome').children[1]);
+
+        // 5. AI智能总结
+        const aiCard = document.createElement('div');
+        aiCard.className = 'card';
+        aiCard.innerHTML = '<div class="card-title">🤖 AI 智能健康总结</div><div id="doctorAISummary"><div style="text-align:center; padding:20px;"><div class="spinner"></div><p style="color:#999; font-size:13px; margin-top:10px;">AI正在分析患者数据...</p></div></div>';
+        document.getElementById('pageHome').appendChild(aiCard);
+
+        // 构建分析文本给AI
+        let analysisText = '';
+        if (profile) {
+            analysisText += `患者基础信息：${profile.name || '未知'}，${profile.gender || '未知'}，${profile.age ? profile.age + '岁' : '年龄未知'}，身高${profile.height || '未知'}cm，体重${profile.weight || '未知'}kg。`;
+            analysisText += `过敏史：${profile.allergy || '无'}。既往病史：${profile.medical_history || '无'}。`;
+        }
+        if (records && records.length > 0) {
+            analysisText += '\n\n就诊记录：';
+            records.slice(0, 10).forEach(r => {
+                analysisText += `${r.date}在${r.hospital}${r.department}，诊断：${r.diagnosis || '无'}，用药：${r.medication || '无'}。`;
+            });
+        }
+        if (daily && daily.length > 0) {
+            analysisText += '\n\n日常记录：';
+            daily.slice(0, 15).forEach(r => {
+                const tname = {diet:'饮食',habit:'生活习惯',symptom:'症状',medicine:'用药'}[r.record_type] || r.record_type;
+                analysisText += `${r.record_date}【${tname}】${r.content}。`;
+            });
+        }
+
+        try {
+            const aiData = await callSiliconFlowAI(analysisText, false);
+            let summaryHtml = `<div style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border:1.5px solid #667eea30; border-radius:16px; padding:16px;">`;
+
+            summaryHtml += `<div style="margin-bottom:12px; padding:12px; background:white; border-radius:10px;">
+                <div style="font-size:14px; font-weight:700; color:#764ba2; margin-bottom:6px;">🧠 整体评估</div>
+                <div style="font-size:13px; color:#666; line-height:1.6;">${escapeHtml(aiData.summary || '基于记录分析')}</div>
+                ${aiData.overall_status ? `<div style="margin-top:8px; display:inline-block; padding:3px 12px; background:${aiData.overall_status === '健康' ? '#e8f5e9' : aiData.overall_status === '建议就医' ? '#ffebee' : '#fff3e0'}; border-radius:20px; font-size:12px; font-weight:600; color:${aiData.overall_status === '健康' ? '#27ae60' : aiData.overall_status === '建议就医' ? '#e74c3c' : '#f39c12'};">${aiData.overall_status}</div>` : ''}
+            </div>`;
+
+            if (aiData.comprehensive && aiData.comprehensive.length > 0) {
+                summaryHtml += `<div style="margin-bottom:12px; padding:12px; background:white; border-radius:10px;">
+                    <div style="font-size:14px; font-weight:700; color:#555; margin-bottom:6px;">🏃 生活习惯与风险分析</div>
+                    <div style="font-size:13px; color:#666; line-height:1.6;">${aiData.comprehensive.map(c => `<p style="margin:4px 0;">• ${escapeHtml(c)}</p>`).join('')}</div>
+                </div>`;
+            }
+
+            if (aiData.warning) {
+                summaryHtml += `<div style="padding:12px; background:#ffebee; border-radius:10px; border-left:3px solid #e74c3c;">
+                    <div style="font-size:13px; color:#c62828; font-weight:600;">⚠️ ${escapeHtml(aiData.warning)}</div>
+                </div>`;
+            }
+
+            summaryHtml += `</div>`;
+            document.getElementById('doctorAISummary').innerHTML = summaryHtml;
+        } catch (e) {
+            document.getElementById('doctorAISummary').innerHTML = `<div style="text-align:center; color:#999; padding:20px; font-size:13px;">AI总结生成失败，但医生仍可查看上方详细记录</div>`;
+        }
+
+    })();
+
     document.getElementById('pageHome').classList.add('active');
     document.getElementById('pageRecords').classList.remove('active');
 } else {
     checkAuth();
-}
-</script>
+}</script>
 
 </body>
 </html>
